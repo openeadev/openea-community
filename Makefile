@@ -4,9 +4,10 @@ run:
 	uvicorn app.main:app --reload
 
 test:
-	curl http://localhost:8000/health
-	curl http://localhost:8000/health/ready
-	pytest
+	pip install -e '.[dev]'
+	ruff check .
+	python -m compileall -q app scripts
+	pytest -q
 
 lint:
 	ruff check .
