@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if rule else 'Create' }} Finding Rule · {{ settings.app_name }}{% endblock %}
+{% block content %}
+{% set c = rule.config if rule else {} %}
+{% set selected_types = form_values.get('object_types', []) if form_values else (c.get('object_types', [c.get('object_type')]) if c.get('object_types') or c.get('object_type') else []) %}
+{% set current_type = form_values.get('rule_type') if form_values else (rule.rule_type if rule else 'missing_field') %}
+{% set system = rule and rule.is_system %}
+<div class="container-xl py-4">
+  <div class="mb-4">
+    <a href="/admin/finding-rules" class="text-secondary"><i data-lucide="arrow-left" class="icon"></i> Finding rules</a>
+    <div class="d-flex align-items-center gap-2 mt-3">
+      <h1 class="h2 mb-0">{{ 'Edit finding rule' if rule else 'Create custom finding rule' }}</h1>
+      {% if system %}<span class="badge bg-blue-lt">Built-in</span>{% elif rule %}<span class="badge bg-purple-lt">Custom</span>{% endif %}
+    </div>
+    {% if system %}<p class="text-secondary mt-2 mb-0">Built-in identity, type, applicability, and description are protected. You may adjust severity and supported rule parameters.</p>{% else %}<p class="text-secondary mt-2 mb-0">Rules are validated against supported declarative types. Arbitrary code and expressions are not accepted.</p>{% endif %}
+  </div>
+
+  {% if error %}<div class="alert alert-danger" role="alert">{{ error }}</div>{% endif %}
+
+  <form method="post" class="card">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-8">
+          <label class="form-label">Rule name</label>
+          <input class="form-control" name="name" maxlength="180" required value="{{ form_values.get('name', rule.name if rule else '') }}" {% if system %}readonly{% endif %}>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Severity</label>
+          <select class="form-select" name="severity">
+            {% set sev = form_values.get('severity', rule.severity if rule else 'Medium') %}
+            {% for item in severities %}<option value="{{ item }}" {% if item == sev %}selected{% endif %}>{{ item }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="col-12">
+          <label class="form-label">Description</label>
+          <textarea class="form-control" name="description" rows="3" {% if system %}readonly{% endif %}>{{ form_values.get('description', rule.description if rule else '') }}</textarea>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Rule type</label>
+          <select class="form-select" name="rule_type" id="ruleType" {% if system %}disabled{% endif %}>
+            {% for item in rule_types %}<option value="{{ item }}" {% if item == current_type %}selected{% endif %}>{{ item.replace('_', ' ')|title }}</option>{% endfor %}
+          </select>
+          {% if system %}<input type="hidden" name="rule_type" value="{{ rule.rule_type }}">{% endif %}
+        </div>
+        <div class="col-md-6 d-flex align-items-end">
+          <label class="form-check form-switch mb-2">
+            <input class="form-check-input" type="checkbox" name="enabled" {% if form_values.get('enabled', rule.enabled if rule else true) %}checked{% endif %}>
+            <span class="form-check-label">Enabled</span>
+          </label>
+        </div>
+      </div>
+
+      <hr class="my-4">
+      <h3 class="h4">Applicability</h3>
+      <div class="row g-3">
+        <div class="col-12">
+          <label class="form-label">Object types</label>
+          <select class="form-select" name="object_types" multiple size="6" {% if system %}disabled{% endif %}>
+            {% for ot in object_types %}<option value="{{ ot.key }}" {% if ot.key in selected_types %}selected{% endif %}>{{ ot.domain }} · {{ ot.name }}</option>{% endfor %}
+          </select>
+          {% if system %}{% for key in selected_types %}<input type="hidden" name="object_types" value="{{ key }}">{% endfor %}{% endif %}
+          <div class="form-hint">Use Ctrl/Cmd to select multiple types. Review-overdue rules may leave this empty to evaluate all active object types.</div>
+        </div>
+      </div>
+
+      <hr class="my-4">
+      <h3 class="h4">Rule parameters</h3>
+
+      <div class="rule-fields" data-types="missing_field date_threshold">
+        <label class="form-label">Field/property internal name</label>
+        <input class="form-control" name="field_name" value="{{ form_values.get('field_name', c.get('field', c.get('property', ''))) }}" {% if system %}readonly{% endif %}>
+        <div class="form-hint">Examples: <code>next_review_date</code>, <code>technical_fit</code>, <code>vendor_support_end</code>.</div>
+      </div>
+
+      <div class="rule-fields row g-3 mt-0" data-types="date_threshold">
+        <div class="col-md-6"><label class="form-label">Mode</label><select class="form-select" name="date_mode">{% set dm=form_values.get('date_mode', c.get('mode','within')) %}{% for item in date_modes %}<option value="{{ item }}" {% if item==dm %}selected{% endif %}>{{ item|title }}</option>{% endfor %}</select></div>
+        <div class="col-md-6"><label class="form-label">Days</label><input class="form-control" type="number" min="0" name="days" value="{{ form_values.get('days', c.get('days',0)) }}"></div>
+      </div>
+
+      <div class="rule-fields row g-3 mt-0" data-types="missing_relationship relationship_count related_object_status">
+        <div class="col-md-6"><label class="form-label">Relationship type</label><select class="form-select" name="relationship" {% if system %}disabled{% endif %}><option value="">Select…</option>{% set relkey=form_values.get('relationship', c.get('relationship','')) %}{% for rt in relationship_types %}<option value="{{ rt.key }}" {% if rt.key==relkey %}selected{% endif %}>{{ rt.name }}</option>{% endfor %}</select>{% if system and c.get('relationship') %}<input type="hidden" name="relationship" value="{{ c.get('relationship') }}">{% endif %}</div>
+        <div class="col-md-6"><label class="form-label">Direction</label><select class="form-select" name="direction" {% if system %}disabled{% endif %}>{% set direction=form_values.get('direction',c.get('direction','outbound')) %}{% for item in directions %}<option value="{{ item }}" {% if item==direction %}selected{% endif %}>{{ item|title }}</option>{% endfor %}</select>{% if system %}<input type="hidden" name="direction" value="{{ c.get('direction','outbound') }}">{% endif %}</div>
+      </div>
+
+      <div class="rule-fields row g-3 mt-0" data-types="missing_relationship relationship_count">
+        <div class="col-md-6"><label class="form-label">Source object type filter</label><select class="form-select" name="source_type" {% if system %}disabled{% endif %}><option value="">Any</option>{% set stk=form_values.get('source_type',c.get('source_type','')) %}{% for ot in object_types %}<option value="{{ ot.key }}" {% if ot.key==stk %}selected{% endif %}>{{ ot.name }}</option>{% endfor %}</select></div>
+        <div class="col-md-6"><label class="form-label">Target object type filter</label><select class="form-select" name="target_type" {% if system %}disabled{% endif %}><option value="">Any</option>{% set ttk=form_values.get('target_type',c.get('target_type','')) %}{% for ot in object_types %}<option value="{{ ot.key }}" {% if ot.key==ttk %}selected{% endif %}>{{ ot.name }}</option>{% endfor %}</select></div>
+        {% if system %}<input type="hidden" name="source_type" value="{{ c.get('source_type','') }}"><input type="hidden" name="target_type" value="{{ c.get('target_type','') }}">{% endif %}
+      </div>
+
+      <div class="rule-fields row g-3 mt-0" data-types="relationship_count">
+        <div class="col-md-6"><label class="form-label">Minimum count</label><input class="form-control" type="number" min="0" name="min_count" value="{{ form_values.get('min_count', c.get('min','')) }}"></div>
+        <div class="col-md-6"><label class="form-label">Maximum count</label><input class="form-control" type="number" min="0" name="max_count" value="{{ form_values.get('max_count', c.get('max','')) }}"></div>
+      </div>
+
+      <div class="rule-fields row g-3 mt-0" data-types="related_object_status">
+        <div class="col-md-6"><label class="form-label">Related object type</label><select class="form-select" name="related_type" {% if system %}disabled{% endif %}><option value="">Select…</option>{% set rtk=form_values.get('related_type',c.get('related_type','')) %}{% for ot in object_types %}<option value="{{ ot.key }}" {% if ot.key==rtk %}selected{% endif %}>{{ ot.name }}</option>{% endfor %}</select>{% if system %}<input type="hidden" name="related_type" value="{{ c.get('related_type','') }}">{% endif %}</div>
+        <div class="col-md-6"><label class="form-label">Source lifecycle (optional)</label><input class="form-control" name="object_lifecycle" value="{{ form_values.get('object_lifecycle',c.get('object_lifecycle','')) }}" {% if system %}readonly{% endif %}></div>
+        <div class="col-md-4"><label class="form-label">Related property</label><input class="form-control" name="related_property" value="{{ form_values.get('related_property',c.get('property','')) }}" {% if system %}readonly{% endif %}></div>
+        <div class="col-md-4"><label class="form-label">Property values</label><input class="form-control" name="related_values" value="{{ form_values.get('related_values', c.get('values',[])|join(', ')) }}"><div class="form-hint">Comma-separated.</div></div>
+        <div class="col-md-4"><label class="form-label">Lifecycle values</label><input class="form-control" name="lifecycle_values" value="{{ form_values.get('lifecycle_values', c.get('lifecycle_values',[])|join(', ')) }}"><div class="form-hint">Comma-separated.</div></div>
+      </div>
+
+      <div class="rule-fields row g-3 mt-0" data-types="risk_threshold">
+        <div class="col-md-4"><label class="form-label">Metric</label><select class="form-select" name="metric_type" {% if system %}disabled{% endif %}><option value="">Select…</option>{% set mt=form_values.get('metric_type',c.get('metric_type','')) %}{% for item in metric_types %}<option value="{{ item }}" {% if item==mt %}selected{% endif %}>{{ item.replace('_',' ')|title }}</option>{% endfor %}</select>{% if system %}<input type="hidden" name="metric_type" value="{{ c.get('metric_type','') }}">{% endif %}</div>
+        <div class="col-md-4"><label class="form-label">Threshold (0–100)</label><input class="form-control" type="number" min="0" max="100" name="threshold" value="{{ form_values.get('threshold',c.get('threshold',50)) }}"></div>
+        <div class="col-md-4"><label class="form-label">Criticality filter (optional)</label><select class="form-select" name="criticality" {% if system %}disabled{% endif %}><option value="">Any</option>{% set crit=form_values.get('criticality',c.get('criticality','')) %}{% for item in ['Low','Medium','High','Mission Critical'] %}<option value="{{ item }}" {% if item==crit %}selected{% endif %}>{{ item }}</option>{% endfor %}</select>{% if system %}<input type="hidden" name="criticality" value="{{ c.get('criticality','') }}">{% endif %}</div>
+      </div>
+
+      <div class="rule-fields alert alert-info mt-3" data-types="review_overdue">This rule flags objects whose <code>next_review_date</code> is earlier than today. Object type selection is optional.</div>
+      <div class="rule-fields alert alert-info mt-3" data-types="duplicate_name">This rule normalizes active object names and flags every object in a duplicated-name group.</div>
+    </div>
+    <div class="card-footer d-flex justify-content-between">
+      <a class="btn btn-link" href="/admin/finding-rules">Cancel</a>
+      <button class="btn btn-primary" type="submit">{{ 'Save changes' if rule else 'Create rule' }}</button>
+    </div>
+  </form>
+</div>
+<script src="/static/js/rule-form.js"></script>
+{% endblock %}

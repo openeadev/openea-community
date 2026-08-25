@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Metrics · {{ object.name }} · {{ settings.page_title }}{% endblock %}
+{% block content %}
+<section class="container py-4">
+  <nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="/analytics">Analytics</a></li><li class="breadcrumb-item active">{{ object.name }}</li></ol></nav>
+  <div class="d-flex justify-content-between align-items-start mb-4"><div><div class="text-body-secondary">{{ object.object_type.name }}</div><h1 class="h2">{{ object.name }}</h1></div><a class="btn btn-outline-secondary" href="/explore/{{ object.id }}">Open object</a></div>
+  <div class="row g-4">
+    {% for metric in metrics %}<div class="col-lg-6"><div class="card shadow-sm h-100"><div class="card-body"><div class="d-flex justify-content-between gap-3"><h2 class="h5">{{ metric.metric_type|replace('_',' ')|title }}</h2><strong>{{ metric.band }} — {{ metric.score }}/100</strong></div><p class="small text-body-secondary">{{ metric.explanation.get('formula', '') }}</p><dl class="row mb-0">{% for name, value in metric.explanation.get('components', {}).items() %}<dt class="col-8 fw-normal">{{ name|replace('_',' ')|title }}</dt><dd class="col-4 text-end">{{ value }}/100</dd>{% endfor %}</dl>{% if metric.explanation.get('missing') %}<hr><div class="small"><strong>Missing / stale:</strong> {{ metric.explanation.get('missing')|join(', ') }}</div>{% endif %}</div></div></div>{% else %}<div class="col-12"><div class="alert alert-secondary">No persisted metrics are available for this object yet.</div></div>{% endfor %}
+  </div>
+</section>
+{% endblock %}

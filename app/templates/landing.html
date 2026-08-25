@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}{{ settings.app_name }} · Enterprise Architecture{% endblock %}
+{% block content %}
+<section class="openea-hero py-5">
+  <div class="container-xl py-lg-5">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-7">
+        <div class="openea-eyebrow mb-4"><i data-lucide="network" class="icon"></i>OpenEA Community · {{ settings.app_version }}</div>
+        <h1 class="openea-hero-title fw-bold mb-4">Architecture knowledge that leads to better decisions.</h1>
+        <p class="openea-hero-copy text-secondary mb-4">A self-hosted enterprise architecture repository for connecting business capabilities, applications, data, technology, change, and governance—and turning those connections into explainable insight.</p>
+        <div class="d-flex flex-wrap gap-2 mb-4">
+          {% if current_user %}
+            <a class="btn btn-primary btn-lg" href="/dashboard"><i data-lucide="layout-dashboard" class="icon me-1"></i>Open dashboard</a>
+          {% else %}
+            <a class="btn btn-primary btn-lg" href="/login"><i data-lucide="log-in" class="icon me-1"></i>Sign in</a>
+          {% endif %}
+          <a class="btn btn-outline-secondary btn-lg" href="/docs"><i data-lucide="braces" class="icon me-1"></i>Open API documentation</a>
+        </div>
+        <div class="d-flex flex-wrap gap-4 small text-secondary">
+          <span><i data-lucide="server" class="icon me-1 text-primary"></i>Self-hosted</span>
+          <span><i data-lucide="shield-check" class="icon me-1 text-primary"></i>Governed</span>
+          <span><i data-lucide="git-branch" class="icon me-1 text-primary"></i>Repository-first</span>
+          <span><i data-lucide="badge-check" class="icon me-1 text-primary"></i>AGPLv3</span>
+        </div>
+      </div>
+      <div class="col-lg-5">
+        <div class="card openea-feature-card">
+          <div class="card-body p-4 p-xl-5">
+            <div class="d-flex align-items-center gap-3 mb-4">
+              <div class="openea-feature-icon"><i data-lucide="waypoints"></i></div>
+              <div><div class="text-uppercase small fw-bold text-primary">Connected architecture</div><h2 class="h3 mb-0">See why technology matters.</h2></div>
+            </div>
+            <div class="d-grid gap-4">
+              <div class="d-flex gap-3"><div class="openea-feature-icon flex-shrink-0"><i data-lucide="boxes"></i></div><div><h3 class="h5 mb-1">Governed repository</h3><p class="text-secondary mb-0">Model architecture objects and first-class relationships with consistent metadata.</p></div></div>
+              <div class="d-flex gap-3"><div class="openea-feature-icon flex-shrink-0"><i data-lucide="radar"></i></div><div><h3 class="h5 mb-1">Explainable analysis</h3><p class="text-secondary mb-0">Trace impact paths, persisted risk metrics, data quality, and deterministic findings.</p></div></div>
+              <div class="d-flex gap-3"><div class="openea-feature-icon flex-shrink-0"><i data-lucide="landmark"></i></div><div><h3 class="h5 mb-1">Architecture governance</h3><p class="text-secondary mb-0">Connect decisions, principles, reviews, ownership, lifecycle, and change.</p></div></div>
+            </div>
+            <hr class="my-4">
+            <a href="/health" class="text-secondary text-decoration-none small"><i data-lucide="activity" class="icon me-1"></i>Check platform health</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

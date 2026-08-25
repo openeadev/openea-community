@@ -1,0 +1,1 @@
+"""Standard OpenEA metamodel definitions."""

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Analytics · {{ settings.page_title }}{% endblock %}
+{% block content %}
+<section class="container py-4">
+  <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+    <div><span class="badge text-bg-primary-subtle text-primary-emphasis mb-2">OpenEA Community · {{ settings.app_version }}</span><h1 class="h2 mb-1">Repository health</h1><p class="text-body-secondary mb-0">Persisted, deterministic architecture metrics with component-level explanations.</p></div>
+    <div class="text-end"><div class="display-6 fw-semibold">{{ health.score }}/100</div><span class="badge text-bg-secondary">{{ health.band }}</span></div>
+  </div>
+  <div class="row g-3 mb-4">
+    {% set dimensions = [
+      ('completeness', 'Completeness', health.completeness, 'How completely required fields are populated across active repository objects.'),
+      ('freshness', 'Freshness', health.freshness, 'How current architecture reviews are across active repository objects.'),
+      ('ownership', 'Ownership', health.ownership, 'How many active records have a recognized accountable owner.'),
+      ('relationship_coverage', 'Relationship coverage', health.relationship_coverage, 'How well objects meet the expected governed relationship coverage for their type.'),
+      ('governance', 'Governance', health.governance, 'How many active records are in an Approved or Accepted governance state.')
+    ] %}
+    {% for key, label, value, description in dimensions %}
+    <div class="col-md-6 col-xl">
+      <a class="card h-100 shadow-sm text-decoration-none card-link card-link-pop" href="/analytics/health/{{ key }}" aria-label="View {{ label }} details">
+        <div class="card-body">
+          <div class="d-flex align-items-start gap-2">
+            <div class="small text-body-secondary flex-grow-1">{{ label }}</div>
+            <span class="text-body-secondary" title="{{ description }}" aria-label="{{ description }}"><i data-lucide="info" class="icon icon-sm"></i></span>
+          </div>
+          <div class="h3 mb-2 mt-1">{{ value }}%</div>
+          <div class="progress progress-sm mb-2"><div class="progress-bar" style="width: {{ value }}%" role="progressbar" aria-valuenow="{{ value }}" aria-valuemin="0" aria-valuemax="100"></div></div>
+          <div class="small text-primary">View contributing objects →</div>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="card shadow-sm">
+    <div class="card-header bg-body"><h2 class="h5 mb-0">Highest current risks</h2></div>
+    <div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th>Object</th><th>Type</th><th>Metric</th><th class="text-end">Score</th></tr></thead><tbody>
+      {% for metric in top_risks %}<tr><td><a href="/analytics/objects/{{ metric.object.id }}">{{ metric.object.name }}</a></td><td>{{ metric.object.object_type.name }}</td><td>{{ metric.metric_type|replace('_',' ')|title }}</td><td class="text-end"><strong>{{ metric.band }} — {{ metric.score }}/100</strong></td></tr>{% else %}<tr><td colspan="4" class="text-body-secondary py-4 text-center">No metrics have been calculated yet. Run the metrics recalculation job.</td></tr>{% endfor %}
+    </tbody></table></div>
+  </div>
+</section>
+{% endblock %}

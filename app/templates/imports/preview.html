@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Import Preview · {{ settings.page_title }}{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-start"><div><h1 class="h3">Import preview</h1><p class="text-body-secondary">{{ batch.original_filename }} · Status: <strong>{{ batch.status }}</strong></p></div><a class="btn btn-outline-secondary" href="/imports/{{ batch.id }}/map">Change mapping</a></div>
+  {% set counts = preview.get('counts', {}) %}
+  <div class="row g-3 my-2">{% for label in ['New','Update','Unchanged','Error'] %}<div class="col-6 col-md-3"><div class="card"><div class="card-body"><div class="small text-body-secondary">{{ label }}</div><div class="h3 mb-0">{{ counts.get(label, 0) }}</div></div></div></div>{% endfor %}</div>
+  <div class="card"><div class="table-responsive"><table class="table mb-0"><thead><tr><th>Row</th><th>Action</th><th>Name</th><th>Validation</th></tr></thead><tbody>
+  {% for row in preview.get('rows', []) %}<tr><td>{{ row.row_number }}</td><td>{{ row.action }}</td><td>{{ row.name }}</td><td>{% if row.errors %}<span class="text-danger">{{ row.errors|join('; ') }}</span>{% elif row.warnings %}<span class="text-warning-emphasis">{{ row.warnings|join('; ') }}</span>{% else %}<span class="text-success">Valid</span>{% endif %}</td></tr>{% endfor %}
+  </tbody></table></div></div>
+  {% if batch.status == 'Validated' %}<form method="post" action="/imports/{{ batch.id }}/commit" class="d-flex justify-content-end mt-3"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="btn btn-primary" type="submit">Commit import</button></form>{% endif %}
+  {% if batch.status == 'Committed' %}<div class="alert alert-success mt-3">Import committed successfully. Repository changes were validated and audited.</div>{% endif %}
+</div>
+{% endblock %}

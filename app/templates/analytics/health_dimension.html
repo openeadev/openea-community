@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}{{ detail.label }} · Repository health · {{ settings.page_title }}{% endblock %}
+{% block content %}
+<section class="container py-4">
+  <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+    <div>
+      <a class="text-decoration-none small" href="/analytics">← Repository health</a>
+      <div class="mt-2 text-primary small fw-semibold">Repository health detail</div>
+      <h1 class="h2 mb-1">{{ detail.label }}</h1>
+      <p class="text-body-secondary mb-0">{{ detail.description }}</p>
+    </div>
+    <div class="text-end">
+      <div class="display-6 fw-semibold">{{ detail.score }}%</div>
+      <div class="text-body-secondary">{{ detail.affected_count }} of {{ detail.object_count }} objects below 100%</div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-header bg-body">
+      <div>
+        <h2 class="h5 mb-1">Objects reducing {{ detail.label|lower }}</h2>
+        <div class="text-body-secondary small">Only active repository objects with a score below 100% for this dimension are shown.</div>
+      </div>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-vcenter mb-0">
+        <thead><tr><th>Object</th><th>Type</th><th class="text-end">Score</th><th>Why</th></tr></thead>
+        <tbody>
+          {% for item in detail["items"] %}
+          <tr>
+            <td><a href="/explore/{{ item.object.id }}">{{ item.object.name }}</a></td>
+            <td>{{ item.object.object_type.name }}</td>
+            <td class="text-end"><strong>{{ item.score }}%</strong></td>
+            <td class="text-body-secondary">{{ item.reason }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="4" class="text-center text-body-secondary py-5">No active objects are reducing this repository-health dimension.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+{% endblock %}

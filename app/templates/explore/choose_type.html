@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Create object · {{ settings.page_title }}{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="mb-4"><a href="/explore" class="text-decoration-none">← Explore</a><h1 class="h3 mt-2">Create architecture object</h1><p class="text-body-secondary">Choose the object type. The form will adapt to its metamodel schema.</p></div>
+  {% for domain in ['Business','Application','Information','Technology','Change','Governance'] %}
+    {% set domain_types = object_types|selectattr('domain', 'equalto', domain)|list %}
+    {% if domain_types %}<section class="mb-4"><h2 class="h5">{{ domain }}</h2><div class="row g-3">{% for type in domain_types %}<div class="col-md-6 col-lg-4"><a class="card card-body h-100 text-decoration-none object-type-card" href="/explore/new/{{ type.key }}"><strong>{{ type.name }}</strong><span class="text-body-secondary small mt-1">{{ type.description }}</span></a></div>{% endfor %}</div></section>{% endif %}
+  {% endfor %}
+</div>
+{% endblock %}

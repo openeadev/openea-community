@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Initial setup · {{ settings.page_title }}{% endblock %}
+{% block content %}
+<div class="container-xl openea-auth-wrap py-5">
+  <div class="row justify-content-center"><div class="col-md-9 col-lg-6 col-xl-5">
+    <div class="card openea-auth-card"><div class="card-body p-4 p-lg-5">
+      <div class="d-flex align-items-center gap-3 mb-4"><img src="{{ url_for('static', path='/img/openea-mark.svg') }}" width="48" height="48" alt=""><div><div class="text-primary small fw-bold text-uppercase">First-run setup</div><h1 class="h2 mb-0">Create the administrator</h1></div></div>
+      <p class="text-secondary">Create the initial Platform Administrator account. Additional users and application roles can be managed after sign-in.</p>
+      {% if error %}<div class="alert alert-danger" role="alert">{{ error }}</div>{% endif %}
+      <form method="post" action="/setup" class="d-grid gap-3">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <div><label class="form-label" for="username">Username</label><input class="form-control" id="username" name="username" value="{{ username|default('') }}" autocomplete="username" required autofocus></div>
+        <div><label class="form-label" for="display_name">Display name</label><input class="form-control" id="display_name" name="display_name" value="{{ display_name|default('') }}" required></div>
+        <div><label class="form-label" for="password">Password</label><input class="form-control" id="password" type="password" name="password" autocomplete="new-password" required></div>
+        <div><label class="form-label" for="password_confirm">Confirm password</label><input class="form-control" id="password_confirm" type="password" name="password_confirm" autocomplete="new-password" required></div>
+        <button class="btn btn-primary btn-lg mt-2" type="submit">Create administrator</button>
+      </form>
+    </div></div>
+  </div></div>
+</div>
+{% endblock %}

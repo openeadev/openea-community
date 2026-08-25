@@ -1,0 +1,4 @@
+source_type,source_name,relationship_type,target_type,target_name,criticality,confidence,description
+application,Customer Portal,uses,technology,PostgreSQL 17,High,Confirmed,Primary relational database platform
+application,Customer Portal,supports,business_capability,Customer Management,High,High,Supports customer management capabilities
+initiative,Core Modernization,changes,application,Customer Portal,High,Medium,Modernization initiative affects the portal

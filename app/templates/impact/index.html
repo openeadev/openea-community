@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Impact · {{ analysis.root.name }} · {{ settings.app_name }}{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-start gap-3 mb-4">
+    <div>
+      <a href="/explore/{{ analysis.root.id }}" class="text-decoration-none">← {{ analysis.root.name }}</a>
+      <h1 class="h2 mt-2 mb-1">Impact analysis</h1>
+      <p class="text-body-secondary mb-0">Trace direct and indirect architecture reach from <strong>{{ analysis.root.name }}</strong>.</p>
+    </div>
+    <span class="badge text-bg-light border">Maximum {{ max_depth }} hops</span>
+  </div>
+
+  <form class="card mb-4" method="get">
+    <div class="card-body">
+      <div class="row g-3 align-items-end">
+        <div class="col-md-2"><label class="form-label" for="depth">Traversal depth</label><select class="form-select" id="depth" name="depth">{% for value in range(1,max_depth+1) %}<option value="{{ value }}" {% if analysis.depth == value %}selected{% endif %}>{{ value }} hop{% if value != 1 %}s{% endif %}</option>{% endfor %}</select></div>
+        <div class="col-md-5"><label class="form-label" for="relationship-type">Relationship types</label><select class="form-select" id="relationship-type" name="relationship_type" multiple size="4">{% for item in relationship_types %}<option value="{{ item.key }}" {% if item.key in analysis.relationship_type_keys %}selected{% endif %}>{{ item.name }} / {{ item.inverse_label }}</option>{% endfor %}</select><div class="form-text">Leave unselected to traverse all governed relationship types.</div></div>
+        <div class="col-md-5"><label class="form-label" for="object-type">Result object types</label><select class="form-select" id="object-type" name="object_type" multiple size="4">{% for item in object_types %}<option value="{{ item.key }}" {% if item.key in analysis.object_type_keys %}selected{% endif %}>{{ item.name }}</option>{% endfor %}</select><div class="form-text">Filters displayed impact results while preserving explanatory paths.</div></div>
+      </div>
+      <div class="mt-3 d-flex gap-2"><button class="btn btn-primary" type="submit">Analyze</button><a class="btn btn-outline-secondary" href="/impact/{{ analysis.root.id }}">Reset filters</a></div>
+    </div>
+  </form>
+
+  <div class="row g-4 mb-4">
+    <div class="col-md-4"><div class="card h-100"><div class="card-body"><div class="text-body-secondary small">Direct impact</div><div class="display-6">{{ analysis.direct_results|length }}</div><div class="small">Objects one relationship away</div></div></div></div>
+    <div class="col-md-4"><div class="card h-100"><div class="card-body"><div class="text-body-secondary small">Indirect impact</div><div class="display-6">{{ analysis.indirect_results|length }}</div><div class="small">Objects two or more relationships away</div></div></div></div>
+    <div class="col-md-4"><div class="card h-100"><div class="card-body"><div class="text-body-secondary small">Traversal depth</div><div class="display-6">{{ analysis.depth }}</div><div class="small">Configured maximum hops</div></div></div></div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center"><span class="fw-semibold">Impact graph</span><span class="small text-body-secondary">Generated from repository relationships</span></div>
+    <div class="card-body p-0"><div id="impact-graph" class="impact-graph" role="img" aria-label="Architecture impact graph"></div><div class="p-3 border-top small text-body-secondary">Select a node to open its repository record. Graph edges use the relationship label encountered while traversing from the analyzed object.</div></div>
+  </div>
+
+  {% if analysis.results %}
+    <div class="row g-4">
+      <div class="col-lg-6"><div class="card h-100"><div class="card-header fw-semibold">Direct impact</div><div class="card-body">{% if direct_groups %}{% for group,items in direct_groups.items() %}<h2 class="h6 mt-2">{{ group }}</h2>{% for item in items %}{% include 'impact/_result.html' %}{% endfor %}{% endfor %}{% else %}<p class="text-body-secondary mb-0">No direct objects match the selected filters.</p>{% endif %}</div></div></div>
+      <div class="col-lg-6"><div class="card h-100"><div class="card-header fw-semibold">Indirect impact</div><div class="card-body">{% if indirect_groups %}{% for group,items in indirect_groups.items() %}<h2 class="h6 mt-2">{{ group }}</h2>{% for item in items %}{% include 'impact/_result.html' %}{% endfor %}{% endfor %}{% else %}<p class="text-body-secondary mb-0">No indirect objects match the selected filters.</p>{% endif %}</div></div></div>
+    </div>
+  {% else %}
+    <div class="alert alert-secondary">No impacted architecture objects were found within {{ analysis.depth }} hops using the selected filters.</div>
+  {% endif %}
+</div>
+<script id="impact-graph-data" type="application/json">{{ graph|tojson }}</script>
+<script src="https://cdn.jsdelivr.net/npm/cytoscape@3.33.1/dist/cytoscape.min.js"></script>
+<script src="{{ url_for('static', path='/js/impact.js') }}"></script>
+{% endblock %}

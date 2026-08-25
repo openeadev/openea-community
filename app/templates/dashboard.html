@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · {{ settings.page_title }}{% endblock %}
+{% block content %}
+<div class="container-xl py-4 py-lg-5">
+  <div class="page-header d-print-none mb-4">
+    <div class="row align-items-center g-3">
+      <div class="col">
+        <div class="page-pretitle text-primary">OpenEA Community· {{ settings.app_version }}</div>
+        <h1 class="page-title">Dashboard</h1>
+        <div class="text-secondary mt-1">Architecture repository health and workspace shortcuts.</div>
+      </div>
+      <div class="col-auto ms-auto"><a class="btn btn-primary" href="/explore"><i data-lucide="search" class="icon me-1"></i>Explore repository</a></div>
+    </div>
+  </div>
+
+  <div class="row row-cards mb-4">
+    <div class="col-sm-6 col-xl-3"><div class="card card-sm h-100"><div class="card-body"><div class="d-flex align-items-center"><div class="subheader">Repository health</div><div class="ms-auto"><span class="badge bg-primary-lt text-primary">{{ repository_health.band }}</span></div></div><div class="h1 mb-0 mt-2">{{ repository_health.score }}<span class="text-secondary fs-3 fw-normal">/100</span></div></div></div></div>
+    <div class="col-sm-6 col-xl-3"><div class="card card-sm h-100"><div class="card-body"><div class="subheader">Completeness</div><div class="h1 mb-2 mt-2">{{ repository_health.completeness }}%</div><div class="progress progress-sm"><div class="progress-bar" style="width: {{ repository_health.completeness }}%" role="progressbar" aria-valuenow="{{ repository_health.completeness }}" aria-valuemin="0" aria-valuemax="100"></div></div></div></div></div>
+    <div class="col-sm-6 col-xl-3"><div class="card card-sm h-100"><div class="card-body"><div class="subheader">Ownership</div><div class="h1 mb-2 mt-2">{{ repository_health.ownership }}%</div><div class="progress progress-sm"><div class="progress-bar" style="width: {{ repository_health.ownership }}%" role="progressbar" aria-valuenow="{{ repository_health.ownership }}" aria-valuemin="0" aria-valuemax="100"></div></div></div></div></div>
+    <div class="col-sm-6 col-xl-3"><div class="card card-sm h-100"><div class="card-body"><div class="subheader">Freshness</div><div class="h1 mb-2 mt-2">{{ repository_health.freshness }}%</div><div class="progress progress-sm"><div class="progress-bar" style="width: {{ repository_health.freshness }}%" role="progressbar" aria-valuenow="{{ repository_health.freshness }}" aria-valuemin="0" aria-valuemax="100"></div></div></div></div></div>
+  </div>
+
+  <div class="row row-cards">
+    <div class="col-lg-8">
+      <div class="card h-100"><div class="card-header"><h2 class="card-title">Architecture workspace</h2></div><div class="card-body">
+        <p class="text-secondary">Move from repository facts to architecture decisions without losing the relationship path that explains why something matters.</p>
+        <div class="row g-3 mt-1">
+          <div class="col-sm-6"><a class="card card-link card-link-pop h-100 text-decoration-none" href="/portfolio"><div class="card-body"><div class="openea-feature-icon mb-3"><i data-lucide="layers-3"></i></div><h3 class="h4 mb-1">Portfolio</h3><div class="text-secondary">Applications, technology, capabilities, and roadmaps.</div></div></a></div>
+          <div class="col-sm-6"><a class="card card-link card-link-pop h-100 text-decoration-none" href="/findings"><div class="card-body"><div class="openea-feature-icon mb-3"><i data-lucide="triangle-alert"></i></div><h3 class="h4 mb-1">Findings</h3><div class="text-secondary">Deterministic architecture conditions requiring attention.</div></div></a></div>
+          <div class="col-sm-6"><a class="card card-link card-link-pop h-100 text-decoration-none" href="/analytics"><div class="card-body"><div class="openea-feature-icon mb-3"><i data-lucide="chart-no-axes-combined"></i></div><h3 class="h4 mb-1">Analytics</h3><div class="text-secondary">Explainable risk, data quality, and impact metrics.</div></div></a></div>
+          <div class="col-sm-6"><a class="card card-link card-link-pop h-100 text-decoration-none" href="/reviews"><div class="card-body"><div class="openea-feature-icon mb-3"><i data-lucide="clipboard-check"></i></div><h3 class="h4 mb-1">Reviews</h3><div class="text-secondary">Governance review cycles, due work, and approvals.</div></div></a></div>
+        </div>
+      </div></div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card h-100"><div class="card-header"><h2 class="card-title">Signed in</h2></div><div class="card-body">
+        <div class="d-flex align-items-center gap-3 mb-4"><span class="avatar avatar-lg bg-primary-lt text-primary">{{ current_user.display_name[:1]|upper }}</span><div><div class="h3 mb-0">{{ current_user.display_name }}</div><div class="text-secondary">{{ current_user.username }}</div></div></div>
+        <div class="subheader mb-2">Application roles</div><div class="d-flex flex-wrap gap-2">{% for role in current_user.roles %}<span class="badge bg-blue-lt text-blue">{{ role.name }}</span>{% else %}<span class="text-secondary">No roles assigned</span>{% endfor %}</div>
+      </div></div>
+    </div>
+  </div>
+</div>
+{% endblock %}

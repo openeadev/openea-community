@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Relationship · {{ settings.page_title }}{% endblock %}
+{% block content %}
+<div class="container py-4" style="max-width: 900px">
+  <a href="/explore/{{ source_object.id }}?tab=relationships" class="text-decoration-none">← {{ source_object.name }}</a>
+  <h1 class="h3 mt-3">{% if relationship %}Edit relationship{% else %}Add relationship{% endif %}</h1>
+  <p class="text-body-secondary">Create a governed relationship from <strong>{{ source_object.name }}</strong>. Only metamodel-valid combinations are accepted.</p>
+  {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+  <form method="post" class="card"><div class="card-body">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    {% if relationship %}
+      <div class="mb-3"><label class="form-label">Relationship</label><input class="form-control" value="{{ relationship.relationship_type.name }} → {{ relationship.target_object.name }}" disabled></div>
+    {% else %}
+      <div class="mb-3"><label class="form-label" for="relationship_choice">Relationship type</label>
+        <select class="form-select" id="relationship_choice" name="relationship_choice" required>
+          <option value="">Choose a valid relationship…</option>
+          {% for rel_type, target_type in relationship_choices %}<option value="{{ rel_type.key }}|{{ target_type.key }}" data-target-type="{{ target_type.key }}">{{ rel_type.name }} → {{ target_type.name }}</option>{% endfor %}
+        </select></div>
+      <div class="mb-3"><label class="form-label" for="target_object_id">Target object</label>
+        <select class="form-select" id="target_object_id" name="target_object_id" required>
+          <option value="">Choose target…</option>
+          {% for target in targets %}<option value="{{ target.id }}" data-object-type="{{ target.object_type.key }}">{{ target.name }} · {{ target.object_type.name }}</option>{% endfor %}
+        </select><div class="form-text">Targets incompatible with the selected relationship are hidden.</div></div>
+    {% endif %}
+    {% if not relationship and property_groups %}
+      {% for rel_key, fields in property_groups.items() %}<div class="relationship-properties border rounded p-3 mb-3" data-rel-key="{{ rel_key }}" hidden><h2 class="h6">Relationship properties</h2>{% for name, spec in fields %}<div class="mb-2"><label class="form-label">{{ name.replace('_',' ')|title }}</label>{% if spec.type == 'boolean' %}<select class="form-select" name="prop__{{ name }}"><option value="false">No</option><option value="true">Yes</option></select>{% elif spec.type == 'select' %}<input class="form-control" name="prop__{{ name }}">{% else %}<textarea class="form-control" name="prop__{{ name }}" rows="2"></textarea>{% endif %}</div>{% endfor %}</div>{% endfor %}
+    {% endif %}
+    <div class="mb-3"><label class="form-label">Description</label><textarea class="form-control" name="description" rows="3">{{ relationship.description if relationship else '' }}</textarea></div>
+    <div class="row g-3">
+      <div class="col-md-4"><label class="form-label">Criticality</label><select class="form-select" name="criticality"><option value="">Not set</option>{% for item in criticalities %}<option {% if relationship and relationship.criticality == item %}selected{% endif %}>{{ item }}</option>{% endfor %}</select></div>
+      <div class="col-md-4"><label class="form-label">Confidence</label><select class="form-select" name="confidence"><option value="">Not set</option>{% for item in confidences %}<option {% if relationship and relationship.confidence == item %}selected{% endif %}>{{ item }}</option>{% endfor %}</select></div>
+      <div class="col-md-4"><label class="form-label">Source</label><select class="form-select" name="source"><option value="">Not set</option>{% for item in sources %}<option {% if relationship and relationship.source == item %}selected{% endif %}>{{ item }}</option>{% endfor %}</select></div>
+      <div class="col-md-6"><label class="form-label">Valid from</label><input class="form-control" type="date" name="valid_from" value="{{ relationship.valid_from if relationship and relationship.valid_from else '' }}"></div>
+      <div class="col-md-6"><label class="form-label">Valid until</label><input class="form-control" type="date" name="valid_until" value="{{ relationship.valid_until if relationship and relationship.valid_until else '' }}"></div>
+    </div>
+    {% if relationship and schema_fields %}<hr><h2 class="h5">Relationship properties</h2>{% for name, spec in schema_fields %}<div class="mb-3"><label class="form-label">{{ name.replace('_',' ')|title }}</label>{% if spec.type == 'select' %}<input class="form-control" name="prop__{{ name }}" value="{{ relationship.properties.get(name,'') }}">{% else %}<textarea class="form-control" name="prop__{{ name }}" rows="2">{{ relationship.properties.get(name,'') }}</textarea>{% endif %}</div>{% endfor %}{% endif %}
+  </div><div class="card-footer d-flex justify-content-end gap-2"><a class="btn btn-outline-secondary" href="/explore/{{ source_object.id }}?tab=relationships">Cancel</a><button class="btn btn-primary" type="submit">Save relationship</button></div></form>
+</div>
+{% if not relationship %}<script>
+(() => { const rel=document.getElementById('relationship_choice'); const target=document.getElementById('target_object_id'); function filter(){const selected=rel.options[rel.selectedIndex]; const type=selected?.dataset.targetType || ''; const relKey=(selected?.value || '').split('|')[0]; document.querySelectorAll('.relationship-properties').forEach(el=>el.hidden=el.dataset.relKey!==relKey); for(const opt of target.options){if(!opt.value) continue; opt.hidden=!!type && opt.dataset.objectType!==type;} if(target.selectedOptions[0]?.hidden) target.value='';} rel.addEventListener('change',filter); filter(); })();
+</script>{% endif %}
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Sign in · {{ settings.page_title }}{% endblock %}
+{% block content %}
+<div class="container-xl openea-auth-wrap py-5">
+  <div class="row justify-content-center align-items-stretch g-4">
+    <div class="col-lg-5 d-none d-lg-block">
+      <div class="openea-auth-aside h-100 d-flex flex-column justify-content-between">
+        <div>
+          <img src="{{ url_for('static', path='/img/openea-mark.svg') }}" class="openea-auth-mark mb-4" alt="">
+          <div class="text-uppercase small fw-bold opacity-75 mb-2">OpenEA Community</div>
+          <h1 class="display-5 fw-bold tracking-tight">Your architecture. Connected.</h1>
+          <p class="lead opacity-75 mt-3">Use governed repository data to understand dependencies, risk, impact, lifecycle, and architectural decisions.</p>
+        </div>
+        <div class="small opacity-75">Self-hosted · Repository-first · Explainable</div>
+      </div>
+    </div>
+    <div class="col-md-8 col-lg-5 col-xl-4">
+      <div class="card openea-auth-card h-100">
+        <div class="card-body p-4 p-lg-5 d-flex flex-column justify-content-center">
+          <div class="mb-4">
+            <div class="text-primary fw-bold small text-uppercase mb-2">Welcome back</div>
+            <h2 class="h1 mb-2">Sign in</h2>
+            <p class="text-secondary mb-0">Continue to your OpenEA Community workspace.</p>
+          </div>
+          {% if error %}<div class="alert alert-danger" role="alert"><div class="d-flex"><i data-lucide="circle-alert" class="icon me-2"></i><div>{{ error }}</div></div></div>{% endif %}
+          <form method="post" action="/login" class="d-grid gap-3">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}"><input type="hidden" name="next" value="{{ next }}">
+            <div><label class="form-label" for="username">Username</label><div class="input-icon"><span class="input-icon-addon"><i data-lucide="user" class="icon"></i></span><input class="form-control" id="username" name="username" value="{{ username|default('') }}" autocomplete="username" required autofocus></div></div>
+            <div><label class="form-label" for="password">Password</label><div class="input-icon"><span class="input-icon-addon"><i data-lucide="lock-keyhole" class="icon"></i></span><input class="form-control" id="password" type="password" name="password" autocomplete="current-password" required></div></div>
+            <button class="btn btn-primary btn-lg mt-2" type="submit"><i data-lucide="log-in" class="icon me-1"></i>Sign in</button>
+          </form>
+          <div class="text-center text-secondary small mt-4"><a href="/" class="text-secondary">Return to public home</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

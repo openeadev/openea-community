@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}{% if user %}Edit user{% else %}Add user{% endif %} · {{ settings.page_title }}{% endblock %}
+{% block content %}
+<div class="container py-5"><div class="row justify-content-center"><div class="col-lg-8">
+  <div class="d-flex justify-content-between align-items-center mb-4"><h1 class="h2 mb-0">{% if user %}Edit {{ user.username }}{% else %}Add user{% endif %}</h1><a href="/admin/users" class="btn btn-outline-secondary">Back</a></div>
+  <div class="card shadow-sm"><div class="card-body p-4">
+  {% if error %}<div class="alert alert-danger" role="alert">{{ error }}</div>{% endif %}
+  <form method="post" action="{% if user %}/admin/users/{{ user.id }}{% else %}/admin/users/new{% endif %}" class="d-grid gap-3">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    {% if not user %}<div><label class="form-label" for="username">Username</label><input class="form-control" id="username" name="username" value="{{ username|default('') }}" minlength="3" maxlength="80" required></div>{% endif %}
+    <div><label class="form-label" for="display_name">Display name</label><input class="form-control" id="display_name" name="display_name" value="{% if display_name is defined %}{{ display_name }}{% elif user %}{{ user.display_name }}{% endif %}" maxlength="120" required></div>
+    <fieldset><legend class="h6">Application roles</legend><div class="row g-2">{% for role in roles %}<div class="col-md-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="roles" value="{{ role.name }}" id="role-{{ loop.index }}" {% if role.name in selected_roles %}checked{% endif %}><label class="form-check-label" for="role-{{ loop.index }}">{{ role.name }}</label></div></div>{% endfor %}</div></fieldset>
+    {% if user %}<div class="form-check form-switch"><input class="form-check-input" type="checkbox" role="switch" id="is_active" name="is_active" value="true" {% if user.is_active %}checked{% endif %}><label class="form-check-label" for="is_active">Active account</label></div><div><label class="form-label" for="new_password">New password</label><input class="form-control" id="new_password" type="password" name="new_password" minlength="12" autocomplete="new-password"><div class="form-text">Leave blank to keep the existing password.</div></div>{% else %}<div><label class="form-label" for="password">Password</label><input class="form-control" id="password" type="password" name="password" minlength="12" autocomplete="new-password" required></div>{% endif %}
+    <button class="btn btn-primary" type="submit">{% if user %}Save changes{% else %}Create user{% endif %}</button>
+  </form></div></div>
+</div></div></div>
+{% endblock %}

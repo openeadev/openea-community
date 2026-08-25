@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Finding Rules · {{ settings.app_name }}{% endblock %}
+{% block content %}
+<div class="container-xl py-4">
+  <div class="d-flex justify-content-between align-items-start gap-3 mb-4">
+    <div>
+      <div class="text-primary small fw-semibold">Governance · Finding rules</div>
+      <h1 class="h2 mb-1">Finding rules</h1>
+      <p class="text-secondary mb-0">Built-in rules are protected. Architecture Administrators can author governed custom declarative rules without executable expressions.</p>
+    </div>
+    <a class="btn btn-primary" href="/admin/finding-rules/new"><i data-lucide="plus" class="icon me-1"></i>Create custom rule</a>
+  </div>
+
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table table-vcenter card-table">
+        <thead><tr><th>Rule</th><th>Type</th><th>Severity</th><th>Origin</th><th>Status</th><th class="w-1"></th></tr></thead>
+        <tbody>
+        {% for r in rules %}
+          <tr>
+            <td><code>{{ r.rule_id }}</code><div class="fw-semibold mt-1">{{ r.name }}</div><div class="text-secondary small">{{ r.description }}</div></td>
+            <td><span class="badge bg-azure-lt">{{ r.rule_type.replace('_', ' ') }}</span></td>
+            <td>{{ r.severity }}</td>
+            <td>{% if r.is_system %}<span class="badge bg-blue-lt">Built-in</span>{% else %}<span class="badge bg-purple-lt">Custom</span>{% endif %}</td>
+            <td>{% if r.enabled %}<span class="status status-green">Enabled</span>{% else %}<span class="status status-secondary">Disabled</span>{% endif %}</td>
+            <td>
+              <div class="btn-list flex-nowrap">
+                <a class="btn btn-sm btn-outline-primary" href="/admin/finding-rules/{{ r.id }}/edit">Edit</a>
+                <form method="post" action="/admin/finding-rules/{{ r.id }}/toggle">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                  <button class="btn btn-sm btn-outline-secondary">{{ 'Disable' if r.enabled else 'Enable' }}</button>
+                </form>
+                {% if not r.is_system %}
+                <form method="post" action="/admin/finding-rules/{{ r.id }}/delete" onsubmit="return confirm('Delete this custom rule? Historical findings and audit history will be retained.');">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                  <button class="btn btn-sm btn-outline-danger">Delete</button>
+                </form>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="6" class="text-center text-secondary py-5">No active finding rules.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

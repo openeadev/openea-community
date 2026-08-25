@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Import · {{ settings.page_title }}{% endblock %}
+{% block content %}
+<div class="container-xl py-4">
+  <div class="d-flex justify-content-between align-items-start mb-4">
+    <div><div class="text-primary small fw-semibold">Import · {{ settings.app_version }}</div><h1 class="h2 mb-1">Import architecture data</h1><p class="text-secondary mb-0">Use separate governed workflows for architecture objects and relationships.</p></div>
+    <a class="btn btn-outline-secondary" href="/explore">Back to Explore</a>
+  </div>
+  <div class="row g-4">
+    <div class="col-lg-6"><div class="card h-100"><div class="card-header"><h2 class="card-title"><i data-lucide="boxes" class="icon me-2"></i>Object CSV import</h2></div><div class="card-body"><p class="text-secondary">Create or update one architecture object type at a time. Existing objects are matched by UUID first, then exact name.</p><form method="post" action="/imports/upload" enctype="multipart/form-data" class="row g-3"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><div class="col-12"><label class="form-label" for="object_type_key">Object type</label><select class="form-select" id="object_type_key" name="object_type_key" required>{% for type in object_types %}<option value="{{ type.key }}">{{ type.name }}</option>{% endfor %}</select></div><div class="col-12"><label class="form-label" for="object_csv_file">CSV file</label><input class="form-control" id="object_csv_file" name="csv_file" type="file" accept=".csv,text/csv" required></div><div class="col-12"><button class="btn btn-primary" type="submit">Upload object CSV</button></div></form></div></div></div>
+    <div class="col-lg-6"><div class="card h-100"><div class="card-header"><h2 class="card-title"><i data-lucide="git-branch" class="icon me-2"></i>Relationship CSV import</h2></div><div class="card-body"><p class="text-secondary">Create or update governed relationships. Endpoint resolution follows UUID → external ID when available → exact name → alias. Ambiguous matches stop at preview.</p><form method="post" action="/imports/relationships/upload" enctype="multipart/form-data" class="row g-3"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><div class="col-12"><label class="form-label" for="relationship_csv_file">Relationship CSV file</label><input class="form-control" id="relationship_csv_file" name="csv_file" type="file" accept=".csv,text/csv" required></div><div class="col-12"><button class="btn btn-primary" type="submit">Upload relationship CSV</button></div></form><hr><div class="small text-secondary"><strong>Minimum mapped fields:</strong> source type, relationship type, and target type, plus an identifier for each endpoint. Names are the simplest option for manually curated imports.</div></div></div></div>
+  </div>
+  <p class="small text-secondary mt-3">Limits: 5 MB and 5,000 rows per import. Validation and preview occur before any relationship is committed.</p>
+</div>
+{% endblock %}

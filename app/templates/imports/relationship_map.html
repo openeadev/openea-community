@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Map Relationships · {{ settings.page_title }}{% endblock %}
+{% block content %}
+<div class="container-xl py-4">
+  <div class="d-flex justify-content-between align-items-start mb-3"><div><div class="text-primary small fw-semibold">Relationship import</div><h1 class="h2 mb-1">Map CSV columns</h1><p class="text-secondary">{{ batch.original_filename }} · {{ batch.rows|length }} data rows</p></div><a class="btn btn-outline-secondary" href="/imports">Cancel</a></div>
+  <div class="alert alert-info">For safe resolution, map <strong>Source Type</strong>, <strong>Relationship Type</strong>, and <strong>Target Type</strong>. For each endpoint map UUID, external ID, or name. If several are supplied, OpenEA uses UUID first, then external ID, then name/alias.</div>
+  <form method="post" action="/imports/relationships/{{ batch.id }}/validate"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><div class="card"><div class="table-responsive"><table class="table card-table align-middle"><thead><tr><th>CSV column</th><th>OpenEA relationship field</th></tr></thead><tbody>{% for header in batch.headers %}<tr><td><code>{{ header }}</code></td><td><select class="form-select" name="map::{{ header }}"><option value="">Ignore</option>{% for value, label in allowed_fields %}<option value="{{ value }}" {% if batch.mapping.get(header) == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></td></tr>{% endfor %}</tbody></table></div></div><div class="d-flex justify-content-end mt-3"><button class="btn btn-primary" type="submit">Validate and preview</button></div></form>
+</div>
+{% endblock %}

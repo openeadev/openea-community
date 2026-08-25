@@ -1,0 +1,4 @@
+<div class="impact-result border rounded p-3 mb-3">
+  <div class="d-flex justify-content-between gap-3"><div><a class="fw-semibold text-decoration-none" href="/explore/{{ item.object.id }}">{{ item.object.name }}</a><div class="small text-body-secondary">{{ item.object.object_type.name }} · {{ item.depth }} hop{% if item.depth != 1 %}s{% endif %}</div></div><span class="badge {% if item.direct %}text-bg-primary{% else %}text-bg-secondary{% endif %}">{{ 'Direct' if item.direct else 'Indirect' }}</span></div>
+  <details class="mt-2"><summary class="small">Why is this impacted?</summary><ol class="impact-path small mt-2 mb-0">{% for step in item.path_steps %}{% set from_obj = item._path_objects[loop.index0] %}{% set to_obj = item._path_objects[loop.index0 + 1] %}<li><a href="/explore/{{ from_obj.id }}">{{ from_obj.name }}</a> <strong>{{ step.label }}</strong> <a href="/explore/{{ to_obj.id }}">{{ to_obj.name }}</a></li>{% endfor %}</ol></details>
+</div>

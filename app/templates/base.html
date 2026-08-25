@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en" data-bs-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="{{ settings.app_name }} enterprise architecture platform">
+  <meta name="theme-color" content="#206bc4">
+  <title>{% block title %}{{ settings.page_title }}{% endblock %}</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', path='/img/openea-mark.svg') }}">
+  <script src="{{ url_for('static', path='/js/theme.js') }}"></script>
+  <link href="https://cdn.jsdelivr.net/npm/@tabler/core@1.4.0/dist/css/tabler.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', path='/css/app.css') }}">
+</head>
+<body>
+  <a class="visually-hidden-focusable openea-skip-link" href="#main-content">Skip to main content</a>
+  {% set is_authenticated = current_user is defined and current_user %}
+  {% if is_authenticated %}
+    {% set role_names = current_user.roles|map(attribute='name')|list %}
+    <div class="page openea-app-shell">
+      <aside class="navbar navbar-vertical navbar-expand-lg openea-sidebar" aria-label="Application navigation">
+        <div class="container-fluid">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#openea-sidebar-menu" aria-controls="openea-sidebar-menu" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <a class="navbar-brand openea-brand" href="/dashboard" aria-label="OpenEA Community dashboard">
+            <img
+              src="{{ url_for('static', path='/img/openea-mark.svg') }}"
+              class="openea-brand-mark"
+              alt=""
+              width="32"
+              height="32"
+            >
+            <span class="openea-brand-copy">
+              <span class="openea-brand-name">OpenEA</span>
+              <span class="openea-brand-edition">Community</span>
+            </span>
+          </a>
+          <div class="navbar-nav flex-row d-lg-none ms-auto">
+            <button class="nav-link px-2 js-theme-toggle" type="button" aria-label="Toggle color theme" title="Toggle color theme"><i data-lucide="moon" class="icon"></i></button>
+          </div>
+          <div class="collapse navbar-collapse" id="openea-sidebar-menu">
+            <div class="navbar-nav pt-lg-3">
+              <div class="openea-nav-label">Workspace</div>
+              <div class="nav-item"><a class="nav-link {% if request.url.path == '/dashboard' %}active{% endif %}" href="/dashboard"><span class="nav-link-icon"><i data-lucide="layout-dashboard"></i></span><span class="nav-link-title">Dashboard</span></a></div>
+              <div class="nav-item"><a class="nav-link {% if request.url.path.startswith('/explore') %}active{% endif %}" href="/explore"><span class="nav-link-icon"><i data-lucide="search"></i></span><span class="nav-link-title">Explore</span></a></div>
+              <div class="nav-item"><a class="nav-link {% if request.url.path.startswith('/portfolio') %}active{% endif %}" href="/portfolio"><span class="nav-link-icon"><i data-lucide="layers-3"></i></span><span class="nav-link-title">Portfolio</span></a></div>
+              <div class="nav-item"><a class="nav-link {% if request.url.path.startswith('/roadmaps') %}active{% endif %}" href="/roadmaps"><span class="nav-link-icon"><i data-lucide="milestone"></i></span><span class="nav-link-title">Roadmaps</span></a></div>
+
+              <div class="openea-nav-label mt-3">Governance</div>
+              <div class="nav-item"><a class="nav-link {% if request.url.path.startswith('/decisions') %}active{% endif %}" href="/decisions"><span class="nav-link-icon"><i data-lucide="scale"></i></span><span class="nav-link-title">Decisions</span></a></div>
+              <div class="nav-item"><a class="nav-link {% if request.url.path.startswith('/reviews') %}active{% endif %}" href="/reviews"><span class="nav-link-icon"><i data-lucide="clipboard-check"></i></span><span class="nav-link-title">Reviews</span></a></div>
+              <div class="nav-item"><a class="nav-link {% if request.url.path.startswith('/findings') %}active{% endif %}" href="/findings"><span class="nav-link-icon"><i data-lucide="triangle-alert"></i></span><span class="nav-link-title">Findings</span></a></div>
+              <div class="nav-item"><a class="nav-link {% if request.url.path.startswith('/analytics') %}active{% endif %}" href="/analytics"><span class="nav-link-icon"><i data-lucide="chart-no-axes-combined"></i></span><span class="nav-link-title">Analytics</span></a></div>
+
+              {% if 'Architecture Administrator' in role_names or 'Architect' in role_names or 'Platform Administrator' in role_names %}
+                <div class="openea-nav-label mt-3">Management</div>
+                {% if 'Architecture Administrator' in role_names or 'Architect' in role_names %}
+                  <div class="nav-item"><a class="nav-link {% if request.url.path.startswith('/imports') %}active{% endif %}" href="/imports"><span class="nav-link-icon"><i data-lucide="file-up"></i></span><span class="nav-link-title">Import</span></a></div>
+                {% endif %}
+                {% if 'Architecture Administrator' in role_names %}
+                  <div class="nav-item"><a class="nav-link {% if request.url.path.startswith('/admin/finding-rules') %}active{% endif %}" href="/admin/finding-rules"><span class="nav-link-icon"><i data-lucide="list-checks"></i></span><span class="nav-link-title">Finding Rules</span></a></div>
+                {% endif %}
+                {% if 'Platform Administrator' in role_names %}
+                  <div class="nav-item"><a class="nav-link {% if request.url.path.startswith('/admin/users') %}active{% endif %}" href="/admin/users"><span class="nav-link-icon"><i data-lucide="users"></i></span><span class="nav-link-title">Users</span></a></div>
+                  <div class="nav-item"><a class="nav-link {% if request.url.path.startswith('/admin/service-accounts') %}active{% endif %}" href="/admin/service-accounts"><span class="nav-link-icon"><i data-lucide="bot"></i></span><span class="nav-link-title">Service Accounts</span></a></div>
+                  <div class="nav-item"><a class="nav-link {% if request.url.path.startswith('/admin/api-tokens') %}active{% endif %}" href="/admin/api-tokens"><span class="nav-link-icon"><i data-lucide="key-round"></i></span><span class="nav-link-title">API Tokens</span></a></div>
+                {% endif %}
+              {% endif %}
+            </div>
+            <div class="openea-sidebar-footer mt-auto pt-3">
+              <div class="d-flex align-items-center gap-2 px-3 pb-3">
+                <span class="avatar avatar-sm bg-primary-lt text-primary">{{ current_user.display_name[:1]|upper }}</span>
+                <div class="min-w-0 flex-fill">
+                  <div class="fw-semibold text-truncate">{{ current_user.display_name }}</div>
+                  <div class="text-secondary small text-truncate">{{ current_user.username }}</div>
+                </div>
+              </div>
+              <div class="px-3 pb-2"><a class="btn btn-outline-secondary w-100" href="/account/tokens"><i data-lucide="key-round" class="icon me-1"></i>API tokens</a></div>
+              <div class="d-flex gap-2 px-3 pb-3">
+                <button class="btn btn-outline-secondary btn-icon js-theme-toggle" type="button" aria-label="Toggle color theme" title="Toggle color theme"><i data-lucide="moon" class="icon"></i></button>
+                <form method="post" action="/logout" class="flex-fill m-0">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                  <button class="btn btn-outline-secondary w-100" type="submit"><i data-lucide="log-out" class="icon me-1"></i>Sign out</button>
+                </form>
+              </div>
+              <div class="px-3 pb-3 small text-secondary">OpenEA Community v{{ settings.app_version }}</div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <div class="page-wrapper">
+        <header class="navbar navbar-expand-md d-print-none openea-topbar">
+          <div class="container-xl">
+            <div class="navbar-nav flex-row order-md-last ms-auto align-items-center gap-2">
+              <a class="btn btn-ghost-secondary btn-icon" href="/" title="Public home" aria-label="Public home"><i data-lucide="house" class="icon"></i></a>
+            </div>
+            <div class="flex-fill me-3">
+              <form method="get" action="/explore" role="search" class="openea-global-search">
+                <label class="visually-hidden" for="global-search">Search architecture</label>
+                <div class="input-icon">
+                  <span class="input-icon-addon"><i data-lucide="search" class="icon"></i></span>
+                  <input class="form-control" id="global-search" name="q" placeholder="Search architecture…" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </header>
+        <main id="main-content" class="page-body" tabindex="-1">
+  {% else %}
+    <div class="page openea-public-shell">
+      <header class="navbar navbar-expand-md openea-public-nav">
+        <div class="container-xl">
+          <a class="navbar-brand openea-brand" href="/" aria-label="OpenEA Community home">
+            <img
+              src="{{ url_for('static', path='/img/openea-mark.svg') }}"
+              class="openea-brand-mark"
+              alt=""
+              width="32"
+              height="32"
+            >
+            <span class="openea-brand-name">OpenEA</span>
+          </a>
+          <div class="navbar-nav flex-row ms-auto align-items-center gap-2">
+            <button class="btn btn-ghost-secondary btn-icon js-theme-toggle" type="button" aria-label="Toggle color theme" title="Toggle color theme"><i data-lucide="moon" class="icon"></i></button>
+            <a class="btn btn-primary" href="/login"><i data-lucide="log-in" class="icon me-1"></i>Sign in</a>
+          </div>
+        </div>
+      </header>
+      <main id="main-content" class="flex-fill" tabindex="-1">
+  {% endif %}
+
+  {% block content %}{% endblock %}
+
+  {% if is_authenticated %}
+        </main>
+        <footer class="footer footer-transparent d-print-none py-3">
+          <div class="container-xl"><div class="text-secondary small">OpenEA Community · Enterprise architecture knowledge and decision support</div></div>
+        </footer>
+      </div>
+    </div>
+  {% else %}
+      </main>
+      <footer class="footer openea-public-footer py-4"><div class="container-xl d-flex flex-wrap gap-2 justify-content-between"><span>OpenEA Community v{{ settings.app_version }}</span><span>GNU AGPLv3</span></div></footer>
+    </div>
+  {% endif %}
+
+  <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.10/dist/htmx.min.js" integrity="sha384-H5SrcfygHmAuTDZphMHqBJLc3FhssKjG7w/CeCpFReSfwBWDTKpkzPP8c+cLsK+V" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.4.0/dist/js/tabler.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@1.33.0/dist/umd/lucide.min.js" crossorigin="anonymous"></script>
+  <script src="{{ url_for('static', path='/js/app.js') }}"></script>
+</body>
+</html>
