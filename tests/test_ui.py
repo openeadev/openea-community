@@ -20,12 +20,7 @@ def test_landing_page_exposes_login_and_tabler_branding(client: TestClient) -> N
     assert response.status_code == 200
     assert 'href="/login"' in response.text
     assert "@tabler/core@1.4.0" in response.text
-<<<<<<< HEAD
-    assert "/static/img/openea-wordmark.svg" in response.text
-    assert "/static/js/theme.js" in response.text
-=======
     assert "/static/img/openea-mark.svg" in response.text
->>>>>>> 0ec2aac (v1.5.2 - Community Baseline)
 
 
 def test_theme_script_uses_browser_local_storage() -> None:
