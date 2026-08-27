@@ -1,0 +1,101 @@
+site_name: OpenEA Community Documentation
+site_description: Documentation and tutorials for OpenEA Community, the open-source Enterprise Architecture platform.
+site_url: https://docs.openea.dev/
+repo_name: openeadev/openea-community
+repo_url: https://github.com/openeadev/openea-community
+edit_uri: edit/main/docs/
+copyright: OpenEA Community is licensed under the GNU Affero General Public License v3.0.
+
+theme:
+  name: material
+  language: en
+  logo: assets/openea-mark.svg
+  favicon: assets/favicon.svg
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - content.code.copy
+    - search.suggest
+    - search.highlight
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+
+plugins:
+  - search
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - What is OpenEA Community?: getting-started/what-is-openea.md
+      - Explore the Live Demo: getting-started/live-demo.md
+      - Install with Docker Compose: getting-started/installation.md
+      - First Login and Setup: getting-started/first-login.md
+  - Concepts:
+      - Repository-first Architecture: concepts/repository-first.md
+      - Objects and Metadata: concepts/objects.md
+      - Relationships: concepts/relationships.md
+      - Governance and History: concepts/governance.md
+  - User Guide:
+      - Navigation and Search: user-guide/navigation-search.md
+      - Manage Architecture Objects: user-guide/objects.md
+      - Manage Relationships: user-guide/relationships.md
+      - Impact Analysis: user-guide/impact-analysis.md
+      - Analytics and Repository Health: user-guide/analytics.md
+      - Findings: user-guide/findings.md
+      - Reviews and Architecture Decisions: user-guide/reviews-decisions.md
+      - Portfolios and Roadmaps: user-guide/portfolios-roadmaps.md
+      - CSV Import and Export: user-guide/import-export.md
+  - Tutorials:
+      - Map an Application to a Capability: tutorials/application-capability.md
+      - Model an Application Technology Stack: tutorials/application-technology-stack.md
+      - Analyze Application Retirement Impact: tutorials/retirement-impact.md
+      - Import Architecture Objects: tutorials/import-objects.md
+      - Create a Custom Finding Rule: tutorials/custom-finding-rule.md
+  - Administration:
+      - Users and Permissions: administration/users-permissions.md
+      - Configuration: administration/configuration.md
+      - API Tokens and Service Accounts: administration/api-tokens-service-accounts.md
+      - Worker and Background Calculations: administration/worker-jobs.md
+      - Backup and Restore: administration/backup-restore.md
+      - Upgrading: administration/upgrading.md
+      - Security: administration/security.md
+  - Reference:
+      - Standard Metamodel: reference/metamodel.md
+      - Relationship Vocabulary: reference/relationships.md
+      - API v1: reference/api.md
+      - CLI Commands: reference/cli.md
+      - Environment Variables: reference/configuration.md
+      - Built-in Finding Rules: reference/finding-rules.md
+      - Release 1.5.2: reference/release-1.5.2.md
+  - Development:
+      - Architecture: development/architecture.md
+      - Local Development: development/local-development.md
+      - Testing: development/testing.md
