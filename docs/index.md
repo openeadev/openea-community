@@ -8,12 +8,20 @@ OpenEA is built around a repository-first principle:
 
 ## Start here
 
-If you are evaluating OpenEA for the first time:
+Choose the path that matches what you want to do.
+
+### Evaluate the populated demo
 
 1. Read [What is OpenEA Community?](getting-started/what-is-openea.md).
-2. Follow the [Live Demo walkthrough](getting-started/live-demo.md).
-3. If you want your own environment, [install OpenEA with Docker Compose](getting-started/installation.md).
-4. Complete [First Login and Setup](getting-started/first-login.md).
+2. Follow the [Live Demo walkthrough](getting-started/live-demo.md) using the Northstar Financial sample repository.
+
+### Learn OpenEA from an empty repository
+
+1. [Install OpenEA with Docker Compose](getting-started/installation.md) without running `seed-demo`.
+2. Complete [First Login and Setup](getting-started/first-login.md).
+3. Follow **[Acme Bank: Build an Enterprise Architecture Repository from Scratch](tutorials/acme-bank/index.md)**.
+
+The Acme Bank sequence is the most complete hands-on learning path. It starts with no architecture data, builds all twelve standard object types, connects them with governed relationships, introduces deliberate architecture issues, and then uses findings, analytics, impact analysis, portfolios, roadmaps, CSV imports, governance, reviews, and archival to manage the repository.
 
 ## What OpenEA helps you answer
 

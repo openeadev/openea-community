@@ -74,11 +74,27 @@ nav:
       - Portfolios and Roadmaps: user-guide/portfolios-roadmaps.md
       - CSV Import and Export: user-guide/import-export.md
   - Tutorials:
-      - Map an Application to a Capability: tutorials/application-capability.md
-      - Model an Application Technology Stack: tutorials/application-technology-stack.md
-      - Analyze Application Retirement Impact: tutorials/retirement-impact.md
-      - Import Architecture Objects: tutorials/import-objects.md
-      - Create a Custom Finding Rule: tutorials/custom-finding-rule.md
+      - Acme Bank Hands-On:
+          - Start Here: tutorials/acme-bank/index.md
+          - 1. Prepare a Clean Environment: tutorials/acme-bank/00-prepare-environment.md
+          - 2. Organizations and Roles: tutorials/acme-bank/01-organizations-and-roles.md
+          - 3. Business Architecture: tutorials/acme-bank/02-business-architecture.md
+          - 4. Applications and Services: tutorials/acme-bank/03-application-architecture.md
+          - 5. Data and Technology: tutorials/acme-bank/04-data-and-technology.md
+          - 6. Relationships: tutorials/acme-bank/05-relationships.md
+          - 7. Initiatives and Change: tutorials/acme-bank/06-initiatives.md
+          - 8. Governance and Reviews: tutorials/acme-bank/07-governance.md
+          - 9. Findings and Analytics: tutorials/acme-bank/08-findings-and-analytics.md
+          - 10. Impact Analysis: tutorials/acme-bank/09-impact-analysis.md
+          - 11. Portfolios and Roadmaps: tutorials/acme-bank/10-portfolios-and-roadmaps.md
+          - 12. CSV Imports: tutorials/acme-bank/11-csv-imports.md
+          - 13. Edit, Remediate, and Archive: tutorials/acme-bank/12-lifecycle-and-cleanup.md
+      - Standalone Tutorials:
+          - Map an Application to a Capability: tutorials/application-capability.md
+          - Model an Application Technology Stack: tutorials/application-technology-stack.md
+          - Analyze Application Retirement Impact: tutorials/retirement-impact.md
+          - Import Architecture Objects: tutorials/import-objects.md
+          - Create a Custom Finding Rule: tutorials/custom-finding-rule.md
   - Administration:
       - Users and Permissions: administration/users-permissions.md
       - Configuration: administration/configuration.md

@@ -31,7 +31,10 @@ The source object, target object, and relationship type define the identity of t
 
 ## Archive a relationship
 
-Architecture Administrators and Architects can archive relationships. Contributors can create and edit relationships but cannot archive them.
+Architecture Administrators and Architects are authorized to archive relationships in the service/API layer. Contributors can create and edit relationships but cannot archive them.
+
+!!! note "Browser UI in 1.5.2"
+    The standard 1.5.2 Relationships table exposes **Edit** for a relationship but does not expose an **Archive** button. Use the supported API/administrative path when relationship archival is required.
 
 ## Duplicate prevention
 
