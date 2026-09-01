@@ -48,9 +48,13 @@ Custom rules receive IDs such as `CUSTOM-0001`. Deleting a custom rule performs 
 
 Repository and relationship changes can queue finding evaluation. Rule create/edit/toggle/archive operations also queue evaluation.
 
-Administrators can also run:
+OpenEA also reevaluates findings on the **Findings Evaluation** schedule maintained by a Platform Administrator under **Management → Background Processing**. The default interval is one hour. This keeps date-driven findings current even when the repository has been idle.
+
+Administrators can also queue or synchronously run evaluation from the CLI:
 
 ```bash
 python -m app.cli evaluate-findings
 python -m app.cli evaluate-findings-now
 ```
+
+The CLI commands themselves are not scheduled commands. See [Worker and Background Calculations](../administration/worker-jobs.md) for the event-driven and periodic processing model.

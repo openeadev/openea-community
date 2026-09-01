@@ -23,15 +23,15 @@ docker compose exec web alembic current
 
 ## Upgrade from 1.5.1 to 1.5.2
 
-OpenEA Community 1.5.2 establishes the independent Community distribution baseline. It does **not** add a database migration.
+OpenEA Community 1.5.2 establishes the independent Community distribution baseline. Later 1.5.2 maintenance updates add the background-processing scheduler through migration `0016_phase15`.
 
-Alembic remains at:
+Current Alembic head:
 
 ```text
-0015_phase15 (head)
+0016_phase15 (head)
 ```
 
-Existing architecture objects, relationships, users, API tokens, findings, audit history, and configuration remain compatible.
+Existing architecture objects, relationships, users, API tokens, findings, metrics, audit history, and configuration remain compatible. Migration `0016_phase15` adds only the scheduler settings table and its two default schedules.
 
 The Python distribution name becomes `openea-community`, while Python imports and runtime commands continue to use the `app` package.
 

@@ -60,6 +60,8 @@ Queue normal background metric recalculation:
 python -m app.cli recalculate-metrics
 ```
 
+This is a one-time administrative request. The command does not run on an interval. Platform Administrators configure periodic metrics processing in **Management → Background Processing**.
+
 ## recalculate-metrics-now
 
 Run metric calculation synchronously:
@@ -68,7 +70,7 @@ Run metric calculation synchronously:
 python -m app.cli recalculate-metrics-now
 ```
 
-Use this for administrative verification and troubleshooting.
+Use this for administrative verification and troubleshooting. It runs in the current CLI process and bypasses the asynchronous worker queue. It is not a scheduled command.
 
 ## evaluate-findings
 
@@ -78,6 +80,8 @@ Queue finding evaluation:
 python -m app.cli evaluate-findings
 ```
 
+This is a one-time administrative request. The command does not run on an interval. Platform Administrators configure periodic findings processing in **Management → Background Processing**.
+
 ## evaluate-findings-now
 
 Run finding evaluation synchronously:
@@ -85,3 +89,5 @@ Run finding evaluation synchronously:
 ```bash
 python -m app.cli evaluate-findings-now
 ```
+
+Use this for direct administrative verification or troubleshooting. It runs immediately in the CLI process and is not part of the periodic scheduler.

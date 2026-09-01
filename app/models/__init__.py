@@ -1,4 +1,4 @@
-from app.models.analytics import Job, ObjectMetric
+from app.models.analytics import Job, ObjectMetric, ScheduledJobSetting
 from app.models.findings import Finding, RuleDefinition
 from app.models.governance import AuditEvent, Comment, Review
 from app.models.imports import ImportBatch
@@ -22,6 +22,7 @@ __all__ = [
     "Job",
     "ImportBatch",
     "ObjectMetric",
+    "ScheduledJobSetting",
     "AuditEvent",
     "Comment",
     "Review",

@@ -55,6 +55,8 @@ Only Platform Administrators can:
 - Create and manage normal users
 - Create and manage service accounts
 - Review/revoke all API tokens
+- Configure periodic analytics and findings schedules
+- Queue Analytics & Metrics or Findings Evaluation with **Run now**
 
 Only Architecture Administrators can manage Finding Rules.
 

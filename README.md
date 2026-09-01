@@ -31,7 +31,7 @@ curl http://localhost:8000/health/ready
 docker compose exec web alembic current
 ```
 
-Expected migration head: `0015_phase15`.
+Expected migration head: `0016_phase15`.
 
 Browse to `http://localhost:8000/setup` to create the initial Platform Administrator.
 
@@ -50,6 +50,14 @@ Demo records are tagged `OpenEA Demo`. Remove the active demo repository without
 ```bash
 docker compose exec web python -m app.cli remove-demo
 ```
+
+## Background processing
+
+OpenEA recalculates analytics and findings after relevant repository changes and also supports Platform Administrator-controlled periodic schedules for time-dependent calculations. The default schedules are metrics every six hours and findings every hour.
+
+Platform Administrators manage these schedules under **Management → Background Processing**, where each process can be enabled/disabled, assigned a controlled interval, or queued immediately with **Run now**. The background worker checks due schedules approximately once per minute and the normal PostgreSQL job queue approximately every two seconds when idle.
+
+The manual CLI commands remain available for operations and troubleshooting; they are not the scheduler itself. See the [Worker and Background Calculations](docs/administration/worker-jobs.md) documentation for details.
 
 ## CSV and API
 

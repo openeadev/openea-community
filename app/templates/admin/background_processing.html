@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Background Processing · {{ settings.page_title }}{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="mb-4">
+    <h1 class="h2 mb-1">Background Processing</h1>
+    <p class="text-body-secondary mb-0">Configure periodic analytics and findings processing. Repository changes still queue work immediately; these schedules keep time-dependent calculations current when the repository is idle.</p>
+  </div>
+
+  {% if request.query_params.get('updated') %}
+    <div class="alert alert-success" role="alert">Background-processing schedule updated.</div>
+  {% endif %}
+  {% if request.query_params.get('queued') %}
+    <div class="alert alert-success" role="alert">Background-processing job queued. The worker will process it asynchronously.</div>
+  {% endif %}
+  {% if error %}
+    <div class="alert alert-danger" role="alert">{{ error }}</div>
+  {% endif %}
+
+  <div class="alert alert-info" role="alert">
+    <div class="fw-semibold mb-1">How scheduling works</div>
+    <div>OpenEA checks due schedules approximately once per minute. If the platform was offline when a schedule became due, the worker runs it once after startup and then resumes the configured interval. Times below are UTC.</div>
+  </div>
+
+  <div class="row row-cards">
+    {% for process in processes %}
+      <div class="col-12">
+        <div class="card shadow-sm">
+          <div class="card-header">
+            <div class="flex-fill">
+              <h2 class="card-title mb-1">{{ process.label }}</h2>
+              <div class="text-body-secondary">{{ process.description }}</div>
+            </div>
+            {% if process.enabled %}
+              <span class="badge text-bg-success">Enabled</span>
+            {% else %}
+              <span class="badge text-bg-secondary">Disabled</span>
+            {% endif %}
+          </div>
+          <div class="card-body">
+            <div class="row g-4">
+              <div class="col-lg-5">
+                <form method="post" action="/admin/background-processing/{{ process.job_key }}">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                  <div class="mb-3">
+                    <label class="form-label" for="interval-{{ loop.index }}">Interval</label>
+                    <select class="form-select" id="interval-{{ loop.index }}" name="interval_minutes">
+                      {% for option in interval_options %}
+                        <option value="{{ option.minutes }}" {% if option.minutes == process.interval_minutes %}selected{% endif %}>{{ option.label }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <label class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" name="enabled" value="1" {% if process.enabled %}checked{% endif %}>
+                    <span class="form-check-label">Enable periodic processing</span>
+                  </label>
+                  <button class="btn btn-primary" type="submit">Save schedule</button>
+                </form>
+              </div>
+
+              <div class="col-lg-7">
+                <dl class="row mb-3">
+                  <dt class="col-sm-4">Schedule</dt>
+                  <dd class="col-sm-8">{{ process.interval_label if process.enabled else 'Disabled' }}</dd>
+                  <dt class="col-sm-4">Last queued</dt>
+                  <dd class="col-sm-8">{{ process.last_enqueued_at.strftime('%Y-%m-%d %H:%M:%S UTC') if process.last_enqueued_at else 'Never' }}</dd>
+                  <dt class="col-sm-4">Last completed</dt>
+                  <dd class="col-sm-8">{{ process.last_completed_at.strftime('%Y-%m-%d %H:%M:%S UTC') if process.last_completed_at else 'Never' }}</dd>
+                  <dt class="col-sm-4">Next scheduled</dt>
+                  <dd class="col-sm-8">{{ process.next_run_at.strftime('%Y-%m-%d %H:%M:%S UTC') if process.next_run_at else 'Disabled' }}</dd>
+                  <dt class="col-sm-4">Last status</dt>
+                  <dd class="col-sm-8">
+                    {% if process.last_status == 'Successful' %}<span class="badge text-bg-success">Successful</span>
+                    {% elif process.last_status == 'Failed' %}<span class="badge text-bg-danger">Failed</span>
+                    {% elif process.last_status == 'Running' %}<span class="badge text-bg-primary">Running</span>
+                    {% elif process.last_status == 'Queued' %}<span class="badge text-bg-warning">Queued</span>
+                    {% else %}<span class="badge text-bg-secondary">{{ process.last_status }}</span>{% endif %}
+                    {% if process.last_result_count is not none %}<span class="text-body-secondary ms-2">Result count: {{ process.last_result_count }}</span>{% endif %}
+                  </dd>
+                </dl>
+                {% if process.last_error %}
+                  <div class="alert alert-danger"><strong>Last error:</strong> {{ process.last_error }}</div>
+                {% endif %}
+                <form method="post" action="/admin/background-processing/{{ process.job_key }}/run">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                  <button class="btn btn-outline-primary" type="submit">Run now</button>
+                  <span class="text-body-secondary small ms-2">Queues the normal background job; it does not run inside this web request.</span>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

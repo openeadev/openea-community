@@ -21,18 +21,22 @@ OpenEA Community 1.5.2 establishes the clean, independently maintained Community
 - Expanded object Metrics pages with collapsible formulas, current inputs, components, missing/stale conditions, remediation guidance, and direct navigation links.
 - Expanded the Community documentation with a technical metric-calculation reference and clearer metric interpretation guidance.
 - Cleaned up the Acme Bank tutorial so system-behavior explanations use MkDocs information callouts instead of appearing as tutorial steps/headings.
+- Added Platform Administrator-controlled periodic schedules for Analytics & Metrics and Findings Evaluation.
+- Added controlled 15-minute through 24-hour interval choices, enable/disable controls, execution status, failure visibility, and asynchronous **Run now** actions.
+- Extended the existing worker to check schedules approximately once per minute while retaining the existing approximately two-second job-queue polling behavior.
+- Added overdue-schedule recovery: after downtime, a due process runs once and resumes from the current time rather than replaying every missed interval.
+- Added migration `0016_phase15` for persisted scheduler settings and default schedules (metrics every 6 hours, findings every 1 hour).
 
 ## What did not change
 
 - No Enterprise 1.6.x or 1.7.x capabilities were imported.
-- No database tables, columns, constraints, or seed data changed.
 - Existing API authentication scopes remain unchanged. Relationship PATCH requests may optionally change the relationship type and target object, subject to the same metamodel validation as the browser UI.
-- No database schema, authentication model, authorization roles/scopes, findings rules, import schema, portfolio formulas, roadmap model, or repository object schema changed.
-- Alembic head remains `0015_phase15`.
+- No repository object schema, authentication model, authorization roles/scopes, findings-rule vocabulary, import schema, portfolio formulas, or roadmap model changed. The only new schema is the scheduler settings table.
+- Alembic head is now `0016_phase15`.
 
 ## Upgrade
 
-OpenEA Community 1.5.1 installations can upgrade in place. Preserve the PostgreSQL data volume and `.env`, replace/rebuild the application, and allow the normal startup migration command to run. Since there is no new migration, the database remains at `0015_phase15 (head)`.
+OpenEA Community 1.5.1 installations can upgrade in place. Preserve the PostgreSQL data volume and `.env`, replace/rebuild the application, and allow the normal startup migration command to run. Migration `0016_phase15` creates the scheduler settings table without recreating architecture data. Confirm the database reaches `0016_phase15 (head)`.
 
 See `docs/upgrading.md` for the detailed procedure.
 

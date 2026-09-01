@@ -158,4 +158,8 @@ Select a dimension to see every non-archived object below 100% for that measure 
 
 ## Background recalculation
 
-Relevant repository changes queue a deduplicated metrics-recalculation job in PostgreSQL. The worker processes the job outside the web request. See [Worker and Background Calculations](../administration/worker-jobs.md).
+Relevant repository changes queue a deduplicated metrics-recalculation job in PostgreSQL. The worker processes the job outside the web request.
+
+OpenEA also periodically recalculates metrics according to the **Analytics & Metrics** schedule maintained by a Platform Administrator under **Management → Background Processing**. The default is every six hours. Periodic processing is important because review freshness, support dates, lifecycle horizons, and other time-dependent inputs can change even when nobody edits the repository.
+
+See [Worker and Background Calculations](../administration/worker-jobs.md).

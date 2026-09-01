@@ -1,6 +1,6 @@
 # OpenEA Community 1.5.2
 
-OpenEA Community 1.5.2 establishes the independently maintained Community baseline derived from 1.5.1. It is primarily a maintenance, product-identity, and deployment-support release rather than a new schema release.
+OpenEA Community 1.5.2 establishes the independently maintained Community baseline derived from 1.5.1. It is a maintenance, product-identity, deployment-support, and operational-control release. Later 1.5.2 maintenance updates add a small scheduler schema while preserving the 1.5.2 product version.
 
 ## Baseline characteristics
 
@@ -8,12 +8,12 @@ OpenEA Community 1.5.2 establishes the independently maintained Community baseli
 - Internal Python package: `app`
 - Python compatibility: 3.10+
 - PostgreSQL: 16+ baseline
-- Alembic head: `0015_phase15`
+- Alembic head: `0016_phase15`
 - License: AGPLv3
 
 ## Database compatibility
 
-There is no new schema migration from 1.5.1 to 1.5.2. Existing repository objects, relationships, users, tokens, findings, audit history, and configuration remain compatible.
+OpenEA Community 1.5.2 remains an in-place upgrade from 1.5.1. A later 1.5.2 maintenance update adds migration `0016_phase15`, which creates `scheduled_job_settings` for Platform Administrator-controlled background-processing schedules. Existing repository objects, relationships, users, tokens, findings, metrics, audit history, and configuration are preserved.
 
 ## Community deployment model
 
@@ -42,5 +42,8 @@ Later 1.5.2 maintenance updates also include:
 - expanded View Metrics cards with deterministic formulas, inputs, components, missing/stale information, response guidance, and navigation links
 - a detailed [Metric Calculation Reference](analytics-metrics.md)
 - clearer Acme Bank tutorial information callouts for system-controlled behavior
+- Platform Administrator-controlled periodic schedules for Analytics & Metrics and Findings Evaluation
+- controlled 15-minute through 24-hour intervals, enable/disable controls, execution status, and asynchronous **Run now** actions
+- overdue schedule recovery that runs once after downtime instead of replaying every missed interval
 
-These changes do not add a database migration; Alembic remains at `0015_phase15`.
+Scheduled background processing adds migration `0016_phase15`; existing architecture and governance data are preserved.

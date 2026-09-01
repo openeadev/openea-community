@@ -64,6 +64,7 @@
                   <div class="nav-item"><a class="nav-link {% if request.url.path.startswith('/admin/users') %}active{% endif %}" href="/admin/users"><span class="nav-link-icon"><i data-lucide="users"></i></span><span class="nav-link-title">Users</span></a></div>
                   <div class="nav-item"><a class="nav-link {% if request.url.path.startswith('/admin/service-accounts') %}active{% endif %}" href="/admin/service-accounts"><span class="nav-link-icon"><i data-lucide="bot"></i></span><span class="nav-link-title">Service Accounts</span></a></div>
                   <div class="nav-item"><a class="nav-link {% if request.url.path.startswith('/admin/api-tokens') %}active{% endif %}" href="/admin/api-tokens"><span class="nav-link-icon"><i data-lucide="key-round"></i></span><span class="nav-link-title">API Tokens</span></a></div>
+                  <div class="nav-item"><a class="nav-link {% if request.url.path.startswith('/admin/background-processing') %}active{% endif %}" href="/admin/background-processing"><span class="nav-link-icon"><i data-lucide="clock-3"></i></span><span class="nav-link-title">Background Processing</span></a></div>
                 {% endif %}
               {% endif %}
             </div>

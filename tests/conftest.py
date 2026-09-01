@@ -15,7 +15,7 @@ from app.auth.permissions import ALL_APPLICATION_ROLES  # noqa: E402
 from app.db.base import Base  # noqa: E402
 from app.db.session import get_engine, get_session_factory  # noqa: E402
 from app.main import app  # noqa: E402
-from app.models.analytics import Job, ObjectMetric  # noqa: E402
+from app.models.analytics import Job, ObjectMetric, ScheduledJobSetting  # noqa: E402
 from app.models.findings import Finding, RuleDefinition  # noqa: E402
 from app.models.governance import AuditEvent, Comment, Review  # noqa: E402
 from app.models.imports import ImportBatch  # noqa: E402
@@ -54,6 +54,7 @@ def clean_users() -> None:
         db.execute(delete(RuleDefinition).where(RuleDefinition.is_system.is_(False)))
         db.execute(delete(ObjectMetric))
         db.execute(delete(Job))
+        db.execute(delete(ScheduledJobSetting))
         db.execute(delete(AuditEvent))
         db.execute(delete(Comment))
         db.execute(delete(Review))

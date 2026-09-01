@@ -92,7 +92,7 @@ docker compose exec web alembic current
 For OpenEA Community 1.5.2, the expected Alembic head is:
 
 ```text
-0015_phase15 (head)
+0016_phase15 (head)
 ```
 
 `/health` verifies that the application process is running. `/health/ready` also checks database connectivity.

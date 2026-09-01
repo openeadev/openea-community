@@ -36,7 +36,7 @@ docker compose exec web alembic upgrade head
 For OpenEA Community 1.5.2, the current head is:
 
 ```text
-0015_phase15
+0016_phase15
 ```
 
 ## Verify after restore

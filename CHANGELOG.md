@@ -2,6 +2,11 @@
 
 ## 1.5.2 - Independent Community baseline
 
+- Added Platform Administrator-controlled schedules for Analytics & Metrics (default every 6 hours) and Findings Evaluation (default every 1 hour).
+- Added controlled interval choices from 15 minutes through 24 hours, enable/disable controls, execution status/error visibility, and asynchronous **Run now** actions.
+- Extended the worker with an approximately 60-second schedule check while retaining the existing approximately two-second queued-job poll.
+- Added overdue-schedule recovery that runs a missed process once after downtime and resumes the interval from the current time.
+- Added migration `0016_phase15` for persisted scheduled-job settings; existing repository data is preserved.
 - Fixed Impact Analysis query-filter parsing and clarified combined filter semantics while preserving explanatory path nodes.
 - Added deterministic Attention reason explanations to the existing overdue Reviews workspace.
 - Expanded object Metrics pages with formulas, components, current inputs, missing/stale conditions, remediation guidance, and direct navigation actions.
@@ -13,7 +18,6 @@
 - Removed generated Python/cache/package metadata from the release archive.
 - Replaced hard-coded UI release labels with the configured application version.
 - Preserved 1.5.1 repository data and database-schema compatibility while applying 1.5.2 maintenance/UI fixes.
-- No schema migration is required; Alembic head remains `0015_phase15`.
 - Added MkDocs development commands to the Makefile for background preview, status, stop, and strict documentation builds, with corresponding README guidance.
 - Grouped relationship choices alphabetically by relationship label and target object type.
 - Filtered relationship target objects dynamically to the selected governed target type, sorted them alphabetically, and excluded archived records while retaining Draft, Active, and Inactive records.
@@ -27,7 +31,6 @@
 - Added short explanatory info icons to all five Repository Health dimension cards.
 - Made Repository Health dimension cards clickable and added object-level drill-down pages for Completeness, Freshness, Ownership, Relationship Coverage, and Governance.
 - Drill-down pages show the objects reducing each score, the per-object score, and an explainable reason.
-- No schema migration is required; Alembic head remains `0015_phase15`.
 
 ## 1.5.0 - Custom declarative finding rules
 

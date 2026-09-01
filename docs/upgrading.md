@@ -185,14 +185,16 @@ OpenEA Community 1.5.1 is a UX maintenance release. It requires no database migr
 
 ## 1.5.1 to 1.5.2
 
-OpenEA Community 1.5.2 establishes the independent Community distribution baseline. It does not change the database schema; Alembic remains at `0015_phase15 (head)`. Existing architecture objects, relationships, users, API tokens, findings, audit history, and configuration remain compatible.
+OpenEA Community 1.5.2 establishes the independent Community distribution baseline. Current 1.5.2 maintenance includes migration `0016_phase15`, which adds Platform Administrator-controlled scheduled background processing. Existing architecture objects, relationships, users, API tokens, findings, metrics, audit history, and configuration remain compatible.
 
 1. Back up PostgreSQL and preserve the existing `.env` file and PostgreSQL volume.
-2. Replace the application files with the 1.5.2 Community release.
+2. Replace the application files with the current 1.5.2 Community release.
 3. Rebuild and restart with `docker compose build --no-cache && docker compose up -d`.
-4. Confirm `docker compose exec web alembic current` reports `0015_phase15 (head)`.
-5. Verify `curl http://localhost:8000/health` reports version `1.5.2`.
-6. For editable local development, refresh the install with `python -m pip install -e '.[dev]'`. The installed distribution is now named `openea-community`; Python imports and runtime commands continue to use the existing `app` package.
-7. Run `ruff check .` and `python -m pytest`.
+4. Allow the normal startup `alembic upgrade head` to create `scheduled_job_settings`.
+5. Confirm `docker compose exec web alembic current` reports `0016_phase15 (head)`.
+6. Verify `curl http://localhost:8000/health` reports version `1.5.2`.
+7. Sign in as a Platform Administrator and review **Management → Background Processing**.
+8. For editable local development, refresh the install with `python -m pip install -e '.[dev]'`. The installed distribution is named `openea-community`; Python imports and runtime commands continue to use the existing `app` package.
+9. Run `ruff check .` and `python -m pytest`.
 
 No database recreation is required. Do not remove the PostgreSQL volume during this upgrade.

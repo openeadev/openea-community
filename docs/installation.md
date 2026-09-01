@@ -24,7 +24,7 @@ curl http://localhost:8000/health/ready
 docker compose exec web alembic current
 ```
 
-Expected migration head: `0015_phase15`.
+Expected migration head: `0016_phase15`.
 
 For a new installation, browse to `/setup` and create the initial Platform Administrator. Add an Architecture Administrator or Architect role to accounts that will maintain architecture records.
 

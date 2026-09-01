@@ -1,3 +1,4 @@
+from app.services.scheduled_job_service import ScheduledJobService
 from fastapi import APIRouter, Depends, Form, HTTPException, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
@@ -170,3 +171,81 @@ def edit_user_submit(
             status_code=400,
         )
     return RedirectResponse("/admin/users", status_code=status.HTTP_303_SEE_OTHER)
+
+
+@router.get("/background-processing", response_class=HTMLResponse)
+def background_processing_page(
+    request: Request,
+    current_user: User = Depends(require_platform_admin),
+    db: Session = Depends(get_db),
+) -> HTMLResponse:
+    service = ScheduledJobService(db)
+    processes = [service.view(setting) for setting in service.list_settings()]
+    return templates.TemplateResponse(
+        request=request,
+        name="admin/background_processing.html",
+        context=_context(
+            request,
+            current_user,
+            db,
+            processes=processes,
+            interval_options=service.interval_options(),
+        ),
+    )
+
+
+@router.post("/background-processing/{job_key}", response_class=HTMLResponse)
+def update_background_processing(
+    job_key: str,
+    request: Request,
+    interval_minutes: int = Form(...),
+    enabled: str | None = Form(None),
+    csrf_token: str = Form(...),
+    current_user: User = Depends(require_platform_admin),
+    db: Session = Depends(get_db),
+) -> Response:
+    validate_csrf(request, csrf_token)
+    service = ScheduledJobService(db)
+    try:
+        service.update(
+            job_key,
+            enabled=enabled is not None,
+            interval_minutes=interval_minutes,
+            actor=current_user,
+        )
+    except ValueError as exc:
+        processes = [service.view(setting) for setting in service.list_settings()]
+        return templates.TemplateResponse(
+            request=request,
+            name="admin/background_processing.html",
+            context=_context(
+                request,
+                current_user,
+                db,
+                processes=processes,
+                interval_options=service.interval_options(),
+                error=str(exc),
+            ),
+            status_code=400,
+        )
+    return RedirectResponse(
+        "/admin/background-processing?updated=1", status_code=status.HTTP_303_SEE_OTHER
+    )
+
+
+@router.post("/background-processing/{job_key}/run", response_class=HTMLResponse)
+def run_background_processing_now(
+    job_key: str,
+    request: Request,
+    csrf_token: str = Form(...),
+    current_user: User = Depends(require_platform_admin),
+    db: Session = Depends(get_db),
+) -> Response:
+    validate_csrf(request, csrf_token)
+    try:
+        ScheduledJobService(db).run_now(job_key, actor=current_user)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    return RedirectResponse(
+        "/admin/background-processing?queued=1", status_code=status.HTTP_303_SEE_OTHER
+    )

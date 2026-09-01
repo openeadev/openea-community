@@ -66,7 +66,7 @@ docker compose exec web alembic current
 For the 1.5.2 baseline, the expected migration head is:
 
 ```text
-0015_phase15
+0016_phase15
 ```
 
 ## 3. Do not seed Northstar Financial
