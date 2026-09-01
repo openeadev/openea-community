@@ -67,6 +67,23 @@ Use **Explore → Record status → Archived** to search archived records. **All
 
 Restoring an object does not recreate its relationships. The original relationship records were preserved during archival and become current-context relationships again automatically when the object is restored.
 
+### Current-state and historical-display policy
+
+| Area | Default behavior for archived objects |
+| --- | --- |
+| Explore / global search | Hidden; use **Archived** or **All records** to find them. |
+| Explore historical results | Normal theme background plus **Archived** badge/status/date. |
+| Relationships tab | Hidden; select **Show archived** to reveal historical entries. |
+| New relationship target lists | Excluded. |
+| Impact Analysis | Excluded from current-state traversal. |
+| Metrics / Analytics / Findings | Excluded from current-state calculations and operational lists. |
+| Reviews | Excluded from the overdue Reviews workspace. |
+| Portfolios / Roadmaps | Excluded from operational views. |
+| Direct archived-object URL | Viewable and clearly marked historical. |
+| History / audit | Retained as historical evidence. |
+
+OpenEA intentionally uses status, badges, dates, and explicit historical controls rather than a special light/dark row background to indicate archive state.
+
 ## Detail tabs
 
 An object detail page can expose areas such as:

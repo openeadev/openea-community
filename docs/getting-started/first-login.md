@@ -56,6 +56,8 @@ docker compose ps
 
 You should see `postgres`, `web`, and `worker` services.
 
+As a Platform Administrator, also open **Management → Background Processing** and verify the default schedules: Analytics & Metrics every 6 hours and Findings Evaluation every 1 hour. Repository changes still queue event-driven work immediately; the schedules ensure date-dependent conditions are refreshed even while the repository is idle.
+
 If you are troubleshooting calculated data, you can force synchronous processing:
 
 ```bash

@@ -78,7 +78,7 @@ python -m app.cli seed-system
 uvicorn app.main:app ...
 ```
 
-The worker waits for the web health check before it begins processing queued analytics and findings jobs.
+The worker waits for the web health check before it begins processing queued analytics and findings jobs. It also evaluates the Platform Administrator-controlled periodic schedules used to keep date-dependent analytics and findings current.
 
 ## 4. Verify the deployment
 
@@ -157,6 +157,6 @@ Before exposing OpenEA outside a local network:
 - Protect PostgreSQL from untrusted networks.
 - Keep `DEBUG=false`.
 - Back up PostgreSQL regularly.
-- Keep the worker running so analytics and findings stay current.
+- Keep the worker running so event-driven jobs and scheduled analytics/findings processing stay current.
 
 Continue with [First Login and Setup](first-login.md).

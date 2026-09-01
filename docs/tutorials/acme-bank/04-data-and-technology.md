@@ -108,7 +108,7 @@ Later, do **not** create a `system of record for` relationship to this object be
 
 ---
 
-# Technologies
+## Technologies
 
 A Technology in OpenEA represents an architectural technology product or platform, not a particular server or operational instance.
 

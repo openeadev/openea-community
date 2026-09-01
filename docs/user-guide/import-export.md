@@ -69,4 +69,4 @@ Committed relationship rows go through the normal RelationshipService, including
 
 ## Export
 
-Filtered object export is available from `/exports/objects.csv`. Export honors supported query, object type, record status, and criticality filters across the full result set, not only the current UI page.
+Filtered object export is available from `/exports/objects.csv`. Export honors supported query, object type, record status, and criticality filters across the full result set, not only the current UI page. If Explore is filtered to **Archived** or **All records**, export uses the same archival scope.

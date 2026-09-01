@@ -68,3 +68,11 @@ is not the same as
 OpenEA application role
     "Architect"
 ```
+
+## Current and historical objects
+
+Draft, Active, and Inactive objects are current repository records. Archived objects are retained as historical records. Normal search, analytics, findings, portfolios, roadmaps, impact analysis, and relationship target selectors operate on current records by default.
+
+Archived records remain searchable through Explore's **Archived** and **All records** scopes, remain directly viewable, and can be restored by an Architect or Architecture Administrator. Archive state is communicated through status/badges and filtering rather than special light/dark row backgrounds.
+
+For Role objects, remember that the universal **Owner organization** field describes stewardship of the OpenEA record, while the type-specific **Role organization** describes where the real-world role belongs or operates. Those two references may be the same or different.

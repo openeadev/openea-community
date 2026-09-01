@@ -25,6 +25,7 @@ Management options are shown according to role:
 - **Users** — Platform Administrator
 - **Service Accounts** — Platform Administrator
 - **API Tokens** — Platform Administrator
+- **Background Processing** — Platform Administrator
 
 Every signed-in user can manage their own Personal Access Tokens from the sidebar footer.
 
@@ -68,4 +69,4 @@ The **Record status** selector combines normal status filtering with archival di
 | Archived | Archived records only. |
 | All records | Current and archived records together. |
 
-Archived rows are visually marked in Explore. Opening one shows the retained historical record and, for authorized users, a **Restore** action.
+Archived rows use the same theme-controlled table background as current rows in both light and dark mode. OpenEA uses the red **Archived** badge, the `Archived` Record Status, and the archived date to communicate historical state rather than replacing the row background. Opening an archived record shows the retained historical record and, for authorized users, a **Restore** action.

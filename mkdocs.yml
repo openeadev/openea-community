@@ -100,6 +100,8 @@ nav:
       - Configuration: administration/configuration.md
       - API Tokens and Service Accounts: administration/api-tokens-service-accounts.md
       - Worker and Background Calculations: administration/worker-jobs.md
+      - Public Demo on Render: administration/render-demo.md
+      - Troubleshooting: administration/troubleshooting.md
       - Backup and Restore: administration/backup-restore.md
       - Upgrading: administration/upgrading.md
       - Security: administration/security.md
@@ -115,4 +117,5 @@ nav:
   - Development:
       - Architecture: development/architecture.md
       - Local Development: development/local-development.md
+      - Documentation: development/documentation.md
       - Testing: development/testing.md

@@ -46,11 +46,11 @@ The 1.5.2 Community baseline includes:
 - Governed relationship types and valid source/target rules
 - Schema-validated object-specific metadata
 - Local authentication and five application roles
-- Repository create, edit, browse, search, and archival workflows
+- Repository create, edit, browse, search, archival, historical discovery, and restore workflows
 - Governance transitions, reviews, comments, and immutable audit history
 - Architecture Decision Records and decision supersession
 - Recursive impact analysis with relationship-path explanations
-- Deterministic Application, Technology, Capability, Data Quality, and Impact Severity metrics
+- Deterministic Application, Technology, Capability, Data Quality, and Impact Severity metrics with explainable formulas and remediation guidance
 - Repository Health drill-downs
 - Built-in and custom declarative finding rules
 - Application and Technology portfolios
@@ -59,7 +59,7 @@ The 1.5.2 Community baseline includes:
 - Object CSV export
 - REST API v1
 - Personal Access Tokens and service accounts
-- PostgreSQL-backed background job processing
+- PostgreSQL-backed event-driven and Platform Administrator-scheduled background processing
 - Docker Compose deployment
 
 ## Live demo

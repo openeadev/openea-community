@@ -1,12 +1,12 @@
 # OpenEA Community
 
-OpenEA Community is a self-hosted, open-source enterprise architecture knowledge and decision-support platform. Version **1.5.2** establishes the independent Community distribution baseline, with Community-specific package identity and release hygiene while preserving all 1.5.1 application behavior and database compatibility.
+OpenEA Community is a self-hosted, open-source enterprise architecture knowledge and decision-support platform. Version **1.5.2** establishes the independent Community distribution baseline and includes the current Community maintenance updates for deployment, documentation, relationships, explainable analytics, scheduled processing, archive/restore behavior, and quality fixes. Existing 1.5.1 repository data remains upgrade-compatible.
 
 OpenEA Community is repository-first: architecture objects and governed relationships are authoritative, while search, impact analysis, risk, findings, portfolios, capability maps, and roadmaps are derived from that repository. OpenEA Community is licensed under the GNU Affero General Public License v3.0; see `LICENSE`.
 
-## MVP capabilities
+## Community capabilities
 
-OpenEA Community 1.0 includes the 12 standard enterprise architecture object types, governed relationship rules, schema-validated flexible metadata, local authentication and five application roles, repository CRUD and archival, PostgreSQL full-text/fuzzy search, governance and ADR workflows, reviews, comments, immutable audit history, recursive impact analysis, explainable risk/data-quality metrics, a declarative findings engine, Application and Technology portfolios, capability maps, derived roadmaps, CSV import/export, and versioned REST endpoints under `/api/v1`.
+OpenEA Community includes the 12 standard enterprise architecture object types, governed relationship rules, schema-validated flexible metadata, local authentication and five application roles, repository CRUD and archival, PostgreSQL full-text/fuzzy search, governance and ADR workflows, reviews, comments, immutable audit history, recursive impact analysis, explainable risk/data-quality metrics, a declarative findings engine, Application and Technology portfolios, capability maps, derived roadmaps, CSV import/export, and versioned REST endpoints under `/api/v1`.
 
 The runtime remains intentionally small: Python 3.10+, FastAPI, SQLAlchemy, PostgreSQL 16+, Jinja2, HTMX, Tabler/Bootstrap, a PostgreSQL-backed worker queue, and Docker Compose. It does not require Redis, Celery, Kafka, Elasticsearch, Neo4j, Node.js, a JavaScript SPA framework, cloud SaaS, or AI.
 
@@ -110,7 +110,7 @@ make docs
 By default, the documentation is available at:
 
 ```text
-http://127.0.0.1:8001/
+http://127.0.0.1:8000/
 ```
 
 `make docs` writes the MkDocs process ID to `.mkdocs.pid` and its output to `.mkdocs.log`. Both files are ignored by Git.
@@ -172,8 +172,7 @@ For detailed product documentation, tutorials, administration guidance, and refe
 
 ## UI branding
 
-See `docs/ui-branding.md` for the 1.2.0 Tabler shell, theme behavior, and placeholder asset paths.
-
+The application uses the Tabler-based Community shell with light/dark theme support and OpenEA Community branding. Product usage guidance is maintained in the published documentation rather than duplicated here.
 
 ## Relationship CSV Import
 
@@ -181,4 +180,4 @@ Version 1.4.0 adds a separate relationship import workflow under **Import**. Rel
 
 ## Custom finding rules
 
-Version 1.5.2 is the first independently maintained OpenEA Community baseline. It preserves the 1.5.1 findings and Repository Health behavior, uses the `openea-community` Python distribution name, and adds source/release hygiene files without changing the database schema. See `RELEASE_1_5_2.md`, `RELEASE_1_5_1.md`, `docs/findings.md`, and `docs/analytics.md`.
+Version 1.5.2 is the first independently maintained OpenEA Community baseline. It preserves the 1.5.1 findings and Repository Health behavior, uses the `openea-community` Python distribution name, and includes subsequent 1.5.2 maintenance updates. The current 1.5.2 Alembic head is `0016_phase15`; migration `0016_phase15` adds only scheduled background-processing settings. See `RELEASE_1_5_2.md`, `RELEASE_1_5_1.md`, `docs/user-guide/findings.md`, `docs/user-guide/analytics.md`, and `docs/reference/finding-rules.md`.

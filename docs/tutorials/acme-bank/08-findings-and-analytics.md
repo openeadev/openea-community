@@ -23,7 +23,9 @@ For a normal Docker Compose installation:
 docker compose ps
 ```
 
-The `worker` service should be running. Repository changes queue background calculation jobs, and the worker consumes those jobs.
+The `worker` service should be running. Repository changes queue background calculation jobs, and the worker consumes those jobs. Platform Administrator schedules also queue periodic Analytics & Metrics and Findings Evaluation work so time-dependent conditions stay current when the repository is idle.
+
+The tutorial uses the synchronous `*-now` commands below only to remove timing ambiguity while you follow the exercises; those commands are not the normal periodic scheduler.
 
 For details, see [Worker and Background Calculations](../../administration/worker-jobs.md).
 

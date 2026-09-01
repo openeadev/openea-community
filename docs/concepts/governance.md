@@ -50,10 +50,16 @@ Objects can have review frequencies of Monthly, Quarterly, Semiannual, or Annual
 
 If an explicit next date is not provided, OpenEA derives it from the review frequency.
 
-The **Reviews** workspace lists overdue active records.
+The **Reviews** workspace lists non-archived records whose explicit **Next Review Date** is overdue. It also explains all applicable attention reasons without broadening that overdue-record scope.
 
 ## Comments and audit history
 
 Comments are collaboration records attached to an architecture object. They are not architecture objects and do not participate in the relationship graph.
 
 Significant writes generate audit events containing actor, action, entity, time, source, and before/after state where applicable. PostgreSQL protects the audit-event table with an immutable-table trigger that rejects updates and deletes.
+
+## Archival and restoration
+
+OpenEA uses soft archival instead of destructive deletion for architecture objects. Archiving sets the Record Status to `Archived`, records an archival timestamp, preserves audit history, and preserves existing relationships. Operational views exclude archived objects unless the user explicitly requests historical records.
+
+Explore can search **Archived** or **All records**. The Relationships tab hides historical entries by default and exposes them through **Show archived**. Authorized Architects and Architecture Administrators can restore an archived object; preserved relationships return to current-state views automatically.

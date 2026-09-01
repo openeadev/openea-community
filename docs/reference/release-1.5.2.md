@@ -49,4 +49,22 @@ Later 1.5.2 maintenance updates also include:
 Scheduled background processing adds migration `0016_phase15`; existing architecture and governance data are preserved.
 ## Archived repository records
 
-Community 1.5.2 maintenance updates preserve soft-archived objects as searchable historical records. Explore hides archived records by default but supports **Archived** and **All records** scopes. Existing relationships remain stored and are visibly marked when a related object is archived; users can show or hide those archived related objects. Authorized users can restore an archived object without recreating its preserved relationships.
+Community 1.5.2 maintenance updates preserve soft-archived objects as searchable historical records. Explore hides archived records by default but supports **Archived** and **All records** scopes. Existing relationships remain stored. The browser Relationships tab hides historical entries by default; **Show archived** reveals relationships to archived objects and archived relationship records using the normal light/dark theme background plus an **Archived** badge. Authorized users can restore an archived object without recreating its preserved relationships.
+
+## Additional 1.5.2 quality fixes
+
+- Relationship target selection is filtered to the governed target type, excludes archived objects, and is sorted alphabetically.
+- Relationship editing can change a valid relationship type/target pair while preserving the source object.
+- Object alias updates preserve unchanged aliases and deduplicate duplicate aliases case-insensitively.
+- Role **Owner organization** and **Role organization** are explicitly independent concepts and may be the same or different.
+- Object-reference properties display referenced object names rather than raw UUID values in the repository detail view.
+- Unexpected browser errors use a branded error page with a Request ID; unexpected API errors return a safe message and Request ID while detailed exceptions remain in server logs.
+- Archived Explore and Relationships rows use normal theme-controlled backgrounds in both light and dark mode; archive state is communicated through badges, status, dates, filtering, and historical controls.
+
+## Documentation and demo deployment
+
+- Added the MkDocs/Material documentation site published at `docs.openea.dev`.
+- Added the Acme Bank hands-on tutorial for learning from an empty repository while retaining Northstar Financial as the populated evaluation model.
+- Added README/Makefile workflows for local documentation preview and strict builds.
+- Documented the optional Render public-demo pattern, including commit-aware reset/reseed behavior, `/health/ready`, Psycopg 3 URL normalization, and running the worker in the small demo web container.
+- Community navigation branding identifies the Community edition, while theme-sensitive graph and archived-state rendering now remain readable in both light and dark modes.

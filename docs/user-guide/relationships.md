@@ -29,7 +29,9 @@ Archiving an object does **not** delete or automatically archive its existing re
 
 On an object's **Relationships** tab, current relationships are shown by default. Archived related objects and separately archived relationship records are hidden until you select **Show archived**. Select **Hide archived** to return to the current-state view.
 
-When archived entries are shown, OpenEA keeps the normal theme-controlled table background in both light and dark mode and uses the red **Archived** badge as the visual status indicator. Existing relationship history remains stored, but an archived object is not eligible as the target of a new relationship.
+When archived entries are shown, OpenEA keeps the normal theme-controlled table background in both light and dark mode and uses the red **Archived** badge as the visual status indicator. The single **Show archived** control reveals both relationships to archived objects and relationship records that were themselves archived. Historical relationship entries are read-only in this view.
+
+The Relationships tab count reflects the entries currently displayed: it counts current relationships by default and includes historical entries after **Show archived** is selected. Existing relationship history remains stored, but an archived object is not eligible as the target of a new relationship. When an archived object is restored, its preserved relationships return to the current-state view automatically.
 
 ## Edit a relationship
 

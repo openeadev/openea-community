@@ -1,6 +1,6 @@
 # OpenEA Community 1.5.2
 
-OpenEA Community 1.5.2 establishes the clean, independently maintained Community baseline derived from OpenEA Community 1.5.1. This is a maintenance and product-identity release, not a feature release.
+OpenEA Community 1.5.2 establishes the clean, independently maintained Community baseline derived from OpenEA Community 1.5.1. It began as a maintenance and product-identity baseline and now also includes the consolidated 1.5.2 Community quality, documentation, deployment, scheduling, archive/restore, and usability updates described below.
 
 ## What changed
 
@@ -12,6 +12,10 @@ OpenEA Community 1.5.2 establishes the clean, independently maintained Community
 - Replaced hard-coded `1.5.1` labels in application templates with `settings.app_version`.
 - Updated release metadata and regression expectations to version 1.5.2.
 - Added Makefile and README support for installing, previewing, stopping, checking, and strictly building the MkDocs documentation site.
+- Added the MkDocs documentation site, GitHub Pages publication workflow guidance, and the Acme Bank from-scratch tutorial sequence.
+- Added optional automated Render public-demo deployment support, including Psycopg 3 URL normalization, health checks, commit-aware demo reset/reseed behavior, and running the existing worker alongside Uvicorn in the small demo container.
+- Updated Community navigation branding to distinguish **OpenEA Community** and corrected theme-sensitive graph/archived-state presentation.
+- Moved relationship-form dynamic behavior into a CSP-compliant static JavaScript asset.
 - Improved the relationship form so valid relationship choices are grouped alphabetically and target records are dynamically filtered to the selected governed target type.
 - Target selectors now exclude archived records, retain Draft/Active/Inactive records, and sort records alphabetically by name.
 - Relationship editing now permits changing the valid relationship type/target-type combination and target object while keeping the source object fixed.
@@ -38,7 +42,7 @@ OpenEA Community 1.5.2 establishes the clean, independently maintained Community
 
 OpenEA Community 1.5.1 installations can upgrade in place. Preserve the PostgreSQL data volume and `.env`, replace/rebuild the application, and allow the normal startup migration command to run. Migration `0016_phase15` creates the scheduler settings table without recreating architecture data. Confirm the database reaches `0016_phase15 (head)`.
 
-See `docs/upgrading.md` for the detailed procedure.
+See `docs/administration/upgrading.md` for the detailed procedure.
 
 ## Front-end dependency note
 
@@ -47,3 +51,13 @@ The 1.5.2 baseline still uses the pinned jsDelivr references inherited from 1.5.
 ## Archived repository records
 
 - Added archived-record discovery, visual relationship history, show/hide archived-related controls, direct archived-record viewing, and restore support.
+
+## Additional maintenance quality fixes
+
+- Fixed object alias editing so unchanged aliases are reused and duplicate aliases are deduplicated case-insensitively.
+- Clarified the distinction between universal **Owner organization** metadata and type-specific **Role organization**.
+- Added safe global unexpected-error handling with branded browser errors, Request IDs, and safe API `500` payloads.
+- Resolved object-reference properties to object names in repository detail views instead of displaying raw UUID values.
+- Standardized archived-record presentation across light and dark themes using normal theme backgrounds plus **Archived** status indicators.
+- Changed the browser Relationships tab to a current-state-first view: historical entries are hidden by default and a single **Show archived** control reveals both archived related objects and archived relationship records.
+- Preserved relationships across object archival and restore. Explore can search **Archived** or **All records**, and authorized users can restore archived objects.

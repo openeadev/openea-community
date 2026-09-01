@@ -1,7 +1,17 @@
 # Changelog
 
-## 1.5.2 - Independent Community baseline
+## 1.5.2 - Independent Community baseline and maintenance updates
 
+- Added the MkDocs/Material documentation site, GitHub Pages publication workflow, and the full Acme Bank from-scratch tutorial sequence.
+- Added optional automated Render public-demo deployment support with Psycopg 3 URL normalization, database-aware health checking, commit-aware demo reset/reseed behavior, and the existing worker running alongside Uvicorn in the demo container.
+- Updated Community navigation branding and corrected theme-sensitive Impact Analysis/archived-state presentation.
+- Moved dynamic relationship-form behavior into a CSP-compliant static JavaScript asset.
+- Standardized archived-record presentation across light and dark themes: normal theme backgrounds remain intact and archive state is conveyed with badges/status metadata.
+- Changed browser relationship views to hide archived related objects and archived relationship records by default behind a single **Show archived** control.
+- Fixed object alias editing to reuse unchanged aliases and case-insensitively deduplicate repeated alias input.
+- Clarified independent **Owner organization** and type-specific **Role organization** semantics.
+- Resolved object-reference fields to repository object names instead of raw UUID values in detail views.
+- Added global safe unexpected-error handling with user-facing Request IDs and server-side exception detail.
 - Added archived-record discovery in Explore with **All current records**, Draft, Active, Inactive, Archived, and **All records** scopes.
 - Preserved object relationships during archival while visually marking archived related objects and adding show/hide controls on the Relationships tab.
 - Added direct viewing and restoration of archived objects; restoration reuses the pre-archive Record Status when available and preserves existing relationships.
@@ -21,7 +31,7 @@
 - Added `.env.example`, `.gitignore`, and `.dockerignore` for clean public-source and Docker packaging.
 - Removed generated Python/cache/package metadata from the release archive.
 - Replaced hard-coded UI release labels with the configured application version.
-- Preserved 1.5.1 repository data and database-schema compatibility while applying 1.5.2 maintenance/UI fixes.
+- Preserved 1.5.1 repository data through in-place upgrades; the current 1.5.2 maintenance head adds only the `0016_phase15` scheduler-settings migration.
 - Added MkDocs development commands to the Makefile for background preview, status, stop, and strict documentation builds, with corresponding README guidance.
 - Grouped relationship choices alphabetically by relationship label and target object type.
 - Filtered relationship target objects dynamically to the selected governed target type, sorted them alphabetically, and excluded archived records while retaining Draft, Active, and Inactive records.

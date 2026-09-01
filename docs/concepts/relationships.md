@@ -58,3 +58,9 @@ Repository relationships are used by:
 - Findings
 - Portfolios
 - Roadmaps and change context
+
+## Relationship history and archived objects
+
+Archiving an architecture object does not delete its relationships. OpenEA preserves them so historical architecture remains explainable and so restoration does not require relationship recreation.
+
+The browser Relationships tab shows current relationships by default. **Show archived** reveals both relationships to archived objects and relationship records that were independently archived. Historical entries use the normal theme background plus an **Archived** badge and are read-only in that view. Archived objects are not offered as targets for new relationships.

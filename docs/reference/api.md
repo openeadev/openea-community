@@ -53,7 +53,7 @@ PATCH  /api/v1/relationships/{relationship_id}
 DELETE /api/v1/relationships/{relationship_id}
 ```
 
-When `object_id` is supplied to the relationship list endpoint, `include_archived_related=false` hides relationships whose other endpoint is an archived object. The default is `true` so preserved historical context remains visible.
+When `object_id` is supplied to the relationship list endpoint, `include_archived_related=false` hides relationships whose other endpoint is an archived object. The API default is `true` so clients can retrieve preserved historical context unless they request a current-state-only relationship list. The browser Relationships tab is intentionally different: it hides historical entries by default and exposes them through **Show archived**.
 
 `PATCH /api/v1/relationships/{relationship_id}` can update relationship metadata and can optionally change `relationship_key` and `target_object_id`. The source object remains fixed. Any new relationship type/target combination must be valid for the source object under the governed metamodel, the target must be non-archived, and duplicate relationships are rejected.
 
@@ -107,3 +107,16 @@ A token with only `objects:read` receives `403` when used against an object-writ
 ## Service-layer consistency
 
 API writes use the same ObjectService and RelationshipService paths as browser operations. They do not bypass metamodel validation, audit behavior, authorization, or background recalculation triggers.
+
+## Request IDs and unexpected errors
+
+OpenEA returns an `X-Request-ID` response header for request correlation. Request-validation responses include a `request_id`, and unexpected API `500` responses use a safe payload such as:
+
+```json
+{
+  "detail": "OpenEA encountered an unexpected error.",
+  "request_id": "..."
+}
+```
+
+Use the Request ID to locate the detailed server-side log entry. Database exceptions and stack traces are not returned to API clients.

@@ -11,6 +11,7 @@ OpenEA Community 1.5.2 supports traversal depth from 1 through 5. The default is
 ## How traversal works
 
 OpenEA starts at the selected object and traverses non-archived relationships in both stored and inverse directions.
+Archived objects are excluded from normal Impact Analysis, so the graph represents the current architecture. Historical relationships remain preserved in the repository but do not participate when one of their endpoints is archived.
 
 For every result, it preserves:
 

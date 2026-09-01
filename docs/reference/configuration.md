@@ -37,3 +37,7 @@ The public-demo Blueprint additionally uses:
 - `DEMO_USER_PASSWORD`
 
 These are demo-hosting controls rather than requirements for normal self-hosted OpenEA installations.
+
+## Settings stored in PostgreSQL
+
+Not every administrative setting is an environment variable. The periodic **Analytics & Metrics** and **Findings Evaluation** schedules are persisted in `scheduled_job_settings` and maintained through **Management → Background Processing**.

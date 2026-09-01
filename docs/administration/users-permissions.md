@@ -16,7 +16,7 @@ A user can have more than one application role.
 
 ## Repository permissions
 
-| Application role | Browse/detail | Create objects | Edit objects | Archive objects |
+| Application role | Browse/detail | Create objects | Edit objects | Archive / restore objects |
 | --- | --- | --- | --- | --- |
 | Platform Administrator | Yes | No* | No* | No* |
 | Architecture Administrator | Yes | Yes | Yes | Yes |

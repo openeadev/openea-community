@@ -1,6 +1,6 @@
 # Portfolios and Roadmaps
 
-Portfolio and roadmap views are derived from the architecture repository. They do not create a separate portfolio data store.
+Portfolio and roadmap views are derived from the architecture repository. They do not create a separate portfolio data store. Archived objects are excluded from these operational views so they describe the current architecture; historical records remain available through Explore and object History.
 
 ## Application Portfolio
 

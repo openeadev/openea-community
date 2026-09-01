@@ -51,3 +51,9 @@ The Compose stack additionally uses:
 - `POSTGRES_USER`
 - `POSTGRES_PASSWORD`
 - `OPENEA_PORT`
+
+## Background-processing schedules
+
+Analytics & Metrics and Findings Evaluation intervals are **not** environment variables. They are platform settings stored in PostgreSQL and maintained by a Platform Administrator under **Management → Background Processing**.
+
+This keeps operational scheduling editable without changing container environment configuration. See [Worker and Background Calculations](worker-jobs.md).

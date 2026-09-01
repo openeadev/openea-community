@@ -268,7 +268,7 @@ OpenEA performs a soft archive:
 The record is no longer treated as a current repository object by normal search or analysis.
 
 !!! important "Archive is not hard delete"
-    Archiving preserves historical architecture context. OpenEA's repository-first/history principles favor archival over destructive deletion where practical. Related objects continue to show the preserved relationship with an **Archived** marker, and users can show or hide archived related objects on the Relationships tab.
+    Archiving preserves historical architecture context. OpenEA's repository-first/history principles favor archival over destructive deletion where practical. Related relationships are preserved but hidden from the normal Relationships view. Select **Show archived** to reveal the historical entry with an **Archived** marker; select **Hide archived** to return to the current-state view.
 
 ### Find the archived record
 
