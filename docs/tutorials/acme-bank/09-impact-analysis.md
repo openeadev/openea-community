@@ -28,18 +28,8 @@ The page summarizes:
 - Indirect impact — depth 2 or greater
 - Traversal depth — configured maximum hops
 
-### What should be reachable
-
-At minimum, the Acme model provides these direct relationships around Java 8:
-
-```text
-Legacy Wire Transfer → uses → Java 8
-Legacy Wire Retirement → retires → Java 8
-```
-
-Because Impact Analysis traverses active relationships in both stored and inverse directions, starting from Java 8 can reveal the application using it and the initiative retiring it.
-
-From Legacy Wire Transfer, the traversal can continue into other connected architecture, including the retirement initiative and whatever additional relationships exist in your repository.
+!!! info "What should be reachable"
+    At minimum, the Acme model contains `Legacy Wire Transfer → uses → Java 8` and `Legacy Wire Retirement → retires → Java 8`. Because Impact Analysis traverses active relationships in both stored and inverse directions, starting from Java 8 can reveal the application using it and the initiative retiring it. At deeper traversal depths, OpenEA can continue through those neighbors into additional connected architecture.
 
 !!! note "The graph is derived"
     The Cytoscape graph is a visualization of the traversal result. It is not stored as a separate authoritative diagram.
@@ -68,16 +58,25 @@ Depth 1 shows only direct neighbors. Greater depth follows additional connected 
 
 ## 4. Use filters
 
-Use the Impact Analysis filters to experiment with:
+Impact Analysis combines filters with clear semantics:
 
-- Relationship types included in traversal
-- Object types displayed in results
+- **Relationship types** control which relationship edges OpenEA is allowed to traverse. Multiple selected relationship types use OR.
+- **Result object types** control which destination object types count as results. Multiple selected object types use OR.
+- **Traversal depth** limits how many hops OpenEA may follow.
+- The three filter groups are combined with AND.
 
-For example, restrict the displayed objects to **Application** to focus on application exposure to Java 8.
+At traversal depths greater than 1, OpenEA preserves intermediate path nodes needed to explain how a matching result was reached.
 
-Then clear the filter to restore the broader architecture context.
+Try a concrete Digital Banking filter after completing this chapter:
 
-Filters change only the analysis view; they do not alter the repository.
+1. Set **Traversal depth** to `1 hop`.
+2. Select **supports / supported by** as the only Relationship type.
+3. Select **Business Capability** as the only Result object type.
+4. Select **Analyze**.
+
+In the canonical Acme Bank model, Digital Banking supports **Customer Management** and **Deposit Account Management**, so both direct Business Capability relationships should appear and unrelated Technologies, Data Objects, Organizations, Roles, Initiatives, Services, and Principles should not appear. If your repository contains only one matching `supports` relationship, only that one result should appear.
+
+Clear the filters to restore the broader architecture context. Filters change only the analysis view; they do not alter the repository.
 
 ## 5. Analyze Digital Banking
 

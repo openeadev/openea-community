@@ -46,15 +46,14 @@ Enter:
 
 You may leave **Effective Date** and **Review Date** blank for now.
 
-### Principle Status on creation
+!!! info "Principle status on creation"
+    The form contains the schema-driven **Principle Status** field, but OpenEA Community 1.5.2 forces a newly created Architecture Principle to `Draft`. Later status changes are controlled by the Lifecycle workflow.
 
-The form contains the schema-driven Principle Status field, but OpenEA 1.5.2 forces a newly created Architecture Principle to `Draft`. The Lifecycle workflow controls later transitions.
-
-Select **Create object**.
+Select **Create object**. OpenEA saves the principle and opens the new **Prefer Strategic Technologies** record.
 
 ## 2. Approve the principle through the Lifecycle workflow
 
-Open **Prefer Strategic Technologies** and select the **Lifecycle** tab.
+On the **Prefer Strategic Technologies** record that OpenEA opened after creation, select the **Lifecycle** tab.
 
 The current principle status should be `Draft`.
 
@@ -121,25 +120,16 @@ Enter:
 
 Leave **Exception Expiration** blank.
 
-### Decision Number is automatic
+!!! info "OpenEA controls the decision number and initial status"
+    **Decision Number** is generated automatically. OpenEA assigns a value such as `ADR-0001`; the exact number depends on other Architecture Decisions already in the repository.
 
-The **Decision Number** field is disabled. OpenEA assigns a value such as:
+    **Decision Status** is also controlled. A new Architecture Decision is forced to `Draft` in OpenEA Community 1.5.2, and later status changes are performed through the Lifecycle workflow.
 
-```text
-ADR-0001
-```
-
-The exact number depends on other Architecture Decisions already in your repository. Do not try to make the number match this documentation exactly.
-
-### Decision Status is controlled
-
-A new Architecture Decision is forced to `Draft` in OpenEA 1.5.2. The Lifecycle workflow changes it later.
-
-Select **Create object**.
+Select **Create object**. OpenEA saves the decision and opens the new **Standardize Digital Channels on Java 21** record.
 
 ## 5. Accept the Architecture Decision
 
-Open the new decision's **Lifecycle** tab.
+On the **Standardize Digital Channels on Java 21** record that OpenEA opened after creation, select the **Lifecycle** tab.
 
 The standard path used here is:
 
@@ -211,9 +201,9 @@ The next-review date is intentionally in the past. Leave it that way until the r
 
 Select **Reviews** from the Governance section of the navigation.
 
-Regulatory Reporting should be eligible to appear as overdue based on its active record status and past next-review date.
+Regulatory Reporting should appear because its explicit next-review date is in the past. The **Attention reason** column explains why the row needs attention and can also show related review context, such as no completed review, a `Needs Review` governance state, or low/unknown confidence when those conditions apply.
 
-The Reviews workspace is an operational view of repository review state; it is not a second source of architecture records.
+The Reviews workspace preserves the same overdue-review scope; the explanation does not create a second source of architecture records or broaden which records qualify.
 
 ## 9. Verify all twelve object types
 

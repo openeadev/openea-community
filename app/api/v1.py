@@ -79,6 +79,8 @@ class RelationshipWrite(BaseModel):
 
 
 class RelationshipPatch(BaseModel):
+    relationship_key: str | None = None
+    target_object_id: str | None = None
     description: str = ""
     criticality: str | None = None
     confidence: str | None = None

@@ -121,3 +121,44 @@ def test_viewer_cannot_govern_but_can_view_history(client, db: Session) -> None:
         token = re.search(r'name="csrf_token" value="([^"]+)"', page.text).group(1)
         denied = client.post(f"/explore/{obj.id}/governance", data={"status": "Submitted", "csrf_token": token})
         assert denied.status_code == 403
+
+
+def test_reviews_workspace_explains_all_applicable_attention_reasons(client, db: Session) -> None:
+    actor = user_with_role(db, "review_reason_architect", ARCHITECT)
+    obj = create_object(db, actor, "application", "Review Reason App", {})
+    obj.next_review_date = date.today() - timedelta(days=3)
+    obj.last_reviewed_date = None
+    obj.governance_status = "Needs Review"
+    obj.confidence = "Low"
+    db.commit()
+
+    item = next(
+        item
+        for item in GovernanceService(db).review_attention_items()
+        if item.object.id == obj.id
+    )
+    assert any("overdue by 3 days" in reason for reason in item.reasons)
+    assert "No completed review has been recorded." in item.reasons
+    assert "Governance status is Needs Review." in item.reasons
+    assert "Confidence is Low." in item.reasons
+
+    response = client.get("/login")
+    import re
+    token = re.search(r'name="csrf_token" value="([^"]+)"', response.text)
+    assert token
+    client.post(
+        "/login",
+        data={
+            "username": actor.username,
+            "password": "VeryStrongPass123!",
+            "csrf_token": token.group(1),
+            "next": "/reviews",
+        },
+        follow_redirects=False,
+    )
+    page = client.get("/reviews")
+    assert page.status_code == 200
+    assert "Attention reason" in page.text
+    assert "Review overdue by 3 days" in page.text
+    assert "Governance status is Needs Review." in page.text
+    assert "Confidence is Low." in page.text

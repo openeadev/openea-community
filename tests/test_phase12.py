@@ -148,6 +148,23 @@ def test_api_v1_relationship_impact_findings_reviews_and_analytics(client: TestC
     impact = client.get(f"/api/v1/impact/{app['id']}")
     assert impact.status_code == 200
     assert any(item["object"]["id"] == cap["id"] for item in impact.json()["direct"])
+    tech = client.post(
+        "/api/v1/objects",
+        json={"object_type_key": "technology", "name": "API Runtime", "record_status": "Active", "properties": {}},
+    ).json()
+    retargeted = client.patch(
+        f"/api/v1/relationships/{relationship_id}",
+        json={
+            "relationship_key": "uses",
+            "target_object_id": tech["id"],
+            "description": "API-managed technology relationship",
+            "confidence": "High",
+            "properties": {},
+        },
+    )
+    assert retargeted.status_code == 200
+    assert retargeted.json()["relationship_type"]["key"] == "uses"
+    assert retargeted.json()["target_object_id"] == tech["id"]
     assert client.get("/api/v1/findings").status_code == 200
     assert client.get("/api/v1/reviews").status_code == 200
     assert client.get("/api/v1/analytics").status_code == 200

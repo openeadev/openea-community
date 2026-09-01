@@ -70,15 +70,45 @@ class RelationshipService:
             raise RelationshipServiceError("This relationship already exists") from exc
         return rel
 
-    def update_relationship(self, rel: ArchitectureRelationship, *, description: str, criticality: str | None,
-                            confidence: str | None, valid_from: str | None, valid_until: str | None,
-                            source: str | None, properties: dict[str, Any], actor: User, audit_source: str = "Web",
-                            correlation_id: str | None = None) -> ArchitectureRelationship:
+    def update_relationship(
+        self,
+        rel: ArchitectureRelationship,
+        *,
+        description: str,
+        criticality: str | None,
+        confidence: str | None,
+        valid_from: str | None,
+        valid_until: str | None,
+        source: str | None,
+        properties: dict[str, Any],
+        actor: User,
+        relationship_key: str | None = None,
+        target_object_id: str | None = None,
+        audit_source: str = "Web",
+        correlation_id: str | None = None,
+    ) -> ArchitectureRelationship:
         before = self.audit.relationship_state(rel)
+        old_target_id = rel.target_object_id
+
+        target_obj = rel.target_object
+        if target_object_id is not None:
+            target_obj = self.objects.get_by_id(target_object_id)
+            if target_obj is None:
+                raise RelationshipServiceError("Target object must be an active repository object")
+
+        selected_relationship_key = relationship_key or rel.relationship_type.key
         try:
-            validated = self.metamodel.validate_relationship_properties(rel.relationship_type.key, properties)
-        except PropertyValidationError as exc:
+            rel_type = self.metamodel.validate_relationship_rule(
+                selected_relationship_key,
+                rel.source_object.object_type.key,
+                target_obj.object_type.key,
+            )
+            validated = self.metamodel.validate_relationship_properties(
+                selected_relationship_key, properties
+            )
+        except (RelationshipValidationError, PropertyValidationError) as exc:
             raise RelationshipServiceError(str(exc)) from exc
+
         start = self._parse_date(valid_from, "Valid from")
         end = self._parse_date(valid_until, "Valid until")
         if start and end and end < start:
@@ -86,6 +116,9 @@ class RelationshipService:
         self._validate_enum("criticality", criticality)
         self._validate_enum("confidence", confidence)
         self._validate_enum("source", source)
+
+        rel.relationship_type = rel_type
+        rel.target_object = target_obj
         rel.description = description.strip()
         rel.criticality = criticality or None
         rel.confidence = confidence or None
@@ -95,11 +128,44 @@ class RelationshipService:
         rel.properties = validated
         rel.updated_by = actor.id
         rel.updated_at = datetime.now(timezone.utc)
-        self.audit.record(action="RelationshipUpdated", entity_type="relationship", entity_id=rel.id, actor=actor, before=before, after=self.audit.relationship_state(rel), source=audit_source, correlation_id=correlation_id)
-        self.audit.record(action="RelationshipUpdated", entity_type="object", entity_id=rel.source_object_id, actor=actor, after={"relationship_id": rel.id}, source=audit_source, correlation_id=correlation_id)
-        self.audit.record(action="RelationshipUpdated", entity_type="object", entity_id=rel.target_object_id, actor=actor, after={"relationship_id": rel.id}, source=audit_source, correlation_id=correlation_id)
-        JobService(self.db).enqueue_metrics_recalculation()
-        self.db.commit()
+
+        try:
+            self.db.flush()
+            self.audit.record(
+                action="RelationshipUpdated",
+                entity_type="relationship",
+                entity_id=rel.id,
+                actor=actor,
+                before=before,
+                after=self.audit.relationship_state(rel),
+                source=audit_source,
+                correlation_id=correlation_id,
+            )
+            self.audit.record(
+                action="RelationshipUpdated",
+                entity_type="object",
+                entity_id=rel.source_object_id,
+                actor=actor,
+                after={"relationship_id": rel.id},
+                source=audit_source,
+                correlation_id=correlation_id,
+            )
+            target_ids = {old_target_id, rel.target_object_id}
+            for object_id in target_ids:
+                self.audit.record(
+                    action="RelationshipUpdated",
+                    entity_type="object",
+                    entity_id=object_id,
+                    actor=actor,
+                    after={"relationship_id": rel.id},
+                    source=audit_source,
+                    correlation_id=correlation_id,
+                )
+            JobService(self.db).enqueue_metrics_recalculation()
+            self.db.commit()
+        except IntegrityError as exc:
+            self.db.rollback()
+            raise RelationshipServiceError("This relationship already exists") from exc
         return rel
 
     def archive_relationship(self, rel: ArchitectureRelationship, *, actor: User) -> None:

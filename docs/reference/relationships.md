@@ -30,6 +30,14 @@ OpenEA Community 1.5.2 seeds 25 governed relationship types. A relationship is v
 | `selects` | selects | selected by | Architecture Decision → Technology |
 | `supersedes` | supersedes | superseded by | Architecture Decision → Architecture Decision |
 
+## Relationship selection behavior
+
+In the browser relationship form, valid relationship choices are grouped alphabetically by forward relationship label and then alphabetically by target object type. Selecting a rule filters the target selector to that rule's target type.
+
+Only non-archived target records are offered. Draft, Active, and Inactive records are eligible. Target records are sorted alphabetically by name. Changing the relationship rule clears any previously selected target before the valid target list is reloaded.
+
+The same behavior is used when creating and editing relationships. The server independently validates every submitted source/type/target combination against this governed vocabulary before saving.
+
 ## Relationship-specific properties
 
 Most relationship types use the common relationship metadata only. `integrates_with` also defines governed properties:

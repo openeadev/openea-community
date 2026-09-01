@@ -110,6 +110,7 @@ nav:
       - CLI Commands: reference/cli.md
       - Environment Variables: reference/configuration.md
       - Built-in Finding Rules: reference/finding-rules.md
+      - Metric Calculations: reference/analytics-metrics.md
       - Release 1.5.2: reference/release-1.5.2.md
   - Development:
       - Architecture: development/architecture.md

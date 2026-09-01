@@ -179,3 +179,72 @@ def test_repository_health_cards_link_to_explainable_drilldowns(client, db: Sess
     detail = client.get("/analytics/health/ownership")
     assert detail.status_code == 200
     assert "Objects reducing ownership" in detail.text
+
+
+def test_metric_view_provides_explainable_guidance_and_actions(db: Session) -> None:
+    actor = create_user(db)
+    app = make_object(
+        db,
+        actor,
+        "application",
+        "Explainable App",
+        lifecycle="Active",
+        confidence="Unknown",
+        properties={"technical_fit": "Poor"},
+    )
+    service = AnalyticsService(db)
+    service.calculate_all()
+
+    dq = service.metric(app.id, "data_quality")
+    risk = service.metric(app.id, "application_risk")
+    assert dq is not None and risk is not None
+
+    dq_view = service.metric_view(dq)
+    assert dq_view["label"] == "Data Quality"
+    assert "Higher is better" in dq_view["direction"]
+    assert any("owner" in item.lower() or "missing" in item.lower() for item in dq_view["recommendations"])
+
+    risk_view = service.metric_view(risk)
+    assert risk_view["label"] == "Application Risk"
+    assert "Lower is better" in risk_view["direction"]
+    urls = {item["url"] for item in risk_view["actions"]}
+    assert f"/explore/{app.id}/edit" in urls
+    assert f"/explore/{app.id}?tab=relationships" in urls
+    assert f"/explore/{app.id}?tab=lifecycle" in urls
+
+
+def test_object_metrics_page_exposes_expandable_calculation_details(client, db: Session) -> None:
+    import re
+
+    actor = create_user(db)
+    app = make_object(
+        db,
+        actor,
+        "application",
+        "Metric Help App",
+        lifecycle="Active",
+        confidence="Unknown",
+        properties={"technical_fit": "Fair"},
+    )
+    AnalyticsService(db).calculate_all()
+
+    page = client.get("/login")
+    token = re.search(r'name="csrf_token" value="([^"]+)"', page.text)
+    assert token
+    client.post(
+        "/login",
+        data={
+            "username": actor.username,
+            "password": PASSWORD,
+            "csrf_token": token.group(1),
+            "next": f"/analytics/objects/{app.id}",
+        },
+        follow_redirects=False,
+    )
+    metrics_page = client.get(f"/analytics/objects/{app.id}")
+    assert metrics_page.status_code == 200
+    assert "How is this calculated and what can I do?" in metrics_page.text
+    assert "Current inputs" in metrics_page.text
+    assert "How to respond" in metrics_page.text
+    assert "Metrics are decision-support signals" in metrics_page.text
+    assert f'/explore/{app.id}?tab=relationships' in metrics_page.text

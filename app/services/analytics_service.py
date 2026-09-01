@@ -32,6 +32,39 @@ RECOMMENDED_FIELDS = {
     "business_capability": ["maturity", "strategic_importance"],
 }
 
+METRIC_GUIDANCE = {
+    "data_quality": {
+        "label": "Data Quality",
+        "description": "Measures how complete, owned, connected, current, and trustworthy this repository record is.",
+        "direction": "Higher is better. A low score indicates missing or stale architecture information that can usually be corrected in the repository.",
+        "component_note": "Component values are quality/coverage scores. Higher values improve Data Quality.",
+    },
+    "application_risk": {
+        "label": "Application Risk",
+        "description": "Estimates application concern from technology exposure, technical fit, lifecycle, dependencies, data quality, review freshness, and criticality.",
+        "direction": "Lower is better. Higher scores indicate more conditions that deserve architecture attention.",
+        "component_note": "Component values are risk signals. Higher values increase Application Risk before the criticality multiplier is applied.",
+    },
+    "technology_risk": {
+        "label": "Technology Risk",
+        "description": "Estimates technology concern from lifecycle, internal strategy, vendor support horizon, review freshness, and data quality.",
+        "direction": "Lower is better. Higher scores indicate greater lifecycle, support, strategy, or information-quality concern.",
+        "component_note": "Component values are risk signals. Higher values increase Technology Risk.",
+    },
+    "capability_risk": {
+        "label": "Capability Risk",
+        "description": "Estimates business-capability concern from supporting applications, technology exposure, support concentration, maturity, and data quality.",
+        "direction": "Lower is better. Higher scores indicate greater application, technology, resilience, maturity, or information-quality concern.",
+        "component_note": "Component values are risk signals. Higher values increase Capability Risk.",
+    },
+    "impact_severity": {
+        "label": "Impact Severity",
+        "description": "Measures the breadth and significance of repository reach within three relationship hops.",
+        "direction": "This is not a quality score. A high value can be completely valid for a central or critical architecture object.",
+        "component_note": "Component values are impact signals. Higher values indicate broader or more significant architectural reach.",
+    },
+}
+
 HEALTH_DIMENSIONS = {
     "completeness": {
         "label": "Completeness",
@@ -129,6 +162,111 @@ class AnalyticsService:
 
     def metrics_for_object(self, object_id: str) -> list[ObjectMetric]:
         return list(self.db.scalars(select(ObjectMetric).where(ObjectMetric.object_id == object_id).order_by(ObjectMetric.metric_type)).all())
+
+    def metric_view(self, metric: ObjectMetric) -> dict[str, object]:
+        guidance = METRIC_GUIDANCE.get(
+            metric.metric_type,
+            {
+                "label": metric.metric_type.replace("_", " ").title(),
+                "description": "Deterministic metric calculated from the current repository state.",
+                "direction": "Review the formula and component values to interpret this metric.",
+                "component_note": "Component values are the deterministic inputs persisted with this metric.",
+            },
+        )
+        return {
+            "metric": metric,
+            "label": guidance["label"],
+            "description": guidance["description"],
+            "direction": guidance["direction"],
+            "component_note": guidance["component_note"],
+            "recommendations": self._metric_recommendations(metric),
+            "actions": self._metric_actions(metric),
+        }
+
+    def _metric_recommendations(self, metric: ObjectMetric) -> list[str]:
+        explanation = metric.explanation or {}
+        components = explanation.get("components", {})
+        missing = explanation.get("missing", [])
+        recommendations: list[str] = []
+
+        if metric.metric_type == "data_quality":
+            if missing:
+                recommendations.append("Correct the listed missing or stale repository information where the architecture evidence supports the change.")
+            if int(components.get("ownership", 100)) < 100:
+                recommendations.append("Assign an owner organization, owner role, or supported object-specific owner field.")
+            if int(components.get("relationship_coverage", 100)) < 100:
+                recommendations.append("Add the expected governed relationships that accurately describe this object.")
+            if int(components.get("review_freshness", 100)) < 100:
+                recommendations.append("Complete or schedule a current architecture review from the Lifecycle tab.")
+            if int(components.get("source_confidence", 100)) < 100:
+                recommendations.append("Raise confidence only when stronger evidence supports the repository record.")
+            if not recommendations:
+                recommendations.append("No data-quality remediation is indicated by the current calculation. Continue normal review and governance maintenance.")
+
+        elif metric.metric_type == "application_risk":
+            if int(components.get("technology_risk", 0)) > 0:
+                recommendations.append("Review the application's Technology relationships and remediate high-risk technologies through upgrade, migration, or replacement where appropriate.")
+            if int(components.get("technical_fit", 0)) > 0:
+                recommendations.append("Review Technical Fit. Improve the architecture where needed, then update the field only when the evidence supports a better fit rating.")
+            if int(components.get("lifecycle_risk", 0)) >= 50:
+                recommendations.append("Review the application lifecycle and any planned modernization or retirement activity.")
+            if int(components.get("dependency_risk", 0)) > 0:
+                recommendations.append("Review application dependencies. Reduce unnecessary coupling when architecturally justified; do not remove accurate relationships merely to lower the score.")
+            if int(components.get("data_quality_risk", 0)) > 0:
+                recommendations.append("Improve the application's Data Quality inputs, including ownership, expected relationships, required/recommended fields, and confidence.")
+            if int(components.get("review_freshness", 0)) > 0:
+                recommendations.append("Complete or schedule a current architecture review from the Lifecycle tab.")
+
+        elif metric.metric_type == "technology_risk":
+            if int(components.get("vendor_lifecycle", 0)) > 0:
+                recommendations.append("Verify the technology lifecycle. For aging or unsupported technology, plan upgrade, migration, containment, or retirement as appropriate.")
+            if int(components.get("internal_strategy", 0)) > 0:
+                recommendations.append("Review Strategic Status and align use of the technology with the organization's approved technology strategy.")
+            if int(components.get("support_horizon", 0)) > 0:
+                recommendations.append("Verify Vendor Support End and plan remediation before support expires.")
+            if int(components.get("review_freshness", 0)) > 0:
+                recommendations.append("Complete or schedule a current architecture review from the Lifecycle tab.")
+            if int(components.get("data_quality_risk", 0)) > 0:
+                recommendations.append("Improve the technology record's Data Quality inputs and supporting evidence.")
+
+        elif metric.metric_type == "capability_risk":
+            if int(components.get("supporting_application_risk", 0)) > 0:
+                recommendations.append("Review the applications supporting this capability and remediate the highest application risks first.")
+            if int(components.get("technology_exposure", 0)) > 0:
+                recommendations.append("Trace supporting applications to their technologies and address material technology risk.")
+            if int(components.get("single_point_of_failure", 0)) > 0:
+                recommendations.append("The capability has a single supporting application. Evaluate resilience, recovery, substitution, or additional support where the business need justifies it.")
+            if int(components.get("application_redundancy", 0)) > 0:
+                recommendations.append("Review the number of supporting applications for rationalization or intentional resilience. This signal is not proof of duplication by itself.")
+            if int(components.get("capability_maturity", 0)) > 0:
+                recommendations.append("Review capability maturity and improve the operating model before changing the maturity rating.")
+            if int(components.get("data_quality_risk", 0)) > 0:
+                recommendations.append("Improve the capability record's Data Quality inputs and expected relationships.")
+
+        elif metric.metric_type == "impact_severity":
+            recommendations.extend([
+                "Validate that the relationships and criticality values driving the reach are accurate.",
+                "Use a high score to prioritize change analysis, dependency coordination, testing, and recovery planning; a high Impact Severity score is not automatically a defect.",
+                "Reduce unnecessary dependencies only as a real architecture improvement, not simply to lower the metric.",
+            ])
+
+        if not recommendations:
+            recommendations.append("Review the current inputs and component values. Change repository data only when it reflects a real architecture change or better evidence.")
+        return recommendations
+
+    @staticmethod
+    def _metric_actions(metric: ObjectMetric) -> list[dict[str, str]]:
+        object_id = metric.object_id
+        actions = [
+            {"label": "Open object", "url": f"/explore/{object_id}"},
+            {"label": "Review relationships", "url": f"/explore/{object_id}?tab=relationships"},
+            {"label": "Review lifecycle", "url": f"/explore/{object_id}?tab=lifecycle"},
+        ]
+        if metric.metric_type != "impact_severity":
+            actions.insert(1, {"label": "Edit object", "url": f"/explore/{object_id}/edit"})
+        if metric.metric_type == "impact_severity":
+            actions.append({"label": "Analyze impact", "url": f"/impact/{object_id}"})
+        return actions
 
     def calculate_data_quality(self, obj: ArchitectureObject) -> tuple[int, dict[str, object]]:
         schema = obj.object_type.schema_definition or {}

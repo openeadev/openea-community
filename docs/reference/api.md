@@ -52,6 +52,8 @@ PATCH  /api/v1/relationships/{relationship_id}
 DELETE /api/v1/relationships/{relationship_id}
 ```
 
+`PATCH /api/v1/relationships/{relationship_id}` can update relationship metadata and can optionally change `relationship_key` and `target_object_id`. The source object remains fixed. Any new relationship type/target combination must be valid for the source object under the governed metamodel, the target must be non-archived, and duplicate relationships are rejected.
+
 ### Search
 
 ```text

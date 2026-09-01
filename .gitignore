@@ -31,3 +31,8 @@ Thumbs.db
 test-results/
 playwright-report/
 *.log
+
+# MkDocs local preview/build artifacts
+.mkdocs.pid
+.mkdocs.log
+site/

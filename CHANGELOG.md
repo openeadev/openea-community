@@ -2,16 +2,23 @@
 
 ## 1.5.2 - Independent Community baseline
 
+- Fixed Impact Analysis query-filter parsing and clarified combined filter semantics while preserving explanatory path nodes.
+- Added deterministic Attention reason explanations to the existing overdue Reviews workspace.
+- Expanded object Metrics pages with formulas, components, current inputs, missing/stale conditions, remediation guidance, and direct navigation actions.
+- Added a technical Metric Calculation Reference and improved Acme Bank tutorial callout formatting.
+
 - Established OpenEA Community as an independently versioned distribution from OpenEA Enterprise.
 - Renamed the Python distribution from `openea` to `openea-community`; the internal `app` import package remains unchanged for upgrade compatibility.
 - Added `.env.example`, `.gitignore`, and `.dockerignore` for clean public-source and Docker packaging.
 - Removed generated Python/cache/package metadata from the release archive.
 - Replaced hard-coded UI release labels with the configured application version.
-- Preserved all 1.5.1 application behavior, repository data, API behavior, and database schema.
+- Preserved 1.5.1 repository data and database-schema compatibility while applying 1.5.2 maintenance/UI fixes.
 - No schema migration is required; Alembic head remains `0015_phase15`.
-- Fixed Impact Analysis graph labels so node and relationship text automatically use theme-appropriate colors in light and dark modes.
-- Fixed OpenEA navigation branding so the logo renders correctly in dark mode.
-- Added a Community edition identifier beneath the OpenEA name in the authenticated application sidebar.
+- Added MkDocs development commands to the Makefile for background preview, status, stop, and strict documentation builds, with corresponding README guidance.
+- Grouped relationship choices alphabetically by relationship label and target object type.
+- Filtered relationship target objects dynamically to the selected governed target type, sorted them alphabetically, and excluded archived records while retaining Draft, Active, and Inactive records.
+- Extended relationship editing so permitted users can change the relationship type/target combination and target object while preserving the source object and metamodel validation.
+- Added regression coverage for relationship choice ordering, target filtering, archived-target exclusion, and relationship type/target edits.
 
 ## 1.5.1 - Findings and repository-health UX
 

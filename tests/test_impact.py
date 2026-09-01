@@ -129,3 +129,32 @@ def test_viewer_can_run_read_only_impact_analysis(client: TestClient, db: Sessio
     assert "Kanban Boards" in response.text
     assert f'/explore/{app.id}' in response.text
     assert "impact-graph-data" in response.text
+
+
+def test_impact_http_filters_are_parsed_and_combined(client: TestClient, db: Session) -> None:
+    _, technology, app, capability, _ = impact_fixture(db)
+    create_user(db, "impact_filter_viewer", VIEWER)
+    login(client, "impact_filter_viewer")
+
+    response = client.get(
+        f"/impact/{app.id}?depth=1&relationship_type=supports&object_type=business_capability"
+    )
+    assert response.status_code == 200
+    assert capability.name in response.text
+    assert technology.name not in response.text
+    assert "supports" in response.text
+    assert 'value="supports" selected' in response.text
+    assert 'value="business_capability" selected' in response.text
+
+
+def test_result_type_filter_preserves_intermediate_explanatory_path(db: Session) -> None:
+    _, technology, app, capability, _ = impact_fixture(db)
+    analysis = ImpactService(db).analyze(
+        technology.id,
+        depth=2,
+        object_type_keys=["business_capability"],
+    )
+    assert [item.object.id for item in analysis.results] == [capability.id]
+    payload = analysis.graph_payload()
+    node_ids = {node["data"]["id"] for node in payload["nodes"]}
+    assert node_ids == {technology.id, app.id, capability.id}

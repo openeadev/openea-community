@@ -235,15 +235,17 @@ The exact number of `REVIEW-002` findings depends on which significant records y
 
 Open **Legacy Wire Transfer** and select **View Metrics**.
 
-Review the available metric cards and explanations. Pay particular attention to:
+Review the available metric cards. Pay particular attention to:
 
 - Application Risk
 - Data Quality
 - Impact Severity, when available
 
-Do not focus only on the final 0–100 score. The component values and explanation are the source of meaning.
+For each card, select **How is this calculated and what can I do?**. OpenEA expands the deterministic formula, component values, current inputs, missing/stale information, and recommended response. It also provides links back to the Object, Edit form, Relationships, Lifecycle, or Impact Analysis where those areas are relevant.
 
-For the exact formulas, see [Analytics and Repository Health](../../user-guide/analytics.md) rather than duplicating them here.
+Do not focus only on the final 0–100 score. **Data Quality is better when higher; risk metrics are better when lower; Impact Severity is reach rather than a quality target.**
+
+For user guidance see [Analytics and Repository Health](../../user-guide/analytics.md). For the exact 1.5.2 mappings and thresholds see [Metric Calculation Reference](../../reference/analytics-metrics.md).
 
 ## 11. Compare with Digital Banking
 

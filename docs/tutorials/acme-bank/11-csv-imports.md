@@ -112,24 +112,10 @@ Return to **Explore** and filter to Applications. You should now have:
 - Payments Hub
 - Regulatory Reporting Platform
 
-## 6. Understand the structured-owner limitation in 1.5.2
+!!! info "Structured owner limitation in OpenEA Community 1.5.2"
+    Open the imported **Regulatory Reporting Platform**. You entered free-text Application properties such as Business Owner and Technical Owner, but the common object-import field list in 1.5.2 does not include `owner_organization_id` or `owner_role_id`. The imported Application's structured **Owner organization** and **Owner role** therefore remain unset. This is not a CSV error; it is the supported 1.5.2 import schema. You will set those fields manually in the next chapter. Until then, `APP-OWNER-001` can identify the imported applications as lacking structured ownership.
 
-Open the imported **Regulatory Reporting Platform**.
-
-You entered free-text Application properties such as Business Owner and Technical Owner, but the common object-import field list in OpenEA Community 1.5.2 does **not** include:
-
-```text
-owner_organization_id
-owner_role_id
-```
-
-Therefore, the imported Application's structured **Owner organization** and **Owner role** remain unset.
-
-This is not a CSV error. It is the supported 1.5.2 import schema.
-
-You will set those fields manually in the next chapter. Until then, `APP-OWNER-001` can identify the imported applications as lacking structured ownership.
-
-## 7. Create the relationship CSV file
+## 6. Create the relationship CSV file
 
 Now create:
 
@@ -151,7 +137,7 @@ Application,Fraud Monitoring,uses,Technology,Java 21,Medium,High,Imported
 
 This file uses exact object names, which is the simplest relationship endpoint strategy for a manually curated import.
 
-## 8. Upload the relationship CSV
+## 7. Upload the relationship CSV
 
 1. Return to **Management → Import**.
 2. In **Relationship CSV import**, choose `acme-relationships.csv`.
@@ -165,7 +151,7 @@ The relationship mapping page requires these three fields at minimum:
 
 You must also provide a usable identifier for each endpoint. In this file you use Source Name and Target Name.
 
-## 9. Verify the relationship mappings
+## 8. Verify the relationship mappings
 
 Confirm:
 
@@ -182,7 +168,7 @@ Confirm:
 
 Select **Validate and preview**.
 
-## 10. Review endpoint resolution and validation
+## 9. Review endpoint resolution and validation
 
 OpenEA Community 1.5.2 resolves relationship endpoints in this order:
 
@@ -210,7 +196,7 @@ Unchanged: 0
 Error:     0
 ```
 
-## 11. Commit the relationship import
+## 10. Commit the relationship import
 
 Select **Commit relationship import**.
 
@@ -221,7 +207,7 @@ OpenEA commits the relationships through the normal RelationshipService, includi
 - CSV Import source/correlation information
 - Recalculation jobs
 
-## 12. Verify the imported model in Explore
+## 11. Verify the imported model in Explore
 
 Open **Regulatory Reporting Platform → Relationships**.
 
@@ -243,7 +229,7 @@ Fraud Monitoring
 └── uses → Java 21
 ```
 
-## 13. Recalculate and evaluate findings again
+## 12. Recalculate and evaluate findings again
 
 Run:
 
@@ -296,7 +282,7 @@ Before import, Payments had exactly one supporting Application (Payments Hub). F
 
 Both new Applications still lack structured Owner organization / Owner role values because those fields are not supported by the 1.5.2 object CSV mapping. Expect ownership findings until you correct them manually.
 
-## 14. Optional: demonstrate alias resolution
+## 13. Optional: demonstrate alias resolution
 
 Digital Banking has the alias:
 
@@ -308,7 +294,7 @@ If you want to test alias endpoint resolution, make a temporary relationship CSV
 
 Remove or avoid committing experimental rows if you want to keep the canonical Acme model predictable.
 
-## 15. Optional: demonstrate object update matching
+## 14. Optional: demonstrate object update matching
 
 Object imports match an existing object by:
 

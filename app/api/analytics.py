@@ -79,6 +79,8 @@ def object_metrics(
     obj = db.get(ArchitectureObject, object_id)
     if obj is None or obj.archived_at is not None:
         raise HTTPException(status_code=404, detail="Object not found")
+    service = AnalyticsService(db)
+    metrics = service.metrics_for_object(object_id)
     return templates.TemplateResponse(
         request=request,
         name="analytics/object.html",
@@ -87,6 +89,6 @@ def object_metrics(
             "current_user": current_user,
             "csrf_token": get_csrf_token(request),
             "object": obj,
-            "metrics": AnalyticsService(db).metrics_for_object(object_id),
+            "metric_views": [service.metric_view(metric) for metric in metrics],
         },
     )

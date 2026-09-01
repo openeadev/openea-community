@@ -2,10 +2,110 @@
 {% block title %}Metrics · {{ object.name }} · {{ settings.page_title }}{% endblock %}
 {% block content %}
 <section class="container py-4">
-  <nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="/analytics">Analytics</a></li><li class="breadcrumb-item active">{{ object.name }}</li></ol></nav>
-  <div class="d-flex justify-content-between align-items-start mb-4"><div><div class="text-body-secondary">{{ object.object_type.name }}</div><h1 class="h2">{{ object.name }}</h1></div><a class="btn btn-outline-secondary" href="/explore/{{ object.id }}">Open object</a></div>
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="/analytics">Analytics</a></li>
+      <li class="breadcrumb-item active">{{ object.name }}</li>
+    </ol>
+  </nav>
+
+  <div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+      <div class="text-body-secondary">{{ object.object_type.name }}</div>
+      <h1 class="h2 mb-1">{{ object.name }}</h1>
+      <p class="text-body-secondary mb-0">Deterministic metrics calculated from the current repository state.</p>
+    </div>
+    <a class="btn btn-outline-secondary" href="/explore/{{ object.id }}">Open object</a>
+  </div>
+
+  <div class="alert alert-info">
+    Metrics are decision-support signals, not goals to optimize by changing repository data. Correct the architecture or improve the evidence first, then update OpenEA so the repository reflects reality.
+  </div>
+
   <div class="row g-4">
-    {% for metric in metrics %}<div class="col-lg-6"><div class="card shadow-sm h-100"><div class="card-body"><div class="d-flex justify-content-between gap-3"><h2 class="h5">{{ metric.metric_type|replace('_',' ')|title }}</h2><strong>{{ metric.band }} — {{ metric.score }}/100</strong></div><p class="small text-body-secondary">{{ metric.explanation.get('formula', '') }}</p><dl class="row mb-0">{% for name, value in metric.explanation.get('components', {}).items() %}<dt class="col-8 fw-normal">{{ name|replace('_',' ')|title }}</dt><dd class="col-4 text-end">{{ value }}/100</dd>{% endfor %}</dl>{% if metric.explanation.get('missing') %}<hr><div class="small"><strong>Missing / stale:</strong> {{ metric.explanation.get('missing')|join(', ') }}</div>{% endif %}</div></div></div>{% else %}<div class="col-12"><div class="alert alert-secondary">No persisted metrics are available for this object yet.</div></div>{% endfor %}
+    {% for view in metric_views %}
+    {% set metric = view.metric %}
+    <div class="col-lg-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between gap-3 align-items-start">
+            <div>
+              <h2 class="h5 mb-1">{{ view.label }}</h2>
+              <p class="small text-body-secondary mb-0">{{ view.description }}</p>
+            </div>
+            <div class="text-end text-nowrap">
+              <strong>{{ metric.score }}/100</strong>
+              {% if metric.metric_type != 'data_quality' %}
+              <div class="small text-body-secondary">{{ metric.band }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <p class="small mt-3 mb-0"><strong>How to read it:</strong> {{ view.direction }}</p>
+
+          <details class="mt-3">
+            <summary class="fw-semibold">How is this calculated and what can I do?</summary>
+            <div class="pt-3">
+              <h3 class="h6">Current calculation</h3>
+              <p class="small mb-2">{{ metric.explanation.get('formula', 'No formula explanation is available.') }}</p>
+              <p class="small text-body-secondary">{{ view.component_note }}</p>
+
+              {% if metric.explanation.get('components') %}
+              <div class="table-responsive mb-3">
+                <table class="table table-sm mb-0">
+                  <thead><tr><th>Component</th><th class="text-end">Value</th></tr></thead>
+                  <tbody>
+                    {% for name, value in metric.explanation.get('components', {}).items() %}
+                    <tr><td>{{ name|replace('_',' ')|title }}</td><td class="text-end">{{ value }}/100</td></tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              {% endif %}
+
+              {% if metric.explanation.get('criticality_multiplier') is not none %}
+              <p class="small"><strong>Criticality multiplier:</strong> {{ metric.explanation.get('criticality_multiplier') }}</p>
+              {% endif %}
+
+              {% if metric.explanation.get('inputs') %}
+              <h3 class="h6 mt-3">Current inputs</h3>
+              <dl class="row small mb-3">
+                {% for name, value in metric.explanation.get('inputs', {}).items() %}
+                <dt class="col-7 fw-normal">{{ name|replace('_',' ')|title }}</dt>
+                <dd class="col-5 text-end mb-1">{{ value if value is not none else 'Not set' }}</dd>
+                {% endfor %}
+              </dl>
+              {% endif %}
+
+              {% if metric.explanation.get('missing') %}
+              <div class="alert alert-warning py-2 px-3 small">
+                <strong>Missing / stale:</strong>
+                <ul class="mb-0 mt-1">
+                  {% for item in metric.explanation.get('missing', []) %}<li>{{ item }}</li>{% endfor %}
+                </ul>
+              </div>
+              {% endif %}
+
+              <h3 class="h6 mt-3">How to respond</h3>
+              <ul class="small">
+                {% for recommendation in view.recommendations %}<li>{{ recommendation }}</li>{% endfor %}
+              </ul>
+
+              <div class="d-flex flex-wrap gap-2">
+                {% for action in view.actions %}
+                <a class="btn btn-sm btn-outline-primary" href="{{ action.url }}">{{ action.label }}</a>
+                {% endfor %}
+              </div>
+            </div>
+          </details>
+
+          <div class="small text-body-secondary mt-3">Calculated {{ metric.calculated_at }}</div>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div class="col-12"><div class="alert alert-secondary">No persisted metrics are available for this object yet.</div></div>
+    {% endfor %}
   </div>
 </section>
 {% endblock %}

@@ -79,7 +79,88 @@ pytest tests/e2e -q
 
 ## Documentation
 
-See `docs/installation.md`, `configuration.md`, `upgrading.md`, `backup-restore.md`, `architecture.md`, `metamodel.md`, `api.md`, `permissions.md`, `governance.md`, `impact-analysis.md`, `analytics.md`, `findings.md`, `portfolio-roadmaps.md`, `imports.md`, `integrations.md`, and `development.md`.
+The OpenEA Community documentation is built with [MkDocs](https://www.mkdocs.org/) and Material for MkDocs. The Markdown source is stored in `docs/`, the site configuration is in `mkdocs.yml`, and the documentation-only Python dependency is declared in `requirements-docs.txt`.
+
+Published documentation is available at **https://docs.openea.dev/**. The documentation source lives in this repository so application and documentation changes can be reviewed and released together.
+
+### Install the documentation tooling
+
+From an activated development virtual environment:
+
+```bash
+python -m pip install -r requirements-docs.txt
+```
+
+### Preview the documentation locally
+
+Start MkDocs in the background:
+
+```bash
+make docs
+```
+
+By default, the documentation is available at:
+
+```text
+http://127.0.0.1:8001/
+```
+
+`make docs` writes the MkDocs process ID to `.mkdocs.pid` and its output to `.mkdocs.log`. Both files are ignored by Git.
+
+Check whether the documentation server is running:
+
+```bash
+make docs-status
+```
+
+Stop it when finished:
+
+```bash
+make docs-stop
+```
+
+If port 8000 is already being used by the OpenEA application, override the documentation port:
+
+```bash
+make docs DOCS_PORT=8001
+make docs-status DOCS_PORT=8001
+make docs-stop
+```
+
+You can also override the bind address:
+
+```bash
+make docs DOCS_HOST=0.0.0.0 DOCS_PORT=8001
+```
+
+### Validate a documentation build
+
+Before committing documentation changes, run:
+
+```bash
+make docs-build
+```
+
+This executes:
+
+```bash
+mkdocs build --strict
+```
+
+and fails if MkDocs reports build warnings or errors. The generated `site/` directory is a local build artifact and is not committed.
+
+### Update and publish documentation
+
+1. Edit or add Markdown under `docs/`.
+2. Update `mkdocs.yml` when adding a page that should appear in navigation.
+3. Run `make docs` and review the changes locally.
+4. Run `make docs-build`.
+5. Commit the documentation source, `mkdocs.yml`, and any related application changes.
+6. Push or merge to `main`.
+
+The GitHub Pages documentation workflow builds the MkDocs site and publishes it to `https://docs.openea.dev/`. Do not commit the generated `site/` directory.
+
+For detailed product documentation, tutorials, administration guidance, and reference material, use the published documentation site rather than duplicating that material in this README.
 
 ## UI branding
 

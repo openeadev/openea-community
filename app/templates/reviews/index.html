@@ -1,4 +1,50 @@
-{% extends "base.html" %}{% block title %}Reviews · {{ settings.app_name }}{% endblock %}{% block content %}
-<div class="container py-4"><div class="d-flex justify-content-between align-items-center mb-4"><div><h1 class="h2 mb-1">Reviews</h1><p class="text-body-secondary mb-0">Architecture records requiring review attention.</p></div></div>
-<div class="card"><div class="card-header fw-semibold">Overdue reviews</div><div class="card-body p-0">{% if overdue %}<table class="table table-hover mb-0"><thead><tr><th>Object</th><th>Type</th><th>Due</th></tr></thead><tbody>{% for obj in overdue %}<tr><td><a href="/explore/{{ obj.id }}?tab=lifecycle">{{ obj.name }}</a></td><td>{{ obj.object_type.name }}</td><td>{{ obj.next_review_date }}</td></tr>{% endfor %}</tbody></table>{% else %}<div class="p-4 text-body-secondary">No overdue reviews.</div>{% endif %}</div></div></div>
+{% extends "base.html" %}
+{% block title %}Reviews · {{ settings.app_name }}{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="h2 mb-1">Reviews</h1>
+      <p class="text-body-secondary mb-0">Architecture records requiring review attention.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header fw-semibold">Overdue reviews</div>
+    <div class="card-body p-0">
+      {% if attention_items %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Object</th>
+              <th>Type</th>
+              <th>Due</th>
+              <th>Attention reason</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in attention_items %}
+            <tr>
+              <td><a href="/explore/{{ item.object.id }}?tab=lifecycle">{{ item.object.name }}</a></td>
+              <td>{{ item.object.object_type.name }}</td>
+              <td class="text-nowrap">{{ item.object.next_review_date }}</td>
+              <td>
+                <ul class="list-unstyled mb-0 small">
+                  {% for reason in item.reasons %}
+                  <li{% if not loop.last %} class="mb-1"{% endif %}>{{ reason }}</li>
+                  {% endfor %}
+                </ul>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="p-4 text-body-secondary">No overdue reviews.</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
 {% endblock %}

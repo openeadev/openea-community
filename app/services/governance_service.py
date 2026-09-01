@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import date, datetime, timedelta, timezone
 
 from sqlalchemy import func, select
@@ -15,6 +16,13 @@ from app.services.job_service import JobService
 
 class GovernanceError(ValueError):
     pass
+
+
+@dataclass(frozen=True)
+class ReviewAttentionItem:
+    object: ArchitectureObject
+    reasons: tuple[str, ...]
+
 
 
 PRINCIPLE_TRANSITIONS = {
@@ -100,7 +108,33 @@ class GovernanceService:
     def overdue_objects(self) -> list[ArchitectureObject]:
         return list(self.db.scalars(select(ArchitectureObject).where(
             ArchitectureObject.archived_at.is_(None), ArchitectureObject.next_review_date < date.today()
-        ).order_by(ArchitectureObject.next_review_date)).all())
+        ).order_by(ArchitectureObject.next_review_date, ArchitectureObject.name)).all())
+
+    def review_attention_items(self) -> list[ReviewAttentionItem]:
+        """Return the current Reviews workspace scope with deterministic explanations.
+
+        The workspace scope remains unchanged: non-archived objects whose explicit
+        next review date is in the past. Reasons add context; they do not broaden
+        which records qualify for the workspace.
+        """
+        today = date.today()
+        items: list[ReviewAttentionItem] = []
+        for obj in self.overdue_objects():
+            if obj.next_review_date is None:
+                continue
+            overdue_days = (today - obj.next_review_date).days
+            day_word = "day" if overdue_days == 1 else "days"
+            reasons = [
+                f"Review overdue by {overdue_days} {day_word} (due {obj.next_review_date.isoformat()})."
+            ]
+            if obj.last_reviewed_date is None:
+                reasons.append("No completed review has been recorded.")
+            if obj.governance_status == "Needs Review":
+                reasons.append("Governance status is Needs Review.")
+            if obj.confidence in {"Unknown", "Low"}:
+                reasons.append(f"Confidence is {obj.confidence}.")
+            items.append(ReviewAttentionItem(object=obj, reasons=tuple(reasons)))
+        return items
 
     def assign_decision_number(self, obj: ArchitectureObject) -> None:
         if obj.object_type.key != "architecture_decision" or obj.properties.get("decision_number"):

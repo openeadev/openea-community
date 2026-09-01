@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import select
@@ -24,8 +24,8 @@ def analyze_impact(
     object_id: str,
     request: Request,
     depth: int = ImpactService.DEFAULT_DEPTH,
-    relationship_type: list[str] | None = None,
-    object_type: list[str] | None = None,
+    relationship_type: list[str] | None = Query(default=None),
+    object_type: list[str] | None = Query(default=None),
     current_user: User = Depends(require_authenticated),
     db: Session = Depends(get_db),
 ) -> HTMLResponse:

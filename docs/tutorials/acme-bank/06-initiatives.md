@@ -47,16 +47,8 @@ Leave **Actual End Date** blank because the program is not complete.
 
 Select **Create object**.
 
-### Why both Record status and Initiative Status exist
-
-`Record status` is universal repository metadata. The Initiative-specific `Status` field describes delivery state. In this tutorial:
-
-```text
-Record status: Active
-Initiative status: In Progress
-```
-
-means the repository record is active and the change program itself is currently in progress.
+!!! info "Why both Record status and Initiative Status exist"
+    `Record status` is universal repository metadata. The Initiative-specific `Status` field describes delivery state. In this tutorial, `Record status: Active` and `Initiative status: In Progress` mean the repository record is active and the change program itself is currently in progress.
 
 ## 2. Create Legacy Wire Retirement
 

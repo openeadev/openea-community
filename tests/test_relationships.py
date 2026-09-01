@@ -29,9 +29,9 @@ def login(client: TestClient, username: str) -> None:
     assert response.status_code == 303
 
 
-def make_object(db: Session, actor, type_key: str, name: str):
+def make_object(db: Session, actor, type_key: str, name: str, record_status: str = "Active"):
     return ObjectService(db).create_object(
-        object_type_key=type_key, name=name, description="", record_status="Active",
+        object_type_key=type_key, name=name, description="", record_status=record_status,
         governance_status=None, lifecycle_stage=None, criticality=None,
         owner_organization_id=None, owner_role_id=None, source="Manual", confidence="High",
         valid_from=None, valid_until=None, aliases="", tags="", properties={}, actor=actor,
@@ -119,6 +119,8 @@ def test_guided_creation_only_offers_valid_relationship_choices(client: TestClie
     assert "supports → Business Capability" in page.text
     assert "uses → Technology" in page.text
     assert "requires → Business Capability" not in page.text
+    assert "/static/js/relationship-form.js" in page.text
+    assert "const relationship = document.getElementById" not in page.text
 
 
 def test_contributor_can_maintain_relationship_but_viewer_cannot(client: TestClient, db: Session) -> None:
@@ -133,3 +135,133 @@ def test_contributor_can_maintain_relationship_but_viewer_cannot(client: TestCli
     login(client, "viewer")
     assert client.get(f"/explore/{app.id}?tab=relationships").status_code == 200
     assert client.get(f"/explore/{app.id}/relationships/new").status_code == 403
+
+
+def test_relationship_choices_are_grouped_and_alphabetized(client: TestClient, db: Session) -> None:
+    architect = create_user(db, "architect", ARCHITECT)
+    organization = make_object(db, architect, "organization", "Enterprise Architecture")
+    make_object(db, architect, "application", "Payments Hub")
+    make_object(db, architect, "business_capability", "Payments")
+    make_object(db, architect, "business_product", "Checking")
+    login(client, "architect")
+
+    page = client.get(f"/explore/{organization.id}/relationships/new")
+    assert page.status_code == 200
+
+    accountable = page.text.index('optgroup label="accountable for"')
+    owns = page.text.index('optgroup label="owns"')
+    performs = page.text.index('optgroup label="performs"')
+    standardizes = page.text.index('optgroup label="standardizes"')
+    assert accountable < owns < performs < standardizes
+
+    owns_block = page.text[owns:performs]
+    assert owns_block.index("owns → Application") < owns_block.index("owns → Business Capability")
+    assert owns_block.index("owns → Business Capability") < owns_block.index("owns → Business Product")
+
+
+def test_target_endpoint_filters_archived_and_sorts_objects(client: TestClient, db: Session) -> None:
+    architect = create_user(db, "architect", ARCHITECT)
+    organization = make_object(db, architect, "organization", "Enterprise Architecture")
+    make_object(db, architect, "business_product", "Zulu Deposit")
+    make_object(db, architect, "business_product", "alpha Checking", record_status="Draft")
+    make_object(db, architect, "business_product", "Beta Savings", record_status="Inactive")
+    archived = make_object(db, architect, "business_product", "Archived Product")
+    make_object(db, architect, "application", "Payments Hub")
+    ObjectService(db).archive_object(archived, actor=architect)
+    login(client, "architect")
+
+    response = client.get(
+        f"/explore/{organization.id}/relationships/targets",
+        params={"relationship_choice": "owns|business_product"},
+    )
+    assert response.status_code == 200
+    items = response.json()["items"]
+    assert [item["name"] for item in items] == ["alpha Checking", "Beta Savings", "Zulu Deposit"]
+    assert {item["object_type"] for item in items} == {"Business Product"}
+
+
+def test_target_endpoint_rejects_invalid_relationship_choice(client: TestClient, db: Session) -> None:
+    architect = create_user(db, "architect", ARCHITECT)
+    organization = make_object(db, architect, "organization", "Enterprise Architecture")
+    make_object(db, architect, "technology", "PostgreSQL")
+    login(client, "architect")
+
+    response = client.get(
+        f"/explore/{organization.id}/relationships/targets",
+        params={"relationship_choice": "owns|technology"},
+    )
+    assert response.status_code == 422
+
+
+def test_edit_relationship_can_change_type_and_target(client: TestClient, db: Session) -> None:
+    architect = create_user(db, "architect", ARCHITECT)
+    organization = make_object(db, architect, "organization", "Enterprise Architecture")
+    product = make_object(db, architect, "business_product", "Checking")
+    application = make_object(db, architect, "application", "Digital Banking")
+    rel = RelationshipService(db).create_relationship(
+        relationship_key="owns",
+        source_object_id=organization.id,
+        target_object_id=product.id,
+        actor=architect,
+    )
+    login(client, "architect")
+
+    page = client.get(f"/relationships/{rel.id}/edit")
+    assert page.status_code == 200
+    assert 'value="owns|business_product" selected' in page.text
+    assert 'value="owns|application"' in page.text
+    assert "Checking" in page.text
+    assert "Digital Banking" not in page.text
+
+    response = client.post(
+        f"/relationships/{rel.id}/edit",
+        data={
+            "csrf_token": csrf_from(page.text),
+            "relationship_choice": "owns|application",
+            "target_object_id": application.id,
+            "description": "Application ownership",
+            "criticality": "",
+            "confidence": "",
+            "source": "",
+            "valid_from": "",
+            "valid_until": "",
+        },
+        follow_redirects=False,
+    )
+    assert response.status_code == 303
+
+    db.expire_all()
+    updated = RelationshipRepository(db).get_by_id(rel.id)
+    assert updated is not None
+    assert updated.relationship_type.key == "owns"
+    assert updated.target_object_id == application.id
+    assert updated.description == "Application ownership"
+
+
+def test_edit_relationship_rejects_archived_target(db: Session) -> None:
+    architect = create_user(db, "architect", ARCHITECT)
+    organization = make_object(db, architect, "organization", "Enterprise Architecture")
+    product = make_object(db, architect, "business_product", "Checking")
+    archived_application = make_object(db, architect, "application", "Legacy App")
+    rel = RelationshipService(db).create_relationship(
+        relationship_key="owns",
+        source_object_id=organization.id,
+        target_object_id=product.id,
+        actor=architect,
+    )
+    ObjectService(db).archive_object(archived_application, actor=architect)
+
+    with pytest.raises(RelationshipServiceError, match="active repository object"):
+        RelationshipService(db).update_relationship(
+            rel,
+            relationship_key="owns",
+            target_object_id=archived_application.id,
+            description="",
+            criticality=None,
+            confidence=None,
+            valid_from=None,
+            valid_until=None,
+            source=None,
+            properties={},
+            actor=architect,
+        )

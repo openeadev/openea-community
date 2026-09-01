@@ -20,7 +20,19 @@ A review can include:
 
 If no explicit next date is supplied, OpenEA derives one from the object's review frequency.
 
-The **Reviews** workspace lists overdue active records and links directly to the Lifecycle tab for remediation.
+## Reviews workspace
+
+The **Reviews** workspace preserves the OpenEA Community 1.5.2 scope: it lists non-archived records whose explicit **Next Review Date** is in the past.
+
+The **Attention reason** column explains why each row needs attention. The overdue date is always shown, and OpenEA also adds applicable review context such as:
+
+- no completed review has been recorded
+- Governance Status is `Needs Review`
+- Confidence is `Unknown` or `Low`
+
+These additional reasons explain the row; they do not broaden the workspace to records that are not already overdue.
+
+Select the object name to open its Lifecycle tab, where an authorized reviewer can record a new review and schedule the next date.
 
 ## Architecture Decisions
 
@@ -39,6 +51,9 @@ Architecture Decisions are repository objects with fields for:
 - Exception expiration
 
 OpenEA assigns a display identifier such as `ADR-0001`.
+
+!!! info "Decision number and initial status are controlled"
+    The Decision Number is generated automatically. New Architecture Decisions are created in `Draft`; use the Lifecycle workflow for later status transitions.
 
 ## Decision lifecycle
 

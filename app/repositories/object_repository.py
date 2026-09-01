@@ -44,7 +44,7 @@ class ObjectRepository:
                     ObjectType.key == object_type_key,
                     ArchitectureObject.archived_at.is_(None),
                 )
-                .order_by(ArchitectureObject.name)
+                .order_by(func.lower(ArchitectureObject.name), ArchitectureObject.name)
             ).all()
         )
 

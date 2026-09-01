@@ -77,9 +77,10 @@ def decisions_workspace(request: Request, current_user: User = Depends(require_a
 
 @router.get("/reviews", response_class=HTMLResponse)
 def reviews_workspace(request: Request, current_user: User = Depends(require_authenticated), db: Session = Depends(get_db)) -> HTMLResponse:
+    service = GovernanceService(db)
     return templates.TemplateResponse(request=request, name="reviews/index.html", context={
         "settings": get_settings(), "current_user": current_user, "csrf_token": get_csrf_token(request),
-        "overdue": GovernanceService(db).overdue_objects(),
+        "attention_items": service.review_attention_items(),
     })
 
 
