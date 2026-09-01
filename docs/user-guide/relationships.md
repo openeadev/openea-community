@@ -22,6 +22,15 @@ Changing the relationship selection clears the current target selection and relo
 
 The service layer validates the source/type/target combination again before commit. The browser filtering is guidance, not the security or integrity boundary.
 
+
+## Relationships to archived objects
+
+Archiving an object does **not** delete or automatically archive its existing relationships. OpenEA preserves those relationship records because they explain historical architecture context and can become current again if the object is restored.
+
+On an object's **Relationships** tab, a related archived object is visibly distinguished with an **Archived** badge and historical styling. Archived related objects are shown by default. If archived relationships make the current view noisy, select **Hide archived related objects**. Select **Show archived related objects** to restore them to the view.
+
+The relationship itself remains stored unless it is separately archived. An archived object is not eligible as the target of a new relationship.
+
 ## Edit a relationship
 
 Permitted users can edit both the governed relationship identity and its metadata while keeping the source object fixed.

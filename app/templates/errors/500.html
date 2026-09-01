@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Request could not be completed · {{ settings.page_title }}{% endblock %}
+{% block content %}
+<div class="container-xl py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-7 col-xl-6">
+      <div class="card">
+        <div class="card-body p-4 p-md-5">
+          <div class="text-center mb-4">
+            <i data-lucide="triangle-alert" class="icon icon-lg text-warning mb-3" aria-hidden="true"></i>
+            <h1 class="h2 mb-2">We couldn't complete that request.</h1>
+            <p class="text-secondary mb-0">OpenEA encountered an unexpected error. Your request was not completed.</p>
+          </div>
+          {% if request_id %}
+          <div class="alert alert-secondary" role="status">
+            <div class="fw-semibold">Request ID</div>
+            <code>{{ request_id }}</code>
+          </div>
+          <p class="text-secondary small">If you contact an OpenEA administrator, include this request ID so the server log entry can be located.</p>
+          {% endif %}
+          <div class="d-flex flex-wrap gap-2 justify-content-center mt-4">
+            <a class="btn btn-primary" href="/dashboard">Return to dashboard</a>
+            <a class="btn btn-outline-secondary" href="/">OpenEA home</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

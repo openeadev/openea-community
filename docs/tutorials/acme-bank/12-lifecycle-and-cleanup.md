@@ -262,12 +262,31 @@ OpenEA performs a soft archive:
 - `archived_at` is populated.
 - Record status becomes `Archived`.
 - An `ObjectArchived` audit event is recorded.
+- Existing relationships are preserved.
 - Metrics recalculation is queued.
 
-The record is no longer treated as an active repository object by normal analysis.
+The record is no longer treated as a current repository object by normal search or analysis.
 
 !!! important "Archive is not hard delete"
-    Archiving preserves historical architecture context. OpenEA's repository-first/history principles favor archival over destructive deletion where practical.
+    Archiving preserves historical architecture context. OpenEA's repository-first/history principles favor archival over destructive deletion where practical. Related objects continue to show the preserved relationship with an **Archived** marker, and users can show or hide archived related objects on the Relationships tab.
+
+### Find the archived record
+
+1. Return to **Explore**.
+2. In **Record status**, choose **Archived**.
+3. Confirm **Fraud Monitoring** appears with an Archived marker.
+4. Open the record and review the archived-record notice.
+
+The record remains readable, including its History and preserved Relationships.
+
+### Optional: practice Restore
+
+If you want to practice restoration before continuing:
+
+1. On the archived **Fraud Monitoring** record, select **Restore**.
+2. Confirm the record returns to its pre-archive Record Status.
+3. Confirm its relationships are still present.
+4. Archive **Fraud Monitoring** again so the canonical tutorial state remains unchanged.
 
 ## 13. Recalculate after archival
 

@@ -47,3 +47,6 @@ Later 1.5.2 maintenance updates also include:
 - overdue schedule recovery that runs once after downtime instead of replaying every missed interval
 
 Scheduled background processing adds migration `0016_phase15`; existing architecture and governance data are preserved.
+## Archived repository records
+
+Community 1.5.2 maintenance updates preserve soft-archived objects as searchable historical records. Explore hides archived records by default but supports **Archived** and **All records** scopes. Existing relationships remain stored and are visibly marked when a related object is archived; users can show or hide those archived related objects. Authorized users can restore an archived object without recreating its preserved relationships.

@@ -16,15 +16,38 @@ class RelationshipRepository:
             stmt = stmt.where(ArchitectureRelationship.archived_at.is_(None))
         return self.db.scalar(stmt)
 
-    def list_for_object(self, object_id: str) -> list[ArchitectureRelationship]:
-        return list(self.db.scalars(
-            select(ArchitectureRelationship)
-            .where(
-                ArchitectureRelationship.archived_at.is_(None),
-                or_(ArchitectureRelationship.source_object_id == object_id, ArchitectureRelationship.target_object_id == object_id),
-            )
-            .order_by(ArchitectureRelationship.created_at)
-        ).unique().all())
+    def list_for_object(
+        self,
+        object_id: str,
+        *,
+        include_archived_related: bool = True,
+    ) -> list[ArchitectureRelationship]:
+        relationships = list(
+            self.db.scalars(
+                select(ArchitectureRelationship)
+                .where(
+                    ArchitectureRelationship.archived_at.is_(None),
+                    or_(
+                        ArchitectureRelationship.source_object_id == object_id,
+                        ArchitectureRelationship.target_object_id == object_id,
+                    ),
+                )
+                .order_by(ArchitectureRelationship.created_at)
+            ).unique().all()
+        )
+        if include_archived_related:
+            return relationships
+
+        return [
+            relationship
+            for relationship in relationships
+            if (
+                relationship.target_object
+                if relationship.source_object_id == object_id
+                else relationship.source_object
+            ).archived_at
+            is None
+        ]
 
     def list_valid_types_for_source_type(self, source_type_id: str) -> list[RelationshipType]:
         return list(self.db.scalars(

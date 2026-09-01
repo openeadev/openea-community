@@ -38,9 +38,10 @@ POST   /api/v1/objects
 GET    /api/v1/objects/{object_id}
 PATCH  /api/v1/objects/{object_id}
 DELETE /api/v1/objects/{object_id}
+POST   /api/v1/objects/{object_id}/restore
 ```
 
-Object list supports object type, record status, criticality, page, and per-page filters. `DELETE` performs archival.
+Object list supports object type, record status, criticality, page, per-page, and `archive_scope` filters. `archive_scope` is one of `current` (default), `archived`, or `all`. `record_status=Archived` also searches archived records for backward-friendly behavior. `DELETE` performs soft archival; `POST .../restore` restores the object and preserves its existing relationships. Object payloads include `archived_at`.
 
 ### Relationships
 
@@ -52,13 +53,17 @@ PATCH  /api/v1/relationships/{relationship_id}
 DELETE /api/v1/relationships/{relationship_id}
 ```
 
+When `object_id` is supplied to the relationship list endpoint, `include_archived_related=false` hides relationships whose other endpoint is an archived object. The default is `true` so preserved historical context remains visible.
+
 `PATCH /api/v1/relationships/{relationship_id}` can update relationship metadata and can optionally change `relationship_key` and `target_object_id`. The source object remains fixed. Any new relationship type/target combination must be valid for the source object under the governed metamodel, the target must be non-archived, and duplicate relationships are rejected.
 
 ### Search
 
 ```text
-GET /api/v1/search?q=...
+GET /api/v1/search?q=...&archive_scope=current
 ```
+
+Search defaults to current records. Set `archive_scope=archived` to search only archived records or `archive_scope=all` to search both current and archived records.
 
 ### Impact
 

@@ -7,6 +7,7 @@ from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 
 from app.api.admin import router as admin_router
@@ -25,11 +26,16 @@ from app.api.ui import router as ui_router
 from app.api.v1 import router as api_v1_router
 from app.core.config import get_settings
 from app.core.logging import configure_logging
-from app.core.middleware import RequestContextMiddleware, SecurityHeadersMiddleware
+from app.core.middleware import (
+    RequestContextMiddleware,
+    SecurityHeadersMiddleware,
+    apply_security_headers,
+)
 
 settings = get_settings()
 configure_logging(settings.log_level)
 logger = logging.getLogger("openea")
+templates = Jinja2Templates(directory="app/templates")
 
 
 @asynccontextmanager
@@ -105,6 +111,35 @@ def create_app() -> FastAPI:
             f"<main><h1>Request failed</h1><p>{exc.detail}</p></main>",
             status_code=exc.status_code,
         )
+
+    @app.exception_handler(Exception)
+    async def unhandled_exception_handler(request: Request, exc: Exception):
+        request_id = getattr(request.state, "request_id", None)
+        logger.exception(
+            "unhandled_exception",
+            extra={"request_id": request_id, "route": request.url.path},
+        )
+        if request.url.path.startswith("/api/"):
+            response = JSONResponse(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                content={
+                    "detail": "OpenEA encountered an unexpected error.",
+                    "request_id": request_id,
+                },
+            )
+        else:
+            response = templates.TemplateResponse(
+                request=request,
+                name="errors/500.html",
+                context={
+                    "settings": settings,
+                    "request_id": request_id,
+                },
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+        if request_id:
+            response.headers["X-Request-ID"] = request_id
+        return apply_security_headers(response, request.url.path)
 
     @app.exception_handler(404)
     async def not_found(request: Request, _: Exception):

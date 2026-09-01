@@ -84,6 +84,9 @@ An architecture or business responsibility role, separate from OpenEA authorizat
 | `organization` | `object_reference` | No | Object reference: `organization` |
 | `responsibilities` | `long_text` | No |  |
 
+!!! info "Role organization versus Owner organization"
+    The `organization` property above is the Role's organizational placement: the organization the role belongs to or operates within. The universal **Owner organization** field is separate repository metadata describing stewardship of the OpenEA record. The two references may point to the same Organization or to different Organizations.
+
 ### Application
 
 A deployable or acquired software application relevant to enterprise architecture.
@@ -236,6 +239,8 @@ An ADR-style architecture decision.
 Key: `record_status`
 
 `Draft`, `Active`, `Inactive`, `Archived`
+
+`Archived` is the soft archive state. Archived objects retain identity, metadata, audit history, and existing relationships but are excluded from normal current-state analysis and new relationship target selection. They can be searched explicitly and restored by authorized users.
 
 ### Governance Status
 

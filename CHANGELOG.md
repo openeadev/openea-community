@@ -2,6 +2,10 @@
 
 ## 1.5.2 - Independent Community baseline
 
+- Added archived-record discovery in Explore with **All current records**, Draft, Active, Inactive, Archived, and **All records** scopes.
+- Preserved object relationships during archival while visually marking archived related objects and adding show/hide controls on the Relationships tab.
+- Added direct viewing and restoration of archived objects; restoration reuses the pre-archive Record Status when available and preserves existing relationships.
+- Extended API search/list behavior with archival scopes, archived timestamps, relationship visibility controls, and object restoration.
 - Added Platform Administrator-controlled schedules for Analytics & Metrics (default every 6 hours) and Findings Evaluation (default every 1 hour).
 - Added controlled interval choices from 15 minutes through 24 hours, enable/disable controls, execution status/error visibility, and asynchronous **Run now** actions.
 - Extended the worker with an approximately 60-second schedule check while retaining the existing approximately two-second queued-job poll.

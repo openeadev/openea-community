@@ -3,8 +3,11 @@ from __future__ import annotations
 from datetime import date, datetime, timezone
 from typing import Any
 
+from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from app.models.governance import AuditEvent
 from app.models.metamodel import ArchitectureObject, ObjectAlias
 from app.models.user import User
 from app.repositories.object_repository import ObjectRepository
@@ -108,7 +111,7 @@ class ObjectService:
         obj.tags = [self.objects.get_or_create_tag(value) for value in self._split_values(tags)]
         self.audit.record(action="ObjectCreated", entity_type="object", entity_id=obj.id, actor=actor, after=self.audit.object_state(obj), source=audit_source, correlation_id=correlation_id)
         JobService(self.db).enqueue_metrics_recalculation(correlation_id=correlation_id)
-        self.db.commit()
+        self._commit_object_changes()
         return obj
 
     def update_object(
@@ -166,13 +169,13 @@ class ObjectService:
         obj.valid_until = validated["valid_until"]
         obj.properties = properties
         obj.review_frequency = values.get("review_frequency") or None
-        obj.aliases = [ObjectAlias(alias=value) for value in self._split_values(str(values.get("aliases", "")))]
+        self._replace_aliases(obj, str(values.get("aliases", "")))
         obj.tags = [self.objects.get_or_create_tag(value) for value in self._split_values(str(values.get("tags", "")))]
         obj.updated_by = actor.id
         obj.updated_at = datetime.now(timezone.utc)
         self.audit.record(action="ObjectUpdated", entity_type="object", entity_id=obj.id, actor=actor, before=before, after=self.audit.object_state(obj), source=audit_source, correlation_id=correlation_id)
         JobService(self.db).enqueue_metrics_recalculation(correlation_id=correlation_id)
-        self.db.commit()
+        self._commit_object_changes()
         return obj
 
     def archive_object(self, obj: ArchitectureObject, *, actor: User) -> None:
@@ -185,6 +188,76 @@ class ObjectService:
         self.audit.record(action="ObjectArchived", entity_type="object", entity_id=obj.id, actor=actor, before=before, after=self.audit.object_state(obj))
         JobService(self.db).enqueue_metrics_recalculation()
         self.db.commit()
+
+    def restore_object(self, obj: ArchitectureObject, *, actor: User) -> None:
+        """Restore a soft-archived object while preserving its relationships and history."""
+        if obj.archived_at is None:
+            raise ObjectValidationError("Object is not archived")
+
+        before = self.audit.object_state(obj)
+        previous_event = self.db.scalar(
+            select(AuditEvent)
+            .where(
+                AuditEvent.entity_type == "object",
+                AuditEvent.entity_id == obj.id,
+                AuditEvent.action == "ObjectArchived",
+            )
+            .order_by(AuditEvent.timestamp.desc())
+            .limit(1)
+        )
+        previous_status = None
+        if previous_event is not None and previous_event.before_state:
+            candidate = previous_event.before_state.get("record_status")
+            if isinstance(candidate, str) and candidate != "Archived":
+                previous_status = candidate
+
+        obj.archived_at = None
+        obj.record_status = previous_status or "Inactive"
+        obj.updated_at = datetime.now(timezone.utc)
+        obj.updated_by = actor.id
+        self.audit.record(
+            action="ObjectRestored",
+            entity_type="object",
+            entity_id=obj.id,
+            actor=actor,
+            before=before,
+            after=self.audit.object_state(obj),
+        )
+        JobService(self.db).enqueue_metrics_recalculation()
+        self.db.commit()
+
+    def _replace_aliases(self, obj: ArchitectureObject, raw_aliases: str) -> None:
+        """Replace aliases without recreating unchanged rows.
+
+        Reusing existing ObjectAlias rows avoids an INSERT-before-DELETE flush order
+        that can violate uq_object_alias when an object is edited without changing
+        its aliases. Submitted aliases are normalized and deduplicated
+        case-insensitively by _split_values.
+        """
+        existing_by_key = {alias.alias.casefold(): alias for alias in obj.aliases}
+        updated_aliases: list[ObjectAlias] = []
+
+        for value in self._split_values(raw_aliases):
+            existing = existing_by_key.get(value.casefold())
+            if existing is None:
+                existing = ObjectAlias(alias=value)
+            else:
+                existing.alias = value
+            updated_aliases.append(existing)
+
+        obj.aliases = updated_aliases
+
+    def _commit_object_changes(self) -> None:
+        try:
+            self.db.commit()
+        except IntegrityError as exc:
+            self.db.rollback()
+            diag = getattr(getattr(exc, "orig", None), "diag", None)
+            if getattr(diag, "constraint_name", None) == "uq_object_alias":
+                raise ObjectValidationError(
+                    "Aliases must be unique within a record. Remove duplicate aliases and try again."
+                ) from exc
+            raise
 
     def _validate_common(
         self,

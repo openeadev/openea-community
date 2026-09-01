@@ -43,3 +43,7 @@ See `docs/upgrading.md` for the detailed procedure.
 ## Front-end dependency note
 
 The 1.5.2 baseline still uses the pinned jsDelivr references inherited from 1.5.1 for Tabler Core, HTMX, Lucide, and Cytoscape.js. Bundling those pinned third-party assets locally is intentionally tracked as a separate Community maintenance enhancement so the baseline does not silently substitute or modify third-party artifacts.
+
+## Archived repository records
+
+- Added archived-record discovery, visual relationship history, show/hide archived-related controls, direct archived-record viewing, and restore support.

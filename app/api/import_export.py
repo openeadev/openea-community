@@ -265,10 +265,19 @@ def export_objects_csv(
     db: Session = Depends(get_db),
 ) -> StreamingResponse:
     del current_user
+    archive_scope = "current"
+    effective_record_status = record_status
+    if record_status == "__all__":
+        archive_scope = "all"
+        effective_record_status = None
+    elif record_status == "Archived":
+        archive_scope = "archived"
+
     result = SearchService(db).search(
         query=q,
         object_type_key=object_type,
-        record_status=record_status,
+        record_status=effective_record_status,
+        archive_scope=archive_scope,
         criticality=criticality,
         per_page=100,
         page=1,
@@ -279,7 +288,8 @@ def export_objects_csv(
         items = SearchService(db).search(
             query=q,
             object_type_key=object_type,
-            record_status=record_status,
+            record_status=effective_record_status,
+            archive_scope=archive_scope,
             criticality=criticality,
             per_page=min(result.total, 100),
             page=1,
@@ -290,7 +300,8 @@ def export_objects_csv(
             next_page = SearchService(db).search(
                 query=q,
                 object_type_key=object_type,
-                record_status=record_status,
+                record_status=effective_record_status,
+                archive_scope=archive_scope,
                 criticality=criticality,
                 per_page=100,
                 page=page,

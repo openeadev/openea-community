@@ -2,13 +2,76 @@
 {% block title %}{{ object.name }} · {{ settings.app_name }}{% endblock %}
 {% block content %}
 <div class="container py-4">
-  <div class="d-flex justify-content-between align-items-start gap-3 mb-4"><div><a href="/explore" class="text-decoration-none">← Explore</a><div class="mt-2"><span class="badge text-bg-secondary">{{ object.object_type.name }}</span> <span class="badge text-bg-light border">{{ object.record_status }}</span></div><h1 class="h2 mt-2 mb-1">{{ object.name }}</h1><p class="text-body-secondary mb-0">{{ object.description or 'No description provided.' }}</p>{% if object.object_type.key == 'architecture_decision' and object.properties.get('decision_number') %}<div class="mt-2 fw-semibold">{{ object.properties.get('decision_number') }}</div>{% endif %}</div><div class="d-flex gap-2"><a class="btn btn-primary" href="/impact/{{ object.id }}">Analyze Impact</a><a class="btn btn-outline-primary" href="/analytics/objects/{{ object.id }}">View Metrics</a>{% if tab == 'relationships' and can_manage_relationships %}<a class="btn btn-outline-primary" href="/explore/{{ object.id }}/relationships/new">+ Add relationship</a>{% endif %}{% if can_edit %}<a class="btn btn-outline-primary" href="/explore/{{ object.id }}/edit">Edit</a>{% endif %}{% if can_archive %}<form method="post" action="/explore/{{ object.id }}/archive" onsubmit="return confirm('Archive this architecture object?');"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="btn btn-outline-danger" type="submit">Archive</button></form>{% endif %}</div></div>
+  <div class="d-flex justify-content-between align-items-start gap-3 mb-4">
+    <div>
+      <a href="/explore{% if is_archived %}?record_status=Archived{% endif %}" class="text-decoration-none">← Explore</a>
+      <div class="mt-2">
+        <span class="badge text-bg-secondary">{{ object.object_type.name }}</span>
+        <span class="badge {% if is_archived %}text-bg-danger{% else %}text-bg-light border{% endif %}">{{ object.record_status }}</span>
+      </div>
+      <h1 class="h2 mt-2 mb-1">{{ object.name }}</h1>
+      <p class="text-body-secondary mb-0">{{ object.description or 'No description provided.' }}</p>
+      {% if object.object_type.key == 'architecture_decision' and object.properties.get('decision_number') %}<div class="mt-2 fw-semibold">{{ object.properties.get('decision_number') }}</div>{% endif %}
+    </div>
+    <div class="d-flex gap-2 flex-wrap justify-content-end">
+      {% if not is_archived %}
+        <a class="btn btn-primary" href="/impact/{{ object.id }}">Analyze Impact</a>
+        <a class="btn btn-outline-primary" href="/analytics/objects/{{ object.id }}">View Metrics</a>
+      {% endif %}
+      {% if tab == 'relationships' and can_manage_relationships %}<a class="btn btn-outline-primary" href="/explore/{{ object.id }}/relationships/new">+ Add relationship</a>{% endif %}
+      {% if can_edit %}<a class="btn btn-outline-primary" href="/explore/{{ object.id }}/edit">Edit</a>{% endif %}
+      {% if can_archive %}<form method="post" action="/explore/{{ object.id }}/archive" onsubmit="return confirm('Archive this architecture object?');"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="btn btn-outline-danger" type="submit">Archive</button></form>{% endif %}
+      {% if can_restore %}<form method="post" action="/explore/{{ object.id }}/restore"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="btn btn-outline-success" type="submit">Restore</button></form>{% endif %}
+    </div>
+  </div>
+  {% if is_archived %}
+    <div class="alert alert-warning" role="alert">
+      <strong>Archived record.</strong> This object is retained for architecture history. It is excluded from normal repository search, analytics, findings, portfolios, roadmaps, and new relationship target lists until it is restored. Existing relationships are preserved.
+      {% if object.archived_at %}<div class="small mt-1">Archived {{ object.archived_at.strftime('%Y-%m-%d %H:%M UTC') }}.</div>{% endif %}
+    </div>
+  {% endif %}
   <ul class="nav nav-tabs mb-4">
     {% for key,label in [('overview','Overview'),('relationships','Relationships'),('lifecycle','Lifecycle'),('history','History'),('comments','Comments')] %}<li class="nav-item"><a class="nav-link {% if tab == key %}active{% endif %}" href="/explore/{{ object.id }}{% if key != 'overview' %}?tab={{ key }}{% endif %}">{{ label }}{% if key == 'relationships' %} <span class="badge text-bg-light border">{{ relationships|length }}</span>{% endif %}</a></li>{% endfor %}
   </ul>
 
   {% if tab == 'relationships' %}
-    <div class="card"><div class="card-header fw-semibold">Architecture relationships</div><div class="card-body p-0">{% if relationships %}<div class="table-responsive"><table class="table table-hover mb-0"><thead><tr><th>Direction</th><th>Relationship</th><th>Object</th><th>Metadata</th><th></th></tr></thead><tbody>{% for rel in relationships %}<tr><td>{% if rel.source_object_id == object.id %}<span class="badge text-bg-primary">Outbound</span>{% else %}<span class="badge text-bg-secondary">Inbound</span>{% endif %}</td><td>{% if rel.source_object_id == object.id %}{{ rel.relationship_type.name }}{% else %}{{ rel.relationship_type.inverse_label }}{% endif %}</td><td>{% set other = rel.target_object if rel.source_object_id == object.id else rel.source_object %}<a href="/explore/{{ other.id }}">{{ other.name }}</a><div class="small text-body-secondary">{{ other.object_type.name }}</div></td><td>{{ rel.criticality or 'No criticality' }} · {{ rel.confidence or 'No confidence' }}</td><td class="text-end">{% if can_manage_relationships %}<a class="btn btn-sm btn-outline-primary" href="/relationships/{{ rel.id }}/edit">Edit</a>{% endif %}</td></tr>{% endfor %}</tbody></table></div>{% else %}<div class="p-4 text-body-secondary">No relationships are recorded for this object.</div>{% endif %}</div></div>
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center gap-3">
+        <div>
+          <div class="fw-semibold">Architecture relationships</div>
+          {% if archived_related_count %}<div class="small text-body-secondary">{{ archived_related_count }} relationship{% if archived_related_count != 1 %}s{% endif %} point to an archived object.</div>{% endif %}
+        </div>
+        {% if archived_related_count %}
+          <a class="btn btn-sm btn-outline-secondary" href="/explore/{{ object.id }}?tab=relationships&show_archived_related={% if show_archived_related %}false{% else %}true{% endif %}">
+            {% if show_archived_related %}Hide archived related objects{% else %}Show archived related objects{% endif %}
+          </a>
+        {% endif %}
+      </div>
+      <div class="card-body p-0">
+        {% if relationships %}
+          <div class="table-responsive"><table class="table table-hover mb-0"><thead><tr><th>Direction</th><th>Relationship</th><th>Object</th><th>Metadata</th><th></th></tr></thead><tbody>
+          {% for rel in relationships %}
+            {% set other = rel.target_object if rel.source_object_id == object.id else rel.source_object %}
+            <tr{% if other.archived_at %} class="table-secondary"{% endif %}>
+              <td>{% if rel.source_object_id == object.id %}<span class="badge text-bg-primary">Outbound</span>{% else %}<span class="badge text-bg-secondary">Inbound</span>{% endif %}</td>
+              <td>{% if rel.source_object_id == object.id %}{{ rel.relationship_type.name }}{% else %}{{ rel.relationship_type.inverse_label }}{% endif %}</td>
+              <td>
+                <a href="/explore/{{ other.id }}"{% if other.archived_at %} class="text-body-secondary text-decoration-line-through"{% endif %}>{{ other.name }}</a>
+                {% if other.archived_at %}<span class="badge text-bg-danger ms-1">Archived</span>{% endif %}
+                <div class="small text-body-secondary">{{ other.object_type.name }}{% if other.archived_at %} · retained for history{% endif %}</div>
+              </td>
+              <td>{{ rel.criticality or 'No criticality' }} · {{ rel.confidence or 'No confidence' }}</td>
+              <td class="text-end">{% if can_manage_relationships %}<a class="btn btn-sm btn-outline-primary" href="/relationships/{{ rel.id }}/edit">Edit</a>{% endif %}</td>
+            </tr>
+          {% endfor %}
+          </tbody></table></div>
+        {% elif archived_related_count and not show_archived_related %}
+          <div class="p-4 text-body-secondary">No current related objects are displayed. {{ archived_related_count }} archived related object{% if archived_related_count != 1 %}s are{% else %} is{% endif %} hidden.</div>
+        {% else %}
+          <div class="p-4 text-body-secondary">No relationships are recorded for this object.</div>
+        {% endif %}
+      </div>
+    </div>
   {% elif tab == 'lifecycle' %}
     <div class="row g-4"><div class="col-lg-7">
       <div class="card mb-4"><div class="card-header fw-semibold">Governance</div><div class="card-body"><p><strong>Governance status:</strong> {{ object.governance_status or 'Not set' }}</p>
@@ -25,7 +88,7 @@
   {% elif tab == 'comments' %}
     <div class="row g-4"><div class="col-lg-8"><div class="card"><div class="card-header fw-semibold">Comments</div><div class="card-body">{% if comments %}{% for comment in comments %}<div class="border-bottom pb-3 mb-3"><div class="fw-semibold">{{ comment.user.display_name if comment.user else 'Unknown user' }} <span class="small fw-normal text-body-secondary">{{ comment.created_at.strftime('%Y-%m-%d %H:%M UTC') }}</span></div><div class="mt-1">{{ comment.body }}</div></div>{% endfor %}{% else %}<p class="text-body-secondary">No comments yet.</p>{% endif %}</div></div></div><div class="col-lg-4">{% if can_review_comment %}<div class="card"><div class="card-header fw-semibold">Add comment</div><div class="card-body"><form method="post" action="/explore/{{ object.id }}/comments"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><textarea class="form-control mb-3" name="body" rows="5" required></textarea><button class="btn btn-primary">Add comment</button></form></div></div>{% endif %}</div></div>
   {% else %}
-    <div class="row g-4"><div class="col-lg-8"><div class="card mb-4"><div class="card-header fw-semibold">Architecture metadata</div><div class="card-body"><dl class="row mb-0 detail-grid"><dt class="col-sm-4">Lifecycle</dt><dd class="col-sm-8">{{ object.lifecycle_stage or 'Not set' }}</dd><dt class="col-sm-4">Criticality</dt><dd class="col-sm-8">{{ object.criticality or 'Not set' }}</dd><dt class="col-sm-4">Governance status</dt><dd class="col-sm-8">{{ object.governance_status or 'Not set' }}</dd><dt class="col-sm-4">Owner organization</dt><dd class="col-sm-8">{{ object.owner_organization.name if object.owner_organization else 'Not set' }}</dd><dt class="col-sm-4">Owner role</dt><dd class="col-sm-8">{{ object.owner_role.name if object.owner_role else 'Not set' }}</dd></dl></div></div>{% if schema_fields %}<div class="card"><div class="card-header fw-semibold">{{ object.object_type.name }} details</div><div class="card-body"><dl class="row mb-0 detail-grid">{% for name, spec in schema_fields %}<dt class="col-sm-4">{{ name.replace('_',' ')|title }}</dt><dd class="col-sm-8">{% set value = object.properties.get(name) %}{% if value is sameas true %}Yes{% elif value is sameas false %}No{% elif value is iterable and value is not string %}{{ value|join(', ') }}{% else %}{{ value or 'Not set' }}{% endif %}</dd>{% endfor %}</dl></div></div>{% endif %}</div><div class="col-lg-4"><div class="card mb-4"><div class="card-header fw-semibold">Repository</div><div class="card-body"><dl class="mb-0"><dt>Aliases</dt><dd>{{ object.aliases|map(attribute='alias')|join(', ') if object.aliases else 'None' }}</dd><dt>Tags</dt><dd>{{ object.tags|map(attribute='name')|join(', ') if object.tags else 'None' }}</dd><dt>Source</dt><dd>{{ object.source or 'Not set' }}</dd><dt>Confidence</dt><dd>{{ object.confidence or 'Not set' }}</dd></dl></div></div></div></div>
+    <div class="row g-4"><div class="col-lg-8"><div class="card mb-4"><div class="card-header fw-semibold">Architecture metadata</div><div class="card-body"><dl class="row mb-0 detail-grid"><dt class="col-sm-4">Lifecycle</dt><dd class="col-sm-8">{{ object.lifecycle_stage or 'Not set' }}</dd><dt class="col-sm-4">Criticality</dt><dd class="col-sm-8">{{ object.criticality or 'Not set' }}</dd><dt class="col-sm-4">Governance status</dt><dd class="col-sm-8">{{ object.governance_status or 'Not set' }}</dd><dt class="col-sm-4">Owner organization</dt><dd class="col-sm-8">{{ object.owner_organization.name if object.owner_organization else 'Not set' }}</dd><dt class="col-sm-4">Owner role</dt><dd class="col-sm-8">{{ object.owner_role.name if object.owner_role else 'Not set' }}</dd></dl></div></div>{% if schema_fields %}<div class="card"><div class="card-header fw-semibold">{{ object.object_type.name }} details</div><div class="card-body"><dl class="row mb-0 detail-grid">{% for name, spec in schema_fields %}<dt class="col-sm-4">{% if object.object_type.key == 'role' and name == 'organization' %}Role Organization{% else %}{{ name.replace('_',' ')|title }}{% endif %}</dt><dd class="col-sm-8">{% set value = object.properties.get(name) %}{% if spec.get('type') == 'object_reference' %}{{ reference_display_values.get(name, 'Not set') }}{% elif value is sameas true %}Yes{% elif value is sameas false %}No{% elif value is iterable and value is not string %}{{ value|join(', ') }}{% else %}{{ value or 'Not set' }}{% endif %}</dd>{% endfor %}</dl></div></div>{% endif %}</div><div class="col-lg-4"><div class="card mb-4"><div class="card-header fw-semibold">Repository</div><div class="card-body"><dl class="mb-0"><dt>Aliases</dt><dd>{{ object.aliases|map(attribute='alias')|join(', ') if object.aliases else 'None' }}</dd><dt>Tags</dt><dd>{{ object.tags|map(attribute='name')|join(', ') if object.tags else 'None' }}</dd><dt>Source</dt><dd>{{ object.source or 'Not set' }}</dd><dt>Confidence</dt><dd>{{ object.confidence or 'Not set' }}</dd></dl></div></div></div></div>
   {% endif %}
 </div>
 {% endblock %}

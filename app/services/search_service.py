@@ -40,6 +40,7 @@ class SearchService:
         owner_id: str | None = None,
         tag: str | None = None,
         review_status: str | None = None,
+        archive_scope: str = "current",
         sort: str = "name",
         direction: str = "asc",
         page: int = 1,
@@ -59,6 +60,7 @@ class SearchService:
                 owner_id=owner_id,
                 tag=tag,
                 review_status=review_status,
+                archive_scope=archive_scope,
                 sort=sort,
                 direction=direction,
                 page=page,
@@ -74,14 +76,18 @@ class SearchService:
             owner_id=owner_id,
             tag=tag,
             review_status=review_status,
+            archive_scope=archive_scope,
             sort=sort,
             direction=direction,
             page=page,
             per_page=per_page,
         )
 
-    def _base(self):
-        return (
+    def _base(self, archive_scope: str = "current"):
+        if archive_scope not in {"current", "archived", "all"}:
+            raise ValueError("archive_scope must be current, archived, or all")
+
+        stmt = (
             select(ArchitectureObject)
             .options(
                 selectinload(ArchitectureObject.aliases),
@@ -90,8 +96,12 @@ class SearchService:
                 selectinload(ArchitectureObject.owner_role),
             )
             .join(ObjectType)
-            .where(ArchitectureObject.archived_at.is_(None))
         )
+        if archive_scope == "current":
+            stmt = stmt.where(ArchitectureObject.archived_at.is_(None))
+        elif archive_scope == "archived":
+            stmt = stmt.where(ArchitectureObject.archived_at.is_not(None))
+        return stmt
 
     def _filters(self, stmt, **filters):
         if filters.get("object_type_key"):
@@ -133,7 +143,10 @@ class SearchService:
         return stmt
 
     def _search_postgres(self, *, query: str | None, sort: str, direction: str, page: int, per_page: int, **filters) -> SearchPage:
-        stmt = self._filters(self._base(), **filters)
+        archive_scope = str(filters.pop("archive_scope", "current"))
+        if filters.get("record_status") == "Archived" and archive_scope == "current":
+            archive_scope = "archived"
+        stmt = self._filters(self._base(archive_scope), **filters)
         q = (query or "").strip()
         rank = literal(0.0)
         if q:
@@ -157,7 +170,10 @@ class SearchService:
         return SearchPage(list(self.db.scalars(stmt).unique().all()), total, page, per_page)
 
     def _search_portable(self, *, query: str | None, sort: str, direction: str, page: int, per_page: int, **filters) -> SearchPage:
-        stmt = self._filters(self._base(), **filters)
+        archive_scope = str(filters.pop("archive_scope", "current"))
+        if filters.get("record_status") == "Archived" and archive_scope == "current":
+            archive_scope = "archived"
+        stmt = self._filters(self._base(archive_scope), **filters)
         items = list(self.db.scalars(stmt).unique().all())
         q = (query or "").strip().casefold()
         if q:

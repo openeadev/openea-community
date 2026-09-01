@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
@@ -137,6 +137,7 @@ def object_payload(obj: ArchitectureObject) -> dict[str, Any]:
         "properties": obj.properties,
         "created_at": obj.created_at.isoformat(),
         "updated_at": obj.updated_at.isoformat(),
+        "archived_at": obj.archived_at.isoformat() if obj.archived_at else None,
         "url": f"/explore/{obj.id}",
     }
 
@@ -164,12 +165,20 @@ def list_objects(
     object_type: str | None = None,
     record_status: str | None = None,
     criticality: str | None = None,
+    archive_scope: Literal["current", "archived", "all"] = "current",
     page: int = Query(1, ge=1),
     per_page: int = Query(25, ge=1, le=100),
     _: User = Depends(api_access("objects:read")),
     db: Session = Depends(get_db),
 ) -> dict[str, Any]:
-    result = SearchService(db).search(object_type_key=object_type, record_status=record_status, criticality=criticality, page=page, per_page=per_page)
+    result = SearchService(db).search(
+        object_type_key=object_type,
+        record_status=record_status,
+        criticality=criticality,
+        archive_scope=archive_scope,
+        page=page,
+        per_page=per_page,
+    )
     return {"items": [object_payload(obj) for obj in result.items], "total": result.total, "page": result.page, "pages": result.pages, "per_page": result.per_page}
 
 
@@ -203,7 +212,7 @@ def create_object(payload: ObjectWrite, actor: User = Depends(api_access("object
 
 @router.get("/objects/{object_id}")
 def get_object(object_id: str, _: User = Depends(api_access("objects:read")), db: Session = Depends(get_db)) -> dict[str, Any]:
-    obj = ObjectRepository(db).get_by_id(object_id)
+    obj = ObjectRepository(db).get_by_id(object_id, include_archived=True)
     if obj is None:
         raise HTTPException(status_code=404, detail="Object not found")
     return object_payload(obj)
@@ -249,10 +258,33 @@ def archive_object(object_id: str, actor: User = Depends(api_access("objects:wri
     ObjectService(db).archive_object(obj, actor=actor)
 
 
+@router.post("/objects/{object_id}/restore")
+def restore_object(
+    object_id: str,
+    actor: User = Depends(api_access("objects:write", write=True)),
+    db: Session = Depends(get_db),
+) -> dict[str, Any]:
+    obj = ObjectRepository(db).get_by_id(object_id, include_archived=True)
+    if obj is None:
+        raise HTTPException(status_code=404, detail="Object not found")
+    try:
+        ObjectService(db).restore_object(obj, actor=actor)
+    except ObjectValidationError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return object_payload(obj)
+
+
 @router.get("/relationships")
-def list_relationships(object_id: str | None = None, _: User = Depends(api_access("relationships:read")), db: Session = Depends(get_db)) -> dict[str, Any]:
+def list_relationships(
+    object_id: str | None = None,
+    include_archived_related: bool = True,
+    _: User = Depends(api_access("relationships:read")),
+    db: Session = Depends(get_db),
+) -> dict[str, Any]:
     if object_id:
-        relationships = RelationshipRepository(db).list_for_object(object_id)
+        relationships = RelationshipRepository(db).list_for_object(
+            object_id, include_archived_related=include_archived_related
+        )
     else:
         relationships = list(db.scalars(select(ArchitectureRelationship).where(ArchitectureRelationship.archived_at.is_(None))).unique().all())
     return {"items": [relationship_payload(rel) for rel in relationships], "total": len(relationships)}
@@ -299,12 +331,20 @@ def archive_relationship(relationship_id: str, actor: User = Depends(api_access(
 def search(
     q: str = "",
     object_type: str | None = None,
+    archive_scope: Literal["current", "archived", "all"] = "current",
     page: int = Query(1, ge=1),
     per_page: int = Query(25, ge=1, le=100),
     _: User = Depends(api_access("search:read")),
     db: Session = Depends(get_db),
 ) -> dict[str, Any]:
-    result = SearchService(db).search(query=q or None, object_type_key=object_type, page=page, per_page=per_page, sort="relevance" if q else "name")
+    result = SearchService(db).search(
+        query=q or None,
+        object_type_key=object_type,
+        archive_scope=archive_scope,
+        page=page,
+        per_page=per_page,
+        sort="relevance" if q else "name",
+    )
     return {"items": [object_payload(obj) for obj in result.items], "total": result.total, "page": result.page, "pages": result.pages}
 
 

@@ -69,6 +69,25 @@ def _reference_options(db: Session, fields: list[tuple[str, dict[str, Any]]]) ->
     return result
 
 
+def _reference_display_values(
+    db: Session,
+    obj: ArchitectureObject,
+    fields: list[tuple[str, dict[str, Any]]],
+) -> dict[str, str]:
+    """Resolve stored object-reference UUIDs to human-readable object names."""
+    repo = ObjectRepository(db)
+    result: dict[str, str] = {}
+    for name, spec in fields:
+        if spec.get("type") != "object_reference":
+            continue
+        value = obj.properties.get(name)
+        if not value:
+            continue
+        referenced = repo.get_by_id(str(value), include_archived=True)
+        result[name] = referenced.name if referenced is not None else "Referenced object unavailable"
+    return result
+
+
 def _form_context(
     request: Request,
     current_user: User,
@@ -155,6 +174,17 @@ def _service_values(form: Any, object_type: ObjectType) -> dict[str, Any]:
     }
 
 
+def _repository_search_scope(record_status: str | None) -> tuple[str | None, str]:
+    """Translate the Explore status selector into status and archival filters."""
+    if record_status == "__all__":
+        return None, "all"
+    if record_status == "Archived":
+        return "Archived", "archived"
+    if record_status in {"Draft", "Active", "Inactive"}:
+        return record_status, "current"
+    return None, "current"
+
+
 @router.get("", response_class=HTMLResponse)
 def explore_page(
     request: Request,
@@ -174,11 +204,13 @@ def explore_page(
     db: Session = Depends(get_db),
 ) -> HTMLResponse:
     repo = ObjectRepository(db)
+    effective_record_status, archive_scope = _repository_search_scope(record_status)
     effective_sort = "relevance" if q and sort == "name" else sort
     results = SearchService(db).search(
         query=q,
         object_type_key=object_type,
-        record_status=record_status,
+        record_status=effective_record_status,
+        archive_scope=archive_scope,
         lifecycle_stage=lifecycle,
         criticality=criticality,
         governance_status=governance_status,
@@ -295,12 +327,32 @@ def object_detail_page(
     object_id: str,
     request: Request,
     tab: str = "overview",
+    show_archived_related: bool = True,
     current_user: User = Depends(require_authenticated),
     db: Session = Depends(get_db),
 ) -> HTMLResponse:
-    obj = ObjectRepository(db).get_by_id(object_id)
+    obj = ObjectRepository(db).get_by_id(object_id, include_archived=True)
     if obj is None:
         raise HTTPException(status_code=404, detail="Object not found")
+    fields = _schema_fields(obj.object_type)
+    is_archived = obj.archived_at is not None
+    relationship_repo = RelationshipRepository(db)
+    all_relationships = relationship_repo.list_for_object(obj.id, include_archived_related=True)
+    relationships = (
+        all_relationships
+        if show_archived_related
+        else relationship_repo.list_for_object(obj.id, include_archived_related=False)
+    )
+    archived_related_count = sum(
+        1
+        for relationship in all_relationships
+        if (
+            relationship.target_object
+            if relationship.source_object_id == obj.id
+            else relationship.source_object
+        ).archived_at
+        is not None
+    )
     return templates.TemplateResponse(
         request=request,
         name="explore/object_detail.html",
@@ -309,14 +361,19 @@ def object_detail_page(
             "current_user": current_user,
             "csrf_token": get_csrf_token(request),
             "object": obj,
-            "schema_fields": _schema_fields(obj.object_type),
-            "can_edit": _can(current_user, ARCHITECTURE_ADMIN, ARCHITECT, CONTRIBUTOR),
-            "can_archive": _can(current_user, ARCHITECTURE_ADMIN, ARCHITECT),
-            "can_manage_relationships": _can(current_user, ARCHITECTURE_ADMIN, ARCHITECT, CONTRIBUTOR),
-            "can_govern": _can(current_user, ARCHITECTURE_ADMIN, ARCHITECT),
-            "can_review_comment": _can(current_user, ARCHITECTURE_ADMIN, ARCHITECT, CONTRIBUTOR),
+            "schema_fields": fields,
+            "reference_display_values": _reference_display_values(db, obj, fields),
+            "is_archived": is_archived,
+            "can_edit": not is_archived and _can(current_user, ARCHITECTURE_ADMIN, ARCHITECT, CONTRIBUTOR),
+            "can_archive": not is_archived and _can(current_user, ARCHITECTURE_ADMIN, ARCHITECT),
+            "can_restore": is_archived and _can(current_user, ARCHITECTURE_ADMIN, ARCHITECT),
+            "can_manage_relationships": not is_archived and _can(current_user, ARCHITECTURE_ADMIN, ARCHITECT, CONTRIBUTOR),
+            "can_govern": not is_archived and _can(current_user, ARCHITECTURE_ADMIN, ARCHITECT),
+            "can_review_comment": not is_archived and _can(current_user, ARCHITECTURE_ADMIN, ARCHITECT, CONTRIBUTOR),
             "tab": tab if tab in {"overview", "relationships", "lifecycle", "history", "comments"} else "overview",
-            "relationships": RelationshipRepository(db).list_for_object(obj.id),
+            "relationships": relationships,
+            "show_archived_related": show_archived_related,
+            "archived_related_count": archived_related_count,
             "reviews": GovernanceService(db).list_reviews(obj.id),
             "comments": GovernanceService(db).list_comments(obj.id),
             "audit_events": AuditService(db).list_for_object(obj.id),
@@ -391,3 +448,22 @@ async def archive_object_submit(
         raise HTTPException(status_code=404, detail="Object not found")
     ObjectService(db).archive_object(obj, actor=current_user)
     return RedirectResponse("/explore", status_code=status.HTTP_303_SEE_OTHER)
+
+
+@router.post("/{object_id}/restore")
+async def restore_object_submit(
+    object_id: str,
+    request: Request,
+    current_user: User = Depends(require_object_archiver),
+    db: Session = Depends(get_db),
+) -> Response:
+    form = await request.form()
+    validate_csrf(request, str(form.get("csrf_token", "")))
+    obj = ObjectRepository(db).get_by_id(object_id, include_archived=True)
+    if obj is None:
+        raise HTTPException(status_code=404, detail="Object not found")
+    try:
+        ObjectService(db).restore_object(obj, actor=current_user)
+    except ObjectValidationError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return RedirectResponse(f"/explore/{obj.id}", status_code=status.HTTP_303_SEE_OTHER)

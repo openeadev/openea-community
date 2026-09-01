@@ -130,6 +130,9 @@ Create an **Organization**:
 
 ## 6. Create the Head of Retail Banking role
 
+!!! info "Owner organization and Role organization are different concepts"
+    **Owner organization** in Core information identifies who stewards the OpenEA repository record. **Role organization** in Role details identifies where the business or architecture role belongs or operates. They may be the same or different. In this tutorial, Acme Bank uses the same organization for both because the organization containing each role also stewards its record. See [Manage Architecture Objects](../../user-guide/objects.md#owner-organization-and-type-specific-organization-fields) for the full explanation.
+
 Select **Explore → New → Role**.
 
 Enter:
@@ -139,8 +142,9 @@ Enter:
 | Name | `Head of Retail Banking` |
 | Description | `Business accountability role for Acme Bank retail banking capabilities and products.` |
 | Record status | `Active` |
+| Owner organization | `Retail Banking` |
 | Role Type | `Business Owner` |
-| Organization | `Retail Banking` |
+| Role organization | `Retail Banking` |
 | Responsibilities | `Accountable for retail banking products, customer outcomes, and business capability priorities.` |
 | Tags | `Acme Bank` |
 | Source | `Manual` |
@@ -158,8 +162,9 @@ Create a **Role**:
 | Name | `Payments Application Owner` |
 | Description | `Application accountability role for Acme Bank payment platforms.` |
 | Record status | `Active` |
+| Owner organization | `Payments Technology` |
 | Role Type | `Application Owner` |
-| Organization | `Payments Technology` |
+| Role organization | `Payments Technology` |
 | Responsibilities | `Accountable for payment application lifecycle, service quality, and technology risk.` |
 | Tags | `Acme Bank` |
 | Source | `Manual` |
@@ -175,8 +180,9 @@ Create a **Role**:
 | Name | `Enterprise Architect` |
 | Description | `Architecture role responsible for cross-domain architecture governance.` |
 | Record status | `Active` |
+| Owner organization | `Enterprise Architecture` |
 | Role Type | `Architecture` |
-| Organization | `Enterprise Architecture` |
+| Role organization | `Enterprise Architecture` |
 | Responsibilities | `Maintains architecture standards, reviews changes, and supports architecture decisions.` |
 | Tags | `Acme Bank` |
 | Source | `Manual` |
