@@ -1,4 +1,3 @@
-from app.services.scheduled_job_service import ScheduledJobService
 from fastapi import APIRouter, Depends, Form, HTTPException, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
@@ -11,6 +10,7 @@ from app.db.session import get_db
 from app.models.user import User
 from app.repositories.user_repository import UserRepository
 from app.services.auth_service import AuthenticationService
+from app.services.scheduled_job_service import ScheduledJobService
 
 router = APIRouter(prefix="/admin", include_in_schema=False)
 templates = Jinja2Templates(directory="app/templates")
