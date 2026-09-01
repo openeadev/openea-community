@@ -7,6 +7,13 @@ services:
 
     autoDeployTrigger: checksPass
 
+    buildFilter:
+      ignoredPaths:
+        - docs/**
+        - mkdocs.yml
+        - requirements-docs.txt
+        - README.md
+
     dockerfilePath: ./Dockerfile
     dockerCommand: /bin/sh scripts/render-start.sh
 
