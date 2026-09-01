@@ -21,18 +21,20 @@ class RelationshipRepository:
         object_id: str,
         *,
         include_archived_related: bool = True,
+        include_archived_relationships: bool = False,
     ) -> list[ArchitectureRelationship]:
+        stmt = select(ArchitectureRelationship).where(
+            or_(
+                ArchitectureRelationship.source_object_id == object_id,
+                ArchitectureRelationship.target_object_id == object_id,
+            )
+        )
+        if not include_archived_relationships:
+            stmt = stmt.where(ArchitectureRelationship.archived_at.is_(None))
+
         relationships = list(
             self.db.scalars(
-                select(ArchitectureRelationship)
-                .where(
-                    ArchitectureRelationship.archived_at.is_(None),
-                    or_(
-                        ArchitectureRelationship.source_object_id == object_id,
-                        ArchitectureRelationship.target_object_id == object_id,
-                    ),
-                )
-                .order_by(ArchitectureRelationship.created_at)
+                stmt.order_by(ArchitectureRelationship.created_at)
             ).unique().all()
         )
         if include_archived_related:

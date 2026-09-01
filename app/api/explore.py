@@ -327,7 +327,7 @@ def object_detail_page(
     object_id: str,
     request: Request,
     tab: str = "overview",
-    show_archived_related: bool = True,
+    show_archived_related: bool = False,
     current_user: User = Depends(require_authenticated),
     db: Session = Depends(get_db),
 ) -> HTMLResponse:
@@ -337,22 +337,18 @@ def object_detail_page(
     fields = _schema_fields(obj.object_type)
     is_archived = obj.archived_at is not None
     relationship_repo = RelationshipRepository(db)
-    all_relationships = relationship_repo.list_for_object(obj.id, include_archived_related=True)
-    relationships = (
-        all_relationships
-        if show_archived_related
-        else relationship_repo.list_for_object(obj.id, include_archived_related=False)
+    current_relationships = relationship_repo.list_for_object(
+        obj.id,
+        include_archived_related=False,
+        include_archived_relationships=False,
     )
-    archived_related_count = sum(
-        1
-        for relationship in all_relationships
-        if (
-            relationship.target_object
-            if relationship.source_object_id == obj.id
-            else relationship.source_object
-        ).archived_at
-        is not None
+    all_relationships = relationship_repo.list_for_object(
+        obj.id,
+        include_archived_related=True,
+        include_archived_relationships=True,
     )
+    relationships = all_relationships if show_archived_related else current_relationships
+    archived_relationship_count = len(all_relationships) - len(current_relationships)
     return templates.TemplateResponse(
         request=request,
         name="explore/object_detail.html",
@@ -373,7 +369,7 @@ def object_detail_page(
             "tab": tab if tab in {"overview", "relationships", "lifecycle", "history", "comments"} else "overview",
             "relationships": relationships,
             "show_archived_related": show_archived_related,
-            "archived_related_count": archived_related_count,
+            "archived_relationship_count": archived_relationship_count,
             "reviews": GovernanceService(db).list_reviews(obj.id),
             "comments": GovernanceService(db).list_comments(obj.id),
             "audit_events": AuditService(db).list_for_object(obj.id),

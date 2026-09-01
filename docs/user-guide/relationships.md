@@ -27,9 +27,9 @@ The service layer validates the source/type/target combination again before comm
 
 Archiving an object does **not** delete or automatically archive its existing relationships. OpenEA preserves those relationship records because they explain historical architecture context and can become current again if the object is restored.
 
-On an object's **Relationships** tab, a related archived object is visibly distinguished with an **Archived** badge and historical styling. Archived related objects are shown by default. If archived relationships make the current view noisy, select **Hide archived related objects**. Select **Show archived related objects** to restore them to the view.
+On an object's **Relationships** tab, current relationships are shown by default. Archived related objects and separately archived relationship records are hidden until you select **Show archived**. Select **Hide archived** to return to the current-state view.
 
-The relationship itself remains stored unless it is separately archived. An archived object is not eligible as the target of a new relationship.
+When archived entries are shown, OpenEA keeps the normal theme-controlled table background in both light and dark mode and uses the red **Archived** badge as the visual status indicator. Existing relationship history remains stored, but an archived object is not eligible as the target of a new relationship.
 
 ## Edit a relationship
 

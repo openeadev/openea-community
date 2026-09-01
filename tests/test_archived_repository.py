@@ -93,6 +93,7 @@ def test_explore_archived_filter_and_direct_archived_record_view(client: TestCli
     assert archived_results.status_code == 200
     assert "Retired Payment Process" in archived_results.text
     assert "Archived" in archived_results.text
+    assert "table-secondary" not in archived_results.text
 
     detail = client.get(f"/explore/{archived.id}")
     assert detail.status_code == 200
@@ -102,7 +103,7 @@ def test_explore_archived_filter_and_direct_archived_record_view(client: TestCli
     assert "View Metrics" not in detail.text
 
 
-def test_archived_related_objects_are_marked_and_can_be_hidden(client: TestClient, db: Session) -> None:
+def test_archived_related_objects_are_hidden_by_default_and_theme_neutral(client: TestClient, db: Session) -> None:
     architect = create_user(db)
     application = make_object(db, architect, "application", "Digital Banking")
     current_process = make_object(db, architect, "business_process", "Process Payments")
@@ -127,24 +128,62 @@ def test_archived_related_objects_are_marked_and_can_be_hidden(client: TestClien
     page = client.get(f"/explore/{application.id}", params={"tab": "relationships"})
     assert page.status_code == 200
     assert "Process Payments" in page.text
-    assert "Legacy Payment Process" in page.text
-    assert "Hide archived related objects" in page.text
-    assert "retained for history" in page.text
+    assert "Legacy Payment Process" not in page.text
+    assert "Show archived" in page.text
 
-    hidden = client.get(
+    shown = client.get(
         f"/explore/{application.id}",
-        params={"tab": "relationships", "show_archived_related": "false"},
+        params={"tab": "relationships", "show_archived_related": "true"},
     )
-    assert hidden.status_code == 200
-    assert "Process Payments" in hidden.text
-    assert "Legacy Payment Process" not in hidden.text
-    assert "Show archived related objects" in hidden.text
+    assert shown.status_code == 200
+    assert "Process Payments" in shown.text
+    assert "Legacy Payment Process" in shown.text
+    assert "Hide archived" in shown.text
+    assert ">Archived</span>" in shown.text
+    assert "table-secondary" not in shown.text
+    assert "text-decoration-line-through" not in shown.text
 
     current_relationships = RelationshipRepository(db).list_for_object(
         application.id, include_archived_related=False
     )
     assert len(current_relationships) == 1
     assert current_relationships[0].target_object_id == current_process.id
+
+
+def test_show_archived_also_reveals_archived_relationship_records(client: TestClient, db: Session) -> None:
+    architect = create_user(db)
+    application = make_object(db, architect, "application", "Payments Hub")
+    process = make_object(db, architect, "business_process", "Settle Payments")
+    service = RelationshipService(db)
+    relationship = service.create_relationship(
+        relationship_key="supports",
+        source_object_id=application.id,
+        target_object_id=process.id,
+        actor=architect,
+    )
+    service.archive_relationship(relationship, actor=architect)
+    login(client)
+
+    page = client.get(f"/explore/{application.id}", params={"tab": "relationships"})
+    assert page.status_code == 200
+    assert "Settle Payments" not in page.text
+    assert "Show archived" in page.text
+
+    shown = client.get(
+        f"/explore/{application.id}",
+        params={"tab": "relationships", "show_archived_related": "true"},
+    )
+    assert shown.status_code == 200
+    assert "Settle Payments" in shown.text
+    assert ">Archived</span>" in shown.text
+    assert "table-secondary" not in shown.text
+
+    archived_relationships = RelationshipRepository(db).list_for_object(
+        application.id,
+        include_archived_related=True,
+        include_archived_relationships=True,
+    )
+    assert [item.id for item in archived_relationships] == [relationship.id]
 
 
 def test_restore_preserves_relationships_and_previous_status(client: TestClient, db: Session) -> None:
