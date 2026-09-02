@@ -28,9 +28,11 @@ PostgreSQL
 
 The optional public Render demo uses a free web service and free PostgreSQL database. Its startup script runs the web process and existing background worker in the same Render container because the free tier does not include a separate worker service.
 
-## Front-end dependencies
+## Front-end dependencies and offline runtime
 
-The 1.5.2 baseline still loads pinned Tabler Core, HTMX, Lucide, and Cytoscape.js assets through jsDelivr. Local vendoring of those third-party assets is not part of the baseline.
+Community 1.5.2 maintenance now vendors the browser dependencies into the OpenEA Docker image at build time. Tabler Core, HTMX, Lucide, Cytoscape.js, Swagger UI, and ReDoc are served locally from `/static/vendor`, so the installed application does not need a public CDN during normal runtime. Swagger UI's external validator is disabled and ReDoc does not load Google Fonts.
+
+The first connected image build may still need Internet access to pull Docker base images, download Python packages, and retrieve the pinned browser files. A separate [Offline and Air-Gapped Installation](../getting-started/offline-installation.md) procedure documents how to build/export the application and PostgreSQL images on a connected preparation host and load them on an isolated target.
 
 ## Quality and explainability updates
 

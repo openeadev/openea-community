@@ -26,6 +26,7 @@ Docker Compose additionally recognizes:
 | `POSTGRES_USER` | `openea` |
 | `POSTGRES_PASSWORD` | `openea` |
 | `OPENEA_PORT` | `8000` |
+| `OPENEA_IMAGE` | `openea-community:1.5.2` | Docker image tag shared by the web and worker services. Useful for transferred/air-gapped images. |
 
 ## Render demo variables
 

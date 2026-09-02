@@ -2,6 +2,10 @@
 
 ## 1.5.2 - Independent Community baseline and maintenance updates
 
+- Removed runtime browser CDN dependencies: Tabler, HTMX, Lucide, Cytoscape.js, Swagger UI, and ReDoc are now downloaded at image-build time and served locally by OpenEA.
+- Added self-hosted `/docs` and `/redoc` assets, disabled Swagger UI's external validator, disabled ReDoc Google Fonts, and tightened runtime CSP origins to the OpenEA host.
+- Added documented temporarily-connected and fully air-gapped Docker installation paths using `docker save` / `docker load` and `docker compose up -d --no-build`.
+- Added a shared `OPENEA_IMAGE` Compose tag (`openea-community:1.5.2`) so the same application image is used by web and worker and can be transferred cleanly to isolated hosts.
 - Added the MkDocs/Material documentation site, GitHub Pages publication workflow, and the full Acme Bank from-scratch tutorial sequence.
 - Added optional automated Render public-demo deployment support with Psycopg 3 URL normalization, database-aware health checking, commit-aware demo reset/reseed behavior, and the existing worker running alongside Uvicorn in the demo container.
 - Updated Community navigation branding and corrected theme-sensitive Impact Analysis/archived-state presentation.

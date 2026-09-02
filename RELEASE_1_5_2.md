@@ -44,9 +44,11 @@ OpenEA Community 1.5.1 installations can upgrade in place. Preserve the PostgreS
 
 See `docs/administration/upgrading.md` for the detailed procedure.
 
-## Front-end dependency note
+## Offline runtime and front-end assets
 
-The 1.5.2 baseline still uses the pinned jsDelivr references inherited from 1.5.1 for Tabler Core, HTMX, Lucide, and Cytoscape.js. Bundling those pinned third-party assets locally is intentionally tracked as a separate Community maintenance enhancement so the baseline does not silently substitute or modify third-party artifacts.
+Community 1.5.2 now supports a fully offline runtime after the required container images have been built/staged. Pinned Tabler Core, HTMX, Lucide, Cytoscape.js, Swagger UI, and ReDoc assets are downloaded during the OpenEA image build and served locally from `/static/vendor`; normal browser pages no longer depend on jsDelivr or other public CDNs. ReDoc does not load Google Fonts, Swagger UI's external validator is disabled, and the application Content Security Policy no longer permits public CDN script/style origins.
+
+A fresh connected build can still require network access for Docker base images, PyPI packages, and the pinned browser-asset download step. For permanently isolated environments, build `openea-community:1.5.2` on a connected preparation host, export it together with `postgres:16-alpine` using `docker save`, load the images on the target, and start with `docker compose up -d --no-build`.
 
 ## Archived repository records
 

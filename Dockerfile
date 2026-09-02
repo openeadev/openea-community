@@ -8,9 +8,11 @@ WORKDIR /opt/openea
 RUN addgroup --system openea && adduser --system --ingroup openea openea
 COPY pyproject.toml README.md LICENSE ./
 COPY app ./app
+COPY scripts ./scripts
 COPY alembic ./alembic
 COPY alembic.ini ./alembic.ini
-COPY scripts ./scripts
+RUN python scripts/vendor_frontend_assets.py \
+    && chmod -R a+rX app/static/vendor
 RUN pip install --no-cache-dir .
 
 USER openea

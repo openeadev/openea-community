@@ -57,6 +57,7 @@ nav:
       - What is OpenEA Community?: getting-started/what-is-openea.md
       - Explore the Live Demo: getting-started/live-demo.md
       - Install with Docker Compose: getting-started/installation.md
+      - Offline and Air-Gapped Installation: getting-started/offline-installation.md
       - First Login and Setup: getting-started/first-login.md
   - Concepts:
       - Repository-first Architecture: concepts/repository-first.md

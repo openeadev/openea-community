@@ -35,6 +35,12 @@ Expected migration head: `0016_phase15`.
 
 Browse to `http://localhost:8000/setup` to create the initial Platform Administrator.
 
+### Network and offline operation
+
+A fresh Docker build normally requires Internet access to pull `python:3.10-slim` and `postgres:16-alpine`, download Python packages from PyPI, and copy pinned browser assets into the OpenEA image. Once those images are built/present, OpenEA Community can run without Internet access; the runtime UI, Impact Analysis, icons, `/docs`, and `/redoc` use locally served assets rather than public CDNs.
+
+For a permanently air-gapped target, build `openea-community:1.5.2` on a connected preparation host, export it together with `postgres:16-alpine` using `docker save`, load both images on the isolated host, and start with `docker compose up -d --no-build`. See `docs/getting-started/offline-installation.md` for the complete procedure.
+
 ## Optional demo repository
 
 After creating an administrator, seed the fictional Northstar Financial repository:

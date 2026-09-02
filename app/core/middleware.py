@@ -36,17 +36,17 @@ def apply_security_headers(response: Response, path: str) -> Response:
     if path in {"/docs", "/redoc"}:
         csp = (
             "default-src 'self'; "
-            "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
-            "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
-            "img-src 'self' data: https://fastapi.tiangolo.com; "
+            "style-src 'self' 'unsafe-inline'; "
+            "script-src 'self' 'unsafe-inline'; "
+            "img-src 'self' data:; "
             "font-src 'self' data:; connect-src 'self'; "
             "frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
         )
     else:
         csp = (
             "default-src 'self'; "
-            "style-src 'self' https://cdn.jsdelivr.net; "
-            "script-src 'self' https://cdn.jsdelivr.net; "
+            "style-src 'self'; "
+            "script-src 'self'; "
             "img-src 'self' data:; "
             "font-src 'self' data:; "
             "connect-src 'self'; "

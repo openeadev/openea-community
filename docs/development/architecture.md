@@ -32,7 +32,7 @@ The browser application uses:
 - Focused JavaScript modules
 - Cytoscape.js for repository-derived graph visualization
 
-OpenEA does not require a Node.js build pipeline or JavaScript SPA framework.
+OpenEA does not require a Node.js build pipeline or JavaScript SPA framework. During the Docker image build, pinned browser dependencies are copied into `app/static/vendor` and are served by the OpenEA application itself; normal runtime pages do not depend on public browser CDNs.
 
 ## Search
 

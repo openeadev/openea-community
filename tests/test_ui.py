@@ -19,8 +19,12 @@ def test_landing_page_exposes_login_and_tabler_branding(client: TestClient) -> N
     response = client.get("/")
     assert response.status_code == 200
     assert 'href="/login"' in response.text
-    assert "@tabler/core@1.4.0" in response.text
-    assert "/static/img/openea-mark.svg" in response.text
+    assert "/static/vendor/tabler/tabler.min.css" in response.text
+    assert "/static/vendor/tabler/tabler.min.js" in response.text
+    assert "/static/vendor/htmx/htmx.min.js" in response.text
+    assert "/static/vendor/lucide/lucide.min.js" in response.text
+    assert "/static/img/openea-wordmark.svg" in response.text
+    assert "/static/js/theme.js" in response.text
 
 
 def test_theme_script_uses_browser_local_storage() -> None:

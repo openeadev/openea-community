@@ -5,6 +5,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
+from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -51,6 +52,8 @@ def create_app() -> FastAPI:
         version=settings.app_version,
         debug=settings.debug,
         lifespan=lifespan,
+        docs_url=None,
+        redoc_url=None,
     )
     app.add_middleware(SecurityHeadersMiddleware)
     app.add_middleware(RequestContextMiddleware)
@@ -77,6 +80,27 @@ def create_app() -> FastAPI:
     app.include_router(explore_router)
     app.include_router(relationships_router)
     app.include_router(ui_router)
+
+    @app.get("/docs", include_in_schema=False)
+    async def swagger_ui() -> HTMLResponse:
+        return get_swagger_ui_html(
+            openapi_url=app.openapi_url or "/openapi.json",
+            title=f"{settings.app_name} - Swagger UI",
+            swagger_js_url="/static/vendor/swagger-ui/swagger-ui-bundle.js",
+            swagger_css_url="/static/vendor/swagger-ui/swagger-ui.css",
+            swagger_favicon_url="/static/img/openea-mark.svg",
+            swagger_ui_parameters={"validatorUrl": None},
+        )
+
+    @app.get("/redoc", include_in_schema=False)
+    async def redoc() -> HTMLResponse:
+        return get_redoc_html(
+            openapi_url=app.openapi_url or "/openapi.json",
+            title=f"{settings.app_name} - ReDoc",
+            redoc_js_url="/static/vendor/redoc/redoc.standalone.js",
+            redoc_favicon_url="/static/img/openea-mark.svg",
+            with_google_fonts=False,
+        )
 
     @app.exception_handler(RequestValidationError)
     async def validation_exception_handler(

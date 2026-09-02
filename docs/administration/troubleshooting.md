@@ -45,6 +45,39 @@ The matching server-side log entry contains the detailed exception needed by an 
 !!! important "Report the Request ID"
     When a user reports an unexpected OpenEA error, ask for the Request ID, the page/action they were using, and the approximate time. Do not ask the user to copy database credentials or internal stack traces from a production system.
 
+## The UI loses styling when Internet access is removed
+
+OpenEA Community 1.5.2 should not require Internet access for browser styling or JavaScript after the application image has been built. If the page falls back to mostly unstyled HTML after disconnecting the host, verify that the current image includes the local vendor assets:
+
+```bash
+docker compose exec web python scripts/vendor_frontend_assets.py --check
+```
+
+The check verifies that the files exist, are non-empty, and can be opened by the running container user. If it reports missing/unreadable assets, or if the files exist but the browser still receives errors for `/static/vendor/...`, inspect their permissions:
+
+```bash
+docker compose exec web sh -lc 'ls -l app/static/vendor/tabler/tabler.min.css app/static/vendor/tabler/tabler.min.js'
+```
+
+Vendored browser files must be readable by the unprivileged `openea` runtime user. Current Community 1.5.2 builds normalize vendor-file permissions during image creation. Rebuild once on a connected host after applying the offline-runtime permission fix:
+
+```bash
+docker compose build --no-cache web
+docker compose up -d --no-build
+```
+
+For an already-running container, a temporary diagnostic/workaround is:
+
+```bash
+docker compose exec -u root web chmod -R a+rX /opt/openea/app/static/vendor
+```
+
+Then refresh the browser. Rebuild the image afterward so the corrected permissions persist across container recreation.
+
+For a permanently isolated machine, do not rebuild there. Build the OpenEA image on a connected preparation host and transfer it with `docker save` / `docker load` as described in [Offline and Air-Gapped Installation](../getting-started/offline-installation.md).
+
+You can also inspect the returned page source or browser Network panel. OpenEA application pages should load framework assets from `/static/vendor/...`, not from `cdn.jsdelivr.net`, Google Fonts, or another public host.
+
 ## Metrics or findings appear stale
 
 Open **Management → Background Processing** as a Platform Administrator and review:

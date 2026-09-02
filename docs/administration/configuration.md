@@ -51,6 +51,7 @@ The Compose stack additionally uses:
 - `POSTGRES_USER`
 - `POSTGRES_PASSWORD`
 - `OPENEA_PORT`
+- `OPENEA_IMAGE`
 
 ## Background-processing schedules
 

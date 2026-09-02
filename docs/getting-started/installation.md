@@ -12,6 +12,14 @@ You need:
 
 The application itself supports Python 3.10+, but Python does not need to be installed on the host when you use Docker.
 
+### Network requirement for the first build
+
+A fresh Docker installation normally needs Internet access during the initial build/start so Docker can pull `python:3.10-slim` and `postgres:16-alpine`, `pip` can obtain OpenEA's Python dependencies, and the image build can download the pinned browser assets that OpenEA later serves locally. Cloning the repository also requires network access unless you transfer a release archive instead.
+
+**After the image has been built and the PostgreSQL image is present, OpenEA Community can run fully offline.** The application no longer relies on public browser CDNs at runtime.
+
+For a permanently disconnected environment, see [Offline and Air-Gapped Installation](offline-installation.md) before starting the installation.
+
 ## 1. Obtain the source
 
 Clone or download the OpenEA Community repository, then change into its root directory.
@@ -58,6 +66,8 @@ python -c "import secrets; print(secrets.token_urlsafe(48))"
 ```bash
 docker compose up -d --build
 ```
+
+During this first build, OpenEA copies pinned Tabler, HTMX, Lucide, Cytoscape.js, Swagger UI, and ReDoc assets into the application image. These files are served from `/static/vendor` during normal operation.
 
 The Compose stack starts:
 

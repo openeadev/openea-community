@@ -1,0 +1,6 @@
+Dockerfile
+scripts/vendor_frontend_assets.py
+tests/test_offline_runtime.py
+docs/administration/troubleshooting.md
+CHANGELOG.md
+RELEASE_1_5_2.md

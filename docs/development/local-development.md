@@ -29,6 +29,22 @@ For complete background behavior, run the worker in a second terminal:
 python -m app.workers.metrics_worker
 ```
 
+## Browser assets for local Python development
+
+The Docker image vendors OpenEA's pinned browser dependencies automatically during `docker build`. If you run Uvicorn directly from a source checkout, populate the local vendor directory once while network access is available:
+
+```bash
+python scripts/vendor_frontend_assets.py
+```
+
+After that, verify the local copy without making network requests:
+
+```bash
+python scripts/vendor_frontend_assets.py --check
+```
+
+A direct Python development server can then run without Internet access as long as PostgreSQL and the Python environment are already available locally.
+
 ## Development principles
 
 - Keep Python 3.10 compatibility.

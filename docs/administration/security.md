@@ -18,10 +18,19 @@ The baseline includes:
 - SQLAlchemy parameterized database access
 - Immutable PostgreSQL audit events
 - Baseline security headers
+- Runtime browser assets served locally rather than from public CDNs
 - Hashed API token storage
 - Non-interactive service-account enforcement
 - Correlation Request IDs on HTTP responses
 - Safe unexpected-error handling that keeps stack traces and database details in server logs
+
+## Offline browser-asset policy
+
+OpenEA Community 1.5.2 does not require public browser CDNs during normal operation. Tabler, HTMX, Lucide, Cytoscape.js, Swagger UI, and ReDoc are copied into the OpenEA image during the build and served from `/static/vendor`.
+
+The normal application Content Security Policy allows scripts and styles from the OpenEA origin only. The locally hosted API documentation keeps the small inline-script/style allowances required by Swagger UI/ReDoc, but no CDN origins are allowed. ReDoc is configured without Google Fonts, and Swagger UI's external validator is disabled.
+
+This means an installed OpenEA instance can continue to render its full UI after the host is disconnected from the Internet. See [Offline and Air-Gapped Installation](../getting-started/offline-installation.md).
 
 ## Production checklist
 
