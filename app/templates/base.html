@@ -23,7 +23,8 @@
             <span class="navbar-toggler-icon"></span>
           </button>
           <a class="navbar-brand navbar-brand-autodark" href="/dashboard" aria-label="{{ settings.app_name }} dashboard">
-            <img src="{{ url_for('static', path='/img/openea-wordmark.svg') }}" class="openea-wordmark" alt="{{ settings.app_name }}">
+            <img src="{{ url_for('static', path='/img/openea-wordmark.svg') }}" class="openea-wordmark openea-wordmark-light" alt="{{ settings.app_name }}">
+            <img src="{{ url_for('static', path='/img/openea-wordmark-dark.svg') }}" class="openea-wordmark openea-wordmark-dark" alt="" aria-hidden="true">
           </a>
           <div class="navbar-nav flex-row d-lg-none ms-auto">
             <button class="nav-link px-2 js-theme-toggle" type="button" aria-label="Toggle color theme" title="Toggle color theme"><i data-lucide="moon" class="icon"></i></button>
@@ -102,7 +103,8 @@
     <div class="page openea-public-shell">
       <header class="navbar navbar-expand-md openea-public-nav">
         <div class="container-xl">
-          <a class="navbar-brand" href="/" aria-label="{{ settings.app_name }} home"><img src="{{ url_for('static', path='/img/openea-wordmark.svg') }}" class="openea-wordmark" alt="{{ settings.app_name }}"></a>
+          <a class="navbar-brand" href="/" aria-label="{{ settings.app_name }} home"><img src="{{ url_for('static', path='/img/openea-wordmark.svg') }}" class="openea-wordmark openea-wordmark-light" alt="{{ settings.app_name }}">
+            <img src="{{ url_for('static', path='/img/openea-wordmark-dark.svg') }}" class="openea-wordmark openea-wordmark-dark" alt="" aria-hidden="true"></a>
           <div class="navbar-nav flex-row ms-auto align-items-center gap-2">
             <button class="btn btn-ghost-secondary btn-icon js-theme-toggle" type="button" aria-label="Toggle color theme" title="Toggle color theme"><i data-lucide="moon" class="icon"></i></button>
             <a class="btn btn-primary" href="/login"><i data-lucide="log-in" class="icon me-1"></i>Sign in</a>

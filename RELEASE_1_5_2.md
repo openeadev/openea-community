@@ -46,6 +46,8 @@ See `docs/administration/upgrading.md` for the detailed procedure.
 
 ## Offline runtime and front-end assets
 
+Community 1.5.2 also corrects the Docker file permissions of build-time vendored browser assets. The original offline-runtime patch downloaded assets as root using temporary files that defaulted to mode `0600`; the application then ran as the unprivileged `openea` user and could not serve those files even though they existed in the image. Vendor files are now normalized to mode `0644`, the Docker build applies a defensive recursive read/execute permission fix, and the asset-check command verifies readability rather than existence alone.
+
 Community 1.5.2 now supports a fully offline runtime after the required container images have been built/staged. Pinned Tabler Core, HTMX, Lucide, Cytoscape.js, Swagger UI, and ReDoc assets are downloaded during the OpenEA image build and served locally from `/static/vendor`; normal browser pages no longer depend on jsDelivr or other public CDNs. ReDoc does not load Google Fonts, Swagger UI's external validator is disabled, and the application Content Security Policy no longer permits public CDN script/style origins.
 
 A fresh connected build can still require network access for Docker base images, PyPI packages, and the pinned browser-asset download step. For permanently isolated environments, build `openea-community:1.5.2` on a connected preparation host, export it together with `postgres:16-alpine` using `docker save`, load the images on the target, and start with `docker compose up -d --no-build`.

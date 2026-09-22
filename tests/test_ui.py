@@ -24,6 +24,7 @@ def test_landing_page_exposes_login_and_tabler_branding(client: TestClient) -> N
     assert "/static/vendor/htmx/htmx.min.js" in response.text
     assert "/static/vendor/lucide/lucide.min.js" in response.text
     assert "/static/img/openea-wordmark.svg" in response.text
+    assert "/static/img/openea-wordmark-dark.svg" in response.text
     assert "/static/js/theme.js" in response.text
 
 
@@ -33,3 +34,17 @@ def test_theme_script_uses_browser_local_storage() -> None:
     script = Path("app/static/js/theme.js").read_text()
     assert 'localStorage.getItem(key)' in script
     assert 'openea-theme' in script
+
+
+def test_wordmark_has_theme_specific_assets() -> None:
+    from pathlib import Path
+
+    css = Path("app/static/css/app.css").read_text()
+    dark_wordmark = Path("app/static/img/openea-wordmark-dark.svg").read_text()
+
+    assert '.openea-wordmark-dark { display: none; }' in css
+    assert '[data-bs-theme="dark"] .openea-wordmark-light { display: none; }' in css
+    assert '[data-bs-theme="dark"] .openea-wordmark-dark { display: block; }' in css
+    assert 'filter: brightness(0) invert(1)' not in css
+    assert 'fill="#f8fafc">Open' in dark_wordmark
+    assert '<tspan fill="#206bc4">EA</tspan>' in dark_wordmark

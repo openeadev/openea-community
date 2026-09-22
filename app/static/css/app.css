@@ -17,44 +17,11 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .tracking-tight { letter-spacing: -.035em; }
 .min-w-0 { min-width: 0; }
 
-/* OpenEA branding */
-.openea-brand {
-  display: inline-flex;
-  align-items: center;
-  gap: .65rem;
-  text-decoration: none;
-}
-
-.openea-brand-mark {
-  width: 32px;
-  height: 32px;
-  display: block;
-  flex: 0 0 auto;
-}
-
-.openea-brand-copy {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  line-height: 1;
-}
-
-.openea-brand-name {
-  color: var(--tblr-body-color);
-  font-size: 1.05rem;
-  font-weight: 700;
-  letter-spacing: -.02em;
-}
-
-.openea-brand-edition {
-  margin-top: .25rem;
-  color: var(--tblr-secondary);
-  font-size: .64rem;
-  font-weight: 700;
-  letter-spacing: .09em;
-  line-height: 1;
-  text-transform: uppercase;
-}
+/* Placeholder branding */
+.openea-wordmark { width: 142px; height: auto; display: block; }
+.openea-wordmark-dark { display: none; }
+[data-bs-theme="dark"] .openea-wordmark-light { display: none; }
+[data-bs-theme="dark"] .openea-wordmark-dark { display: block; }
 
 /* Authenticated application shell */
 .openea-app-shell { min-height: 100vh; }

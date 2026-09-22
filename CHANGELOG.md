@@ -2,6 +2,8 @@
 
 ## 1.5.2 - Independent Community baseline and maintenance updates
 
+- Fixed Docker image permissions for vendored frontend assets so the unprivileged OpenEA runtime user can serve Tabler and other local browser dependencies online or offline.
+- Strengthened the frontend-asset verification command to reject empty or unreadable vendor files instead of checking only for file existence.
 - Removed runtime browser CDN dependencies: Tabler, HTMX, Lucide, Cytoscape.js, Swagger UI, and ReDoc are now downloaded at image-build time and served locally by OpenEA.
 - Added self-hosted `/docs` and `/redoc` assets, disabled Swagger UI's external validator, disabled ReDoc Google Fonts, and tightened runtime CSP origins to the OpenEA host.
 - Added documented temporarily-connected and fully air-gapped Docker installation paths using `docker save` / `docker load` and `docker compose up -d --no-build`.
