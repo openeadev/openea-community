@@ -2,7 +2,6 @@ from pathlib import Path
 
 from fastapi.testclient import TestClient
 
-
 PUBLIC_ASSET_HOSTS = (
     "cdn.jsdelivr.net",
     "unpkg.com",
