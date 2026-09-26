@@ -2,6 +2,10 @@
 
 ## 1.5.2 - Independent Community baseline and maintenance updates
 
+- Added optional Google reCAPTCHA v2 checkbox protection for interactive browser login, disabled by default so normal and offline installations retain local-only login behavior.
+- Added Platform Administrator **Management → Settings** controls for enabling/disabling login reCAPTCHA while keeping the site and secret keys in deployment environment variables rather than PostgreSQL.
+- Added server-side reCAPTCHA verification before password authentication, fail-closed handling for verification outages/misconfiguration, and login-page-only CSP allowances for Google reCAPTCHA.
+- Added migration `0017_phase15` for generic persisted application settings; current Community 1.5.2 Alembic head is now `0017_phase15`.
 - Fixed Docker image permissions for vendored frontend assets so the unprivileged OpenEA runtime user can serve Tabler and other local browser dependencies online or offline.
 - Strengthened the frontend-asset verification command to reject empty or unreadable vendor files instead of checking only for file existence.
 - Removed runtime browser CDN dependencies: Tabler, HTMX, Lucide, Cytoscape.js, Swagger UI, and ReDoc are now downloaded at image-build time and served locally by OpenEA.
@@ -37,7 +41,7 @@
 - Added `.env.example`, `.gitignore`, and `.dockerignore` for clean public-source and Docker packaging.
 - Removed generated Python/cache/package metadata from the release archive.
 - Replaced hard-coded UI release labels with the configured application version.
-- Preserved 1.5.1 repository data through in-place upgrades; the current 1.5.2 maintenance head adds only the `0016_phase15` scheduler-settings migration.
+- Preserved 1.5.1 repository data through in-place upgrades; current 1.5.2 maintenance adds `0016_phase15` for scheduler settings and `0017_phase15` for generic application settings used by optional login reCAPTCHA.
 - Added MkDocs development commands to the Makefile for background preview, status, stop, and strict documentation builds, with corresponding README guidance.
 - Grouped relationship choices alphabetically by relationship label and target object type.
 - Filtered relationship target objects dynamically to the selected governed target type, sorted them alphabetically, and excluded archived records while retaining Draft, Active, and Inactive records.

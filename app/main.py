@@ -163,7 +163,11 @@ def create_app() -> FastAPI:
             )
         if request_id:
             response.headers["X-Request-ID"] = request_id
-        return apply_security_headers(response, request.url.path)
+        return apply_security_headers(
+            response,
+            request.url.path,
+            recaptcha_enabled=bool(getattr(request.state, "recaptcha_enabled", False)),
+        )
 
     @app.exception_handler(404)
     async def not_found(request: Request, _: Exception):

@@ -23,6 +23,12 @@ class Settings(BaseSettings):
     base_url: str = "http://localhost:8000"
     trusted_proxy_count: int = Field(default=0, ge=0)
     session_max_age_seconds: int = Field(default=28800, ge=300)
+    recaptcha_site_key: str = ""
+    recaptcha_secret_key: str = ""
+
+    @property
+    def recaptcha_configured(self) -> bool:
+        return bool(self.recaptcha_site_key.strip() and self.recaptcha_secret_key.strip())
 
     @property
     def secure_cookies(self) -> bool:

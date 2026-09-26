@@ -15,6 +15,8 @@ OpenEA Community reads configuration from environment variables. Variables are c
 | `BASE_URL` | `http://localhost:8000` | Canonical public application URL. HTTPS enables Secure cookies. |
 | `TRUSTED_PROXY_COUNT` | `0` | Trusted-proxy configuration baseline. |
 | `SESSION_MAX_AGE_SECONDS` | `28800` | Maximum signed browser-session age. Minimum 300 seconds. |
+| `RECAPTCHA_SITE_KEY` | blank | Optional Google reCAPTCHA v2 site key used by the browser login widget when enabled. |
+| `RECAPTCHA_SECRET_KEY` | blank | Optional Google reCAPTCHA v2 secret used only by the backend verification request. Never expose this value to users. |
 
 ## Docker Compose variables
 
@@ -41,4 +43,4 @@ These are demo-hosting controls rather than requirements for normal self-hosted 
 
 ## Settings stored in PostgreSQL
 
-Not every administrative setting is an environment variable. The periodic **Analytics & Metrics** and **Findings Evaluation** schedules are persisted in `scheduled_job_settings` and maintained through **Management → Background Processing**.
+Not every administrative setting is an environment variable. The periodic **Analytics & Metrics** and **Findings Evaluation** schedules are persisted in `scheduled_job_settings` and maintained through **Management → Background Processing**. The optional login-reCAPTCHA enabled/disabled state is stored in `application_settings` and maintained under **Management → Settings**; its site and secret keys remain environment variables.

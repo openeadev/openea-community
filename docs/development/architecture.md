@@ -34,6 +34,12 @@ The browser application uses:
 
 OpenEA does not require a Node.js build pipeline or JavaScript SPA framework. During the Docker image build, pinned browser dependencies are copied into `app/static/vendor` and are served by the OpenEA application itself; normal runtime pages do not depend on public browser CDNs.
 
+Optional login reCAPTCHA is the deliberate exception to the local-only browser policy. When a Platform Administrator enables it and both deployment keys are configured, only `/login` loads Google reCAPTCHA and the backend verifies the challenge with Google before password authentication. When disabled, the application returns to the normal local-only policy.
+
+## Application settings
+
+Runtime deployment secrets remain in environment variables. Administrative feature switches that need to persist independently of container configuration use the `application_settings` table. Community 1.5.2 uses this table for the optional login-reCAPTCHA enabled/disabled state; the reCAPTCHA site and secret keys are not stored there.
+
 ## Search
 
 `SearchService` is the architecture-discovery boundary. PostgreSQL provides full-text and fuzzy search through `to_tsvector`, `websearch_to_tsquery`, and `pg_trgm` indexes.

@@ -26,6 +26,7 @@ from app.models.metamodel import (  # noqa: E402
     Tag,
     object_tags,
 )
+from app.models.settings import ApplicationSetting  # noqa: E402
 from app.models.user import ApplicationRole, User  # noqa: E402
 from app.services.seed_service import SystemSeedService  # noqa: E402
 
@@ -55,6 +56,7 @@ def clean_users() -> None:
         db.execute(delete(ObjectMetric))
         db.execute(delete(Job))
         db.execute(delete(ScheduledJobSetting))
+        db.execute(delete(ApplicationSetting))
         db.execute(delete(AuditEvent))
         db.execute(delete(Comment))
         db.execute(delete(Review))

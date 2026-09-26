@@ -107,6 +107,29 @@ Secrets and the database connection string should be managed through Render rath
 
 See [Environment Variables](../reference/configuration.md).
 
+## Protect the public login with reCAPTCHA
+
+For the public demo, OpenEA Community can use Google reCAPTCHA v2 with the visible **I'm not a robot** checkbox.
+
+1. Register the demo hostname in the Google reCAPTCHA configuration. If you expose both the generated Render hostname and a custom hostname such as `demo.openea.dev`, register every hostname that users will actually use.
+2. In the Render web service, add these secret environment variables:
+
+   ```text
+   RECAPTCHA_SITE_KEY=<your-site-key>
+   RECAPTCHA_SECRET_KEY=<your-secret-key>
+   ```
+
+3. Deploy the updated OpenEA image.
+4. Sign in as a Platform Administrator.
+5. Open **Management → Settings**.
+6. Confirm **Site key configured: Yes** and **Secret key configured: Yes**.
+7. Enable **reCAPTCHA on login** and save.
+8. Sign out and confirm the checkbox appears on `/login`.
+
+The keys are not stored in PostgreSQL. Only the enabled/disabled setting is persisted there. If reCAPTCHA is enabled but the deployment keys are later removed, interactive login fails closed until the keys are restored or an already-authenticated Platform Administrator disables the setting.
+
+The public demo therefore has an intentional Google runtime dependency on the login page when this control is enabled. Normal self-hosted and offline installations should leave it disabled.
+
 ## Automatic deployment from GitHub
 
 The intended flow is:

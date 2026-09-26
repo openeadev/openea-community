@@ -29,7 +29,9 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
         return response
 
 
-def apply_security_headers(response: Response, path: str) -> Response:
+def apply_security_headers(
+    response: Response, path: str, *, recaptcha_enabled: bool = False
+) -> Response:
     response.headers.setdefault("X-Content-Type-Options", "nosniff")
     response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
     response.headers.setdefault("X-Frame-Options", "DENY")
@@ -40,6 +42,19 @@ def apply_security_headers(response: Response, path: str) -> Response:
             "script-src 'self' 'unsafe-inline'; "
             "img-src 'self' data:; "
             "font-src 'self' data:; connect-src 'self'; "
+            "frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+        )
+    elif path == "/login" and recaptcha_enabled:
+        csp = (
+            "default-src 'self'; "
+            "style-src 'self'; "
+            "script-src 'self' https://www.google.com/recaptcha/ "
+            "https://www.gstatic.com/recaptcha/; "
+            "img-src 'self' data:; "
+            "font-src 'self' data:; "
+            "connect-src 'self' https://www.google.com/recaptcha/; "
+            "frame-src https://www.google.com/recaptcha/ "
+            "https://recaptcha.google.com/recaptcha/; "
             "frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
         )
     else:
@@ -59,4 +74,9 @@ def apply_security_headers(response: Response, path: str) -> Response:
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
         response = await call_next(request)
-        return apply_security_headers(response, request.url.path)
+        recaptcha_enabled = bool(getattr(request.state, "recaptcha_enabled", False))
+        return apply_security_headers(
+            response,
+            request.url.path,
+            recaptcha_enabled=recaptcha_enabled,
+        )

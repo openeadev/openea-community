@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Security Settings · {{ settings.page_title }}{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="mb-4">
+    <h1 class="h2 mb-1">Security Settings</h1>
+    <p class="text-body-secondary mb-0">Configure optional browser-login protections. Secrets remain in deployment environment variables and are never stored in the OpenEA database.</p>
+  </div>
+
+  {% if request.query_params.get('updated') %}
+    <div class="alert alert-success" role="alert">Security settings updated.</div>
+  {% endif %}
+  {% if error %}
+    <div class="alert alert-danger" role="alert">{{ error }}</div>
+  {% endif %}
+
+  <div class="card shadow-sm">
+    <div class="card-header">
+      <div class="flex-fill">
+        <h2 class="card-title mb-1">Google reCAPTCHA v2</h2>
+        <div class="text-body-secondary">Protect the interactive login form with the visible “I'm not a robot” checkbox.</div>
+      </div>
+      {% if recaptcha_enabled %}
+        <span class="badge text-bg-success">Enabled</span>
+      {% else %}
+        <span class="badge text-bg-secondary">Disabled</span>
+      {% endif %}
+    </div>
+    <div class="card-body">
+      <div class="alert alert-info" role="alert">
+        reCAPTCHA is optional and disabled by default. When enabled, the login page intentionally contacts Google and therefore requires Internet access. Leave it disabled for offline or air-gapped installations.
+      </div>
+
+      <div class="row g-4">
+        <div class="col-lg-6">
+          <form method="post" action="/admin/settings/security">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <label class="form-check form-switch mb-3">
+              <input class="form-check-input" type="checkbox" name="recaptcha_enabled" value="1" {% if recaptcha_enabled %}checked{% endif %} {% if not recaptcha_configured and not recaptcha_enabled %}disabled{% endif %}>
+              <span class="form-check-label">Enable reCAPTCHA on login</span>
+            </label>
+            {% if not recaptcha_configured and not recaptcha_enabled %}
+              <div class="form-text mb-3">Configure both reCAPTCHA environment variables before enabling this control.</div>
+            {% endif %}
+            <button class="btn btn-primary" type="submit">Save security settings</button>
+          </form>
+        </div>
+
+        <div class="col-lg-6">
+          <dl class="row mb-0">
+            <dt class="col-sm-7">Site key configured</dt>
+            <dd class="col-sm-5">{% if recaptcha_site_key_configured %}<span class="badge text-bg-success">Yes</span>{% else %}<span class="badge text-bg-danger">No</span>{% endif %}</dd>
+            <dt class="col-sm-7">Secret key configured</dt>
+            <dd class="col-sm-5">{% if recaptcha_secret_key_configured %}<span class="badge text-bg-success">Yes</span>{% else %}<span class="badge text-bg-danger">No</span>{% endif %}</dd>
+            <dt class="col-sm-7">Runtime readiness</dt>
+            <dd class="col-sm-5">{% if recaptcha_configured %}<span class="badge text-bg-success">Ready</span>{% else %}<span class="badge text-bg-warning">Not configured</span>{% endif %}</dd>
+          </dl>
+          <p class="text-body-secondary small mt-3 mb-0">OpenEA reports only whether keys are configured. The secret key is never displayed in the UI or stored in PostgreSQL.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

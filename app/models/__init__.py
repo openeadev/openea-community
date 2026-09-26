@@ -14,10 +14,12 @@ from app.models.metamodel import (
     Tag,
     object_tags,
 )
+from app.models.settings import ApplicationSetting
 from app.models.user import ApplicationRole, User, user_roles
 
 __all__ = [
     "ApplicationRole",
+    "ApplicationSetting",
     "Finding",
     "Job",
     "ImportBatch",

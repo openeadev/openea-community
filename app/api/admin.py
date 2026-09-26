@@ -9,6 +9,7 @@ from app.core.config import get_settings
 from app.db.session import get_db
 from app.models.user import User
 from app.repositories.user_repository import UserRepository
+from app.services.application_setting_service import ApplicationSettingService
 from app.services.auth_service import AuthenticationService
 from app.services.scheduled_job_service import ScheduledJobService
 
@@ -248,4 +249,64 @@ def run_background_processing_now(
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     return RedirectResponse(
         "/admin/background-processing?queued=1", status_code=status.HTTP_303_SEE_OTHER
+    )
+
+
+@router.get("/settings/security", response_class=HTMLResponse)
+def security_settings_page(
+    request: Request,
+    current_user: User = Depends(require_platform_admin),
+    db: Session = Depends(get_db),
+) -> HTMLResponse:
+    application_settings = ApplicationSettingService(db)
+    runtime_settings = get_settings()
+    return templates.TemplateResponse(
+        request=request,
+        name="admin/security_settings.html",
+        context=_context(
+            request,
+            current_user,
+            db,
+            recaptcha_enabled=application_settings.recaptcha_enabled(),
+            recaptcha_configured=runtime_settings.recaptcha_configured,
+            recaptcha_site_key_configured=bool(runtime_settings.recaptcha_site_key.strip()),
+            recaptcha_secret_key_configured=bool(runtime_settings.recaptcha_secret_key.strip()),
+        ),
+    )
+
+
+@router.post("/settings/security", response_class=HTMLResponse)
+def update_security_settings(
+    request: Request,
+    recaptcha_enabled: str | None = Form(None),
+    csrf_token: str = Form(...),
+    current_user: User = Depends(require_platform_admin),
+    db: Session = Depends(get_db),
+) -> Response:
+    validate_csrf(request, csrf_token)
+    service = ApplicationSettingService(db)
+    runtime_settings = get_settings()
+    enabled = recaptcha_enabled is not None
+    try:
+        service.set_recaptcha_enabled(enabled, actor=current_user)
+    except ValueError as exc:
+        return templates.TemplateResponse(
+            request=request,
+            name="admin/security_settings.html",
+            context=_context(
+                request,
+                current_user,
+                db,
+                error=str(exc),
+                recaptcha_enabled=service.recaptcha_enabled(),
+                recaptcha_configured=runtime_settings.recaptcha_configured,
+                recaptcha_site_key_configured=bool(runtime_settings.recaptcha_site_key.strip()),
+                recaptcha_secret_key_configured=bool(
+                    runtime_settings.recaptcha_secret_key.strip()
+                ),
+            ),
+            status_code=status.HTTP_400_BAD_REQUEST,
+        )
+    return RedirectResponse(
+        "/admin/settings/security?updated=1", status_code=status.HTTP_303_SEE_OTHER
     )

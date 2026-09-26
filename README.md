@@ -31,7 +31,7 @@ curl http://localhost:8000/health/ready
 docker compose exec web alembic current
 ```
 
-Expected migration head: `0016_phase15`.
+Expected migration head: `0017_phase15`.
 
 Browse to `http://localhost:8000/setup` to create the initial Platform Administrator.
 
@@ -40,6 +40,10 @@ Browse to `http://localhost:8000/setup` to create the initial Platform Administr
 A fresh Docker build normally requires Internet access to pull `python:3.10-slim` and `postgres:16-alpine`, download Python packages from PyPI, and copy pinned browser assets into the OpenEA image. Once those images are built/present, OpenEA Community can run without Internet access; the runtime UI, Impact Analysis, icons, `/docs`, and `/redoc` use locally served assets rather than public CDNs.
 
 For a permanently air-gapped target, build `openea-community:1.5.2` on a connected preparation host, export it together with `postgres:16-alpine` using `docker save`, load both images on the isolated host, and start with `docker compose up -d --no-build`. See `docs/getting-started/offline-installation.md` for the complete procedure.
+
+### Optional login reCAPTCHA
+
+OpenEA Community 1.5.2 can optionally protect the browser login form with Google reCAPTCHA v2 (the visible “I'm not a robot” checkbox). The feature is disabled by default. Configure `RECAPTCHA_SITE_KEY` and `RECAPTCHA_SECRET_KEY` as deployment environment variables, then enable it as a Platform Administrator under **Management → Settings**. When disabled, OpenEA makes no reCAPTCHA request and remains suitable for offline operation.
 
 ## Optional demo repository
 
@@ -186,4 +190,4 @@ Version 1.4.0 adds a separate relationship import workflow under **Import**. Rel
 
 ## Custom finding rules
 
-Version 1.5.2 is the first independently maintained OpenEA Community baseline. It preserves the 1.5.1 findings and Repository Health behavior, uses the `openea-community` Python distribution name, and includes subsequent 1.5.2 maintenance updates. The current 1.5.2 Alembic head is `0016_phase15`; migration `0016_phase15` adds only scheduled background-processing settings. See `RELEASE_1_5_2.md`, `RELEASE_1_5_1.md`, `docs/user-guide/findings.md`, `docs/user-guide/analytics.md`, and `docs/reference/finding-rules.md`.
+Version 1.5.2 is the first independently maintained OpenEA Community baseline. It preserves the 1.5.1 findings and Repository Health behavior, uses the `openea-community` Python distribution name, and includes subsequent 1.5.2 maintenance updates. The current 1.5.2 Alembic head is `0017_phase15`; migration `0016_phase15` adds scheduled background-processing settings and `0017_phase15` adds the generic application-settings table used by optional login reCAPTCHA. See `RELEASE_1_5_2.md`, `RELEASE_1_5_1.md`, `docs/user-guide/findings.md`, `docs/user-guide/analytics.md`, and `docs/reference/finding-rules.md`.

@@ -58,3 +58,20 @@ The Compose stack additionally uses:
 Analytics & Metrics and Findings Evaluation intervals are **not** environment variables. They are platform settings stored in PostgreSQL and maintained by a Platform Administrator under **Management → Background Processing**.
 
 This keeps operational scheduling editable without changing container environment configuration. See [Worker and Background Calculations](worker-jobs.md).
+
+## Optional login reCAPTCHA
+
+OpenEA can protect the browser login form with Google reCAPTCHA v2 using the visible **I'm not a robot** checkbox. This protection is disabled by default.
+
+The key material is deployment configuration:
+
+```dotenv
+RECAPTCHA_SITE_KEY=<site-key>
+RECAPTCHA_SECRET_KEY=<secret-key>
+```
+
+The site key is sent to the browser when the feature is enabled. The secret key is used only by the OpenEA backend for verification and is never stored in PostgreSQL or displayed in the administration UI.
+
+After both environment variables are configured, a Platform Administrator can enable or disable the login challenge under **Management → Settings**. The enabled/disabled choice is stored in PostgreSQL; the keys remain environment variables.
+
+When reCAPTCHA is disabled, OpenEA does not load Google reCAPTCHA JavaScript and does not call Google's verification service. Leave the feature disabled for offline or air-gapped deployments.

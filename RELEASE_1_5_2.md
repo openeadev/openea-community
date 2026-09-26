@@ -30,19 +30,30 @@ OpenEA Community 1.5.2 establishes the clean, independently maintained Community
 - Extended the existing worker to check schedules approximately once per minute while retaining the existing approximately two-second job-queue polling behavior.
 - Added overdue-schedule recovery: after downtime, a due process runs once and resumes from the current time rather than replaying every missed interval.
 - Added migration `0016_phase15` for persisted scheduler settings and default schedules (metrics every 6 hours, findings every 1 hour).
+- Added optional Google reCAPTCHA v2 checkbox protection for `/login`, controlled by a Platform Administrator under **Management → Settings** and disabled by default.
+- Added `RECAPTCHA_SITE_KEY` and `RECAPTCHA_SECRET_KEY` deployment configuration; only the enabled/disabled state is persisted in PostgreSQL.
+- Added migration `0017_phase15` for the generic `application_settings` table used by login-security settings.
 
 ## What did not change
 
 - No Enterprise 1.6.x or 1.7.x capabilities were imported.
 - Existing API authentication scopes remain unchanged. Relationship PATCH requests may optionally change the relationship type and target object, subject to the same metamodel validation as the browser UI.
-- No repository object schema, authentication model, authorization roles/scopes, findings-rule vocabulary, import schema, portfolio formulas, or roadmap model changed. The only new schema is the scheduler settings table.
-- Alembic head is now `0016_phase15`.
+- No repository object schema, authentication model, authorization roles/scopes, findings-rule vocabulary, import schema, portfolio formulas, or roadmap model changed. The only maintenance schema additions are the scheduler settings table and the generic application-settings table used by optional login reCAPTCHA.
+- Alembic head is now `0017_phase15`.
 
 ## Upgrade
 
-OpenEA Community 1.5.1 installations can upgrade in place. Preserve the PostgreSQL data volume and `.env`, replace/rebuild the application, and allow the normal startup migration command to run. Migration `0016_phase15` creates the scheduler settings table without recreating architecture data. Confirm the database reaches `0016_phase15 (head)`.
+OpenEA Community 1.5.1 installations can upgrade in place. Preserve the PostgreSQL data volume and `.env`, replace/rebuild the application, and allow the normal startup migration command to run. Migration `0016_phase15` creates the scheduler settings table and `0017_phase15` creates the generic application-settings table without recreating architecture data. Confirm the database reaches `0017_phase15 (head)`.
 
 See `docs/administration/upgrading.md` for the detailed procedure.
+
+## Optional login reCAPTCHA
+
+Community 1.5.2 can protect the interactive browser login form with Google reCAPTCHA v2 using the visible **I'm not a robot** checkbox. The feature is disabled by default. The site and secret keys are supplied through `RECAPTCHA_SITE_KEY` and `RECAPTCHA_SECRET_KEY`; the secret is never stored in PostgreSQL or displayed in the administration UI.
+
+A Platform Administrator enables or disables the control under **Management → Settings**. When enabled, OpenEA verifies the submitted challenge with Google before attempting password authentication. Verification failures and verification-service outages fail login closed. When disabled, the login page does not load Google reCAPTCHA resources and OpenEA retains its offline-capable login behavior.
+
+The Content Security Policy remains local-only for normal pages and for `/login` when the feature is disabled. When enabled, the login response permits only the Google reCAPTCHA script, frame, and connection origins required by the widget.
 
 ## Offline runtime and front-end assets
 

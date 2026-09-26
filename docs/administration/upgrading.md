@@ -33,15 +33,15 @@ The web container still performs the normal `alembic upgrade head` and `seed-sys
 
 ## Upgrade from 1.5.1 to 1.5.2
 
-OpenEA Community 1.5.2 establishes the independent Community distribution baseline. Later 1.5.2 maintenance updates add the background-processing scheduler through migration `0016_phase15`.
+OpenEA Community 1.5.2 establishes the independent Community distribution baseline. Later 1.5.2 maintenance updates add the background-processing scheduler through migration `0016_phase15` and generic application settings for optional login reCAPTCHA through `0017_phase15`.
 
 Current Alembic head:
 
 ```text
-0016_phase15 (head)
+0017_phase15 (head)
 ```
 
-Existing architecture objects, relationships, users, API tokens, findings, metrics, audit history, and configuration remain compatible. Migration `0016_phase15` adds only the scheduler settings table and its two default schedules.
+Existing architecture objects, relationships, users, API tokens, findings, metrics, audit history, and configuration remain compatible. Migration `0016_phase15` adds the scheduler settings table and its two default schedules. Migration `0017_phase15` adds the generic `application_settings` table used for the optional login-reCAPTCHA enabled/disabled state; reCAPTCHA keys remain environment variables.
 
 The Python distribution name becomes `openea-community`, while Python imports and runtime commands continue to use the `app` package.
 

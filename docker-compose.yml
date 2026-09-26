@@ -27,6 +27,8 @@ services:
       SECRET_KEY: ${SECRET_KEY:-replace-this-with-a-long-random-secret}
       SESSION_MAX_AGE_SECONDS: ${SESSION_MAX_AGE_SECONDS:-28800}
       DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-openea}:${POSTGRES_PASSWORD:-openea}@postgres:5432/${POSTGRES_DB:-openea}
+      RECAPTCHA_SITE_KEY: ${RECAPTCHA_SITE_KEY:-}
+      RECAPTCHA_SECRET_KEY: ${RECAPTCHA_SECRET_KEY:-}
     depends_on:
       postgres:
         condition: service_healthy

@@ -171,7 +171,7 @@ docker compose exec web python scripts/vendor_frontend_assets.py --check
 For Community 1.5.2, the expected migration head is:
 
 ```text
-0016_phase15 (head)
+0017_phase15 (head)
 ```
 
 Then open:
@@ -195,7 +195,15 @@ The browser UI does not need to contact jsDelivr or another CDN for:
 
 ReDoc is configured not to load Google Fonts, and Swagger UI's external specification validator is disabled. OpenEA's Content Security Policy restricts normal application pages to locally served scripts/styles and locally served/data images.
 
-OpenEA can still communicate with external systems if an administrator intentionally builds an integration around the REST API or places OpenEA behind external infrastructure. Those are deployment choices rather than baseline runtime requirements.
+With optional login reCAPTCHA disabled, OpenEA can still communicate with external systems only if an administrator intentionally builds an integration around the REST API or places OpenEA behind external infrastructure. Those are deployment choices rather than baseline runtime requirements.
+
+## Keep login reCAPTCHA disabled offline
+
+Google reCAPTCHA is optional and disabled by default. A fully offline or air-gapped OpenEA installation should leave **Management → Settings → Enable reCAPTCHA on login** turned off and should leave `RECAPTCHA_SITE_KEY` and `RECAPTCHA_SECRET_KEY` blank.
+
+When disabled, the login page does not load Google's reCAPTCHA JavaScript and the OpenEA backend does not call Google's verification service. The local browser assets described above remain sufficient for normal OpenEA operation.
+
+If you transfer a database from an Internet-connected environment where reCAPTCHA was enabled, disable the setting before moving that database into an isolated environment. If the setting remains enabled but the Google keys or network are unavailable, OpenEA intentionally fails interactive login closed.
 
 ## Preparing future upgrades for an air-gapped host
 

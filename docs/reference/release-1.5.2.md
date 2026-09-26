@@ -8,12 +8,12 @@ OpenEA Community 1.5.2 establishes the independently maintained Community baseli
 - Internal Python package: `app`
 - Python compatibility: 3.10+
 - PostgreSQL: 16+ baseline
-- Alembic head: `0016_phase15`
+- Alembic head: `0017_phase15`
 - License: AGPLv3
 
 ## Database compatibility
 
-OpenEA Community 1.5.2 remains an in-place upgrade from 1.5.1. A later 1.5.2 maintenance update adds migration `0016_phase15`, which creates `scheduled_job_settings` for Platform Administrator-controlled background-processing schedules. Existing repository objects, relationships, users, tokens, findings, metrics, audit history, and configuration are preserved.
+OpenEA Community 1.5.2 remains an in-place upgrade from 1.5.1. Maintenance migration `0016_phase15` creates `scheduled_job_settings` for Platform Administrator-controlled background-processing schedules, and `0017_phase15` creates the generic `application_settings` table used by optional login reCAPTCHA. Existing repository objects, relationships, users, tokens, findings, metrics, audit history, and configuration are preserved.
 
 ## Community deployment model
 
@@ -48,7 +48,13 @@ Later 1.5.2 maintenance updates also include:
 - controlled 15-minute through 24-hour intervals, enable/disable controls, execution status, and asynchronous **Run now** actions
 - overdue schedule recovery that runs once after downtime instead of replaying every missed interval
 
-Scheduled background processing adds migration `0016_phase15`; existing architecture and governance data are preserved.
+Scheduled background processing adds migration `0016_phase15`; optional login reCAPTCHA adds `0017_phase15` for generic application settings. Existing architecture and governance data are preserved.
+## Optional login reCAPTCHA
+
+A later 1.5.2 maintenance update adds optional Google reCAPTCHA v2 protection to the interactive login form. The visible checkbox is disabled by default. `RECAPTCHA_SITE_KEY` and `RECAPTCHA_SECRET_KEY` are deployment environment variables, while the Platform Administrator's enabled/disabled selection is persisted in `application_settings`.
+
+When enabled, reCAPTCHA is verified server-side before password authentication and verification outages fail closed. When disabled, no Google reCAPTCHA browser resource or server verification request is used, preserving normal offline operation.
+
 ## Archived repository records
 
 Community 1.5.2 maintenance updates preserve soft-archived objects as searchable historical records. Explore hides archived records by default but supports **Archived** and **All records** scopes. Existing relationships remain stored. The browser Relationships tab hides historical entries by default; **Show archived** reveals relationships to archived objects and archived relationship records using the normal light/dark theme background plus an **Archived** badge. Authorized users can restore an archived object without recreating its preserved relationships.

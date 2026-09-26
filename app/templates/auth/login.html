@@ -27,7 +27,13 @@
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}"><input type="hidden" name="next" value="{{ next }}">
             <div><label class="form-label" for="username">Username</label><div class="input-icon"><span class="input-icon-addon"><i data-lucide="user" class="icon"></i></span><input class="form-control" id="username" name="username" value="{{ username|default('') }}" autocomplete="username" required autofocus></div></div>
             <div><label class="form-label" for="password">Password</label><div class="input-icon"><span class="input-icon-addon"><i data-lucide="lock-keyhole" class="icon"></i></span><input class="form-control" id="password" type="password" name="password" autocomplete="current-password" required></div></div>
-            <button class="btn btn-primary btn-lg mt-2" type="submit"><i data-lucide="log-in" class="icon me-1"></i>Sign in</button>
+            {% if recaptcha_enabled and recaptcha_configured %}
+              <div>
+                <div id="openea-recaptcha" data-sitekey="{{ recaptcha_site_key }}"></div>
+                <div id="openea-recaptcha-error" class="small text-danger mt-2 d-none" role="alert">The security challenge could not load. Check your network connection and try again.</div>
+              </div>
+            {% endif %}
+            <button class="btn btn-primary btn-lg mt-2" type="submit" {% if login_blocked|default(false) %}disabled{% endif %}><i data-lucide="log-in" class="icon me-1"></i>Sign in</button>
           </form>
           <div class="text-center text-secondary small mt-4"><a href="/" class="text-secondary">Return to public home</a></div>
         </div>
@@ -35,4 +41,10 @@
     </div>
   </div>
 </div>
+{% endblock %}
+{% block extra_scripts %}
+  {% if recaptcha_enabled and recaptcha_configured %}
+    <script src="{{ url_for('static', path='/js/recaptcha-login.js') }}"></script>
+    <script src="https://www.google.com/recaptcha/api.js?onload=openeaRecaptchaOnload&amp;render=explicit" async defer></script>
+  {% endif %}
 {% endblock %}

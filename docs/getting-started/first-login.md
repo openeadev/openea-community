@@ -46,7 +46,13 @@ A simple initial assignment model is:
 
 See [Users and Permissions](../administration/users-permissions.md) for the full permission model.
 
-## 5. Verify the worker
+## 5. Optional: configure login reCAPTCHA
+
+For an Internet-connected public demo, a Platform Administrator can enable Google reCAPTCHA v2 on the login form. First configure `RECAPTCHA_SITE_KEY` and `RECAPTCHA_SECRET_KEY` in the deployment environment. Then open **Management → Settings** and enable **reCAPTCHA on login**.
+
+Leave this setting disabled for normal offline or air-gapped installations. The initial `/setup` flow does not require reCAPTCHA; the control applies to later `/login` requests.
+
+## 6. Verify the worker
 
 Analytics and findings are persisted and recalculated asynchronously. In Docker Compose, confirm the worker is healthy and running:
 
@@ -65,7 +71,7 @@ docker compose exec web python -m app.cli recalculate-metrics-now
 docker compose exec web python -m app.cli evaluate-findings-now
 ```
 
-## 6. Decide whether to load sample data
+## 7. Decide whether to load sample data
 
 For evaluation or training, load Northstar Financial:
 
@@ -77,7 +83,7 @@ docker compose exec web python -m app.cli evaluate-findings-now
 
 For a production repository, skip the demo and begin with your own architecture records or CSV imports.
 
-## 7. Start with a small architecture slice
+## 8. Start with a small architecture slice
 
 Do not try to model the entire enterprise on day one. A useful first slice is:
 

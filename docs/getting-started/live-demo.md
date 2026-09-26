@@ -14,6 +14,8 @@ Public credentials are listed at:
 
 **[https://openea.dev/try/](https://openea.dev/try/)**
 
+The public login may also display a Google reCAPTCHA **I'm not a robot** checkbox. Complete it before submitting the demo username and password. This protection is specific to the Internet-hosted demo and is optional/disabled by default for self-hosted OpenEA installations.
+
 !!! note "Cold start"
     The demo runs on free hosted infrastructure. If it has been inactive, the first request can take a short time while the service starts.
 

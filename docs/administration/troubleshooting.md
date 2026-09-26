@@ -23,7 +23,7 @@ docker compose exec web alembic current
 For the current OpenEA Community 1.5.2 maintenance baseline, the expected head is:
 
 ```text
-0016_phase15 (head)
+0017_phase15 (head)
 ```
 
 ## Use the Request ID when a request fails
@@ -77,6 +77,31 @@ Then refresh the browser. Rebuild the image afterward so the corrected permissio
 For a permanently isolated machine, do not rebuild there. Build the OpenEA image on a connected preparation host and transfer it with `docker save` / `docker load` as described in [Offline and Air-Gapped Installation](../getting-started/offline-installation.md).
 
 You can also inspect the returned page source or browser Network panel. OpenEA application pages should load framework assets from `/static/vendor/...`, not from `cdn.jsdelivr.net`, Google Fonts, or another public host.
+
+## reCAPTCHA does not appear on the login page
+
+As a Platform Administrator, open **Management → Settings** and confirm:
+
+- **Site key configured: Yes**
+- **Secret key configured: Yes**
+- reCAPTCHA is **Enabled**
+
+If the setting is disabled, `/login` intentionally contains no Google script or widget and continues to work offline.
+
+If both keys are configured and the setting is enabled, inspect the browser Network panel for requests to Google's reCAPTCHA endpoints and confirm the deployment hostname is registered for the Google reCAPTCHA key.
+
+## Login reports that the security challenge cannot be verified
+
+When reCAPTCHA is enabled, OpenEA fails login closed if Google cannot verify the challenge. Check:
+
+1. outbound HTTPS/DNS connectivity from the OpenEA web container
+2. browser access to Google's reCAPTCHA JavaScript/frame endpoints
+3. the Render or reverse-proxy hostname configured in Google reCAPTCHA
+4. the server logs for `recaptcha_verification_unavailable` or `recaptcha_verification_failed`
+
+Do not log or paste the secret key while troubleshooting. The backend intentionally does not expose Google's detailed verification response to the end user.
+
+If this is an offline installation, reCAPTCHA should be disabled. If an already-authenticated Platform Administrator session is available, disable it under **Management → Settings**. Otherwise restore the configured deployment keys/connectivity first, sign in, and then disable the feature before returning the host to offline operation.
 
 ## Metrics or findings appear stale
 
