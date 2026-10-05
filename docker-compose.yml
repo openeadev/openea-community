@@ -13,7 +13,6 @@ services:
       timeout: 5s
       retries: 10
     restart: unless-stopped
-
   web:
     image: ${OPENEA_IMAGE:-openea-community:1.5.2}
     build: .
@@ -40,7 +39,6 @@ services:
       timeout: 5s
       retries: 5
     restart: unless-stopped
-
   worker:
     image: ${OPENEA_IMAGE:-openea-community:1.5.2}
     command: ["python", "-m", "app.workers.metrics_worker"]
@@ -55,7 +53,5 @@ services:
       web:
         condition: service_healthy
     restart: unless-stopped
-
 volumes:
-
   postgres_data:

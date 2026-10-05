@@ -11,6 +11,12 @@ os.environ["DATABASE_URL"] = f"sqlite+pysqlite:///{TEST_DB}"
 os.environ["SECRET_KEY"] = "phase2-test-secret-key-that-is-long-enough"
 os.environ["BASE_URL"] = "http://testserver"
 
+# Tests must not inherit deployment reCAPTCHA credentials from a developer's
+# local .env file. Tests that need configured keys set controlled values
+# explicitly with monkeypatch.
+os.environ["RECAPTCHA_SITE_KEY"] = ""
+os.environ["RECAPTCHA_SECRET_KEY"] = ""
+
 from app.auth.permissions import ALL_APPLICATION_ROLES  # noqa: E402
 from app.db.base import Base  # noqa: E402
 from app.db.session import get_engine, get_session_factory  # noqa: E402

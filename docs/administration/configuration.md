@@ -53,6 +53,27 @@ The Compose stack additionally uses:
 - `OPENEA_PORT`
 - `OPENEA_IMAGE`
 
+`docker-compose.yml` explicitly passes `RECAPTCHA_SITE_KEY` and `RECAPTCHA_SECRET_KEY` from the Compose environment into the `web` container. The worker does not need the reCAPTCHA keys because browser-login verification is handled by the web application.
+
+After changing either key in `.env`, recreate the web container so Compose applies the new environment values:
+
+```bash
+docker compose up -d --force-recreate web
+```
+
+You can verify that both variables reached the running container without displaying their values:
+
+```bash
+docker compose exec web python -c "import os; print('Site key configured:', bool(os.getenv('RECAPTCHA_SITE_KEY'))); print('Secret key configured:', bool(os.getenv('RECAPTCHA_SECRET_KEY')))"
+```
+
+Expected output when both are configured:
+
+```text
+Site key configured: True
+Secret key configured: True
+```
+
 ## Background-processing schedules
 
 Analytics & Metrics and Findings Evaluation intervals are **not** environment variables. They are platform settings stored in PostgreSQL and maintained by a Platform Administrator under **Management → Background Processing**.
@@ -69,6 +90,8 @@ The key material is deployment configuration:
 RECAPTCHA_SITE_KEY=<site-key>
 RECAPTCHA_SECRET_KEY=<secret-key>
 ```
+
+Use separate Google reCAPTCHA keys for development and production. For local development, create a **Challenge (v2) / checkbox** key whose allowed domain is `localhost`. For the hosted demo or another production deployment, use a different checkbox key restricted to that deployment hostname. Do not add `http://`, `https://`, a port, or a path to the allowed-domain entry.
 
 The site key is sent to the browser when the feature is enabled. The secret key is used only by the OpenEA backend for verification and is never stored in PostgreSQL or displayed in the administration UI.
 

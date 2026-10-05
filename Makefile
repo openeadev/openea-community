@@ -3,7 +3,7 @@ DOCS_PORT ?= 8001
 DOCS_PID_FILE ?= .mkdocs.pid
 DOCS_LOG_FILE ?= .mkdocs.log
 
-.PHONY: run test lint migrate build docs docs-stop docs-status docs-build
+.PHONY: run test lint migrate migrate-local migration-current build docs docs-stop docs-status docs-build
 
 run:
 	python -m pip install -e '.[dev]'
@@ -18,7 +18,13 @@ lint:
 	ruff check .
 
 migrate:
+	docker compose exec web alembic upgrade head
+
+migrate-local:
 	alembic upgrade head
+
+migration-current:
+	docker compose exec web alembic current
 
 build:
 	docker compose down
