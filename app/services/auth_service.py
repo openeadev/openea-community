@@ -60,7 +60,6 @@ class AuthenticationService:
         user = self.users.get_by_username(username)
         if user is None or not user.is_active or user.is_service_account:
             raise AuthenticationError("Invalid username or password")
-
         now = datetime.now(timezone.utc)
         locked_until = user.locked_until
         if locked_until is not None:
@@ -68,7 +67,6 @@ class AuthenticationService:
                 locked_until = locked_until.replace(tzinfo=timezone.utc)
             if locked_until > now:
                 raise AuthenticationError("Login temporarily locked after repeated failures")
-
         if not verify_password(user.password_hash, password):
             user.failed_login_count += 1
             if user.failed_login_count >= MAX_FAILED_LOGINS:
@@ -76,12 +74,49 @@ class AuthenticationService:
                 user.failed_login_count = 0
             self.db.commit()
             raise AuthenticationError("Invalid username or password")
-
         if needs_rehash(user.password_hash):
             user.password_hash = hash_password(password)
         user.failed_login_count = 0
         user.locked_until = None
         user.last_login_at = now
+        self.db.commit()
+        return user
+
+    def reset_password(
+        self,
+        user: User,
+        new_password: str,
+        *,
+        actor: User | None = None,
+        source: str = "Administration",
+    ) -> User:
+        if user.is_service_account:
+            raise ValueError("Service accounts do not use local passwords")
+        self._validate_password(new_password)
+        before = {
+            "username": user.username,
+            "is_active": user.is_active,
+            "failed_login_count": user.failed_login_count,
+            "locked_until": user.locked_until.isoformat() if user.locked_until else None,
+        }
+        user.password_hash = hash_password(new_password)
+        user.failed_login_count = 0
+        user.locked_until = None
+        self.audit.record(
+            action="PasswordReset",
+            entity_type="user",
+            entity_id=user.id,
+            actor=actor,
+            before=before,
+            after={
+                "username": user.username,
+                "is_active": user.is_active,
+                "password_changed": True,
+                "failed_login_count": 0,
+                "locked_until": None,
+            },
+            source=source,
+        )
         self.db.commit()
         return user
 

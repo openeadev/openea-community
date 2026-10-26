@@ -24,6 +24,20 @@ python -m app.cli create-admin \
 
 The command securely prompts for a password and confirmation.
 
+## reset-admin-password
+
+Reset the password for an existing local Platform Administrator:
+
+```bash
+python -m app.cli reset-admin-password --username admin
+```
+
+The command verifies that the user has the **Platform Administrator** role before prompting for the new password and confirmation. A successful reset also clears temporary login lockout state and records an audited `PasswordReset` event with source `Administration CLI`.
+
+The password is never accepted as a command-line argument. This prevents it from being exposed in shell history or process listings.
+
+The command does not reactivate an intentionally disabled administrator. See [Administrator Account Recovery](../administration/account-recovery.md).
+
 ## seed-system
 
 Seed the standard metamodel and reference data idempotently:

@@ -4,7 +4,7 @@ from fastapi.testclient import TestClient
 def test_health(client: TestClient) -> None:
     response = client.get("/health")
     assert response.status_code == 200
-    assert response.json() == {"status": "ok", "version": "1.5.2"}
+    assert response.json() == {"status": "ok", "version": "1.5.3"}
     assert response.headers["x-content-type-options"] == "nosniff"
     assert response.headers["x-frame-options"] == "DENY"
     assert response.headers.get("x-request-id")

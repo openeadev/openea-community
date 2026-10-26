@@ -79,7 +79,7 @@ def _download(asset: Asset, output: Path) -> None:
 
     request = urllib.request.Request(
         asset.url,
-        headers={"User-Agent": "OpenEA-Community-frontend-vendor/1.5.2"},
+        headers={"User-Agent": "OpenEA-Community-frontend-vendor/1.5.3"},
     )
     with urllib.request.urlopen(request, timeout=90) as response:  # noqa: S310
         if response.status != 200:

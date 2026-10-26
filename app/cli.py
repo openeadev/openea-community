@@ -3,8 +3,10 @@ import getpass
 
 from sqlalchemy import select
 
+from app.auth.permissions import PLATFORM_ADMIN
 from app.db.session import get_session_factory
 from app.models.user import User
+from app.repositories.user_repository import UserRepository
 from app.services.analytics_service import AnalyticsService
 from app.services.auth_service import AuthenticationService
 from app.services.demo_service import DemoDataService
@@ -29,12 +31,55 @@ def create_admin(username: str, display_name: str) -> int:
     return 0
 
 
+def reset_admin_password(username: str) -> int:
+    with get_session_factory()() as db:
+        user = UserRepository(db).get_by_username(username)
+        if user is None:
+            print("Unable to reset password: user not found.")
+            return 1
+        if user.is_service_account:
+            print("Unable to reset password: service accounts do not use local passwords.")
+            return 1
+        if PLATFORM_ADMIN not in {role.name for role in user.roles}:
+            print("Unable to reset password: user is not a Platform Administrator.")
+            return 1
+
+        password = getpass.getpass("New password (minimum 12 characters): ")
+        password_confirm = getpass.getpass("Confirm new password: ")
+        if password != password_confirm:
+            print("Passwords do not match.")
+            return 1
+
+        try:
+            AuthenticationService(db).reset_password(
+                user,
+                password,
+                source="Administration CLI",
+            )
+        except ValueError as exc:
+            print(f"Unable to reset password: {exc}")
+            return 1
+
+        print(f"Reset password for Platform Administrator: {user.username}")
+        if not user.is_active:
+            print(
+                "Warning: this account is inactive. The password was changed, "
+                "but the account must be reactivated before it can sign in."
+            )
+    return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="OpenEA Community administration CLI")
     subparsers = parser.add_subparsers(dest="command", required=True)
     admin = subparsers.add_parser("create-admin", help="Create the initial Platform Administrator")
     admin.add_argument("--username", required=True)
     admin.add_argument("--display-name", required=True)
+    reset_admin = subparsers.add_parser(
+        "reset-admin-password",
+        help="Reset a local Platform Administrator password and clear login lockout state",
+    )
+    reset_admin.add_argument("--username", required=True)
     subparsers.add_parser("seed-system", help="Seed the standard OpenEA Community metamodel and reference data")
     subparsers.add_parser("recalculate-metrics", help="Queue analytics and risk metric recalculation")
     subparsers.add_parser("recalculate-metrics-now", help="Recalculate analytics synchronously for administration/testing")
@@ -45,6 +90,8 @@ def main() -> int:
     args = parser.parse_args()
     if args.command == "create-admin":
         return create_admin(args.username, args.display_name)
+    if args.command == "reset-admin-password":
+        return reset_admin_password(args.username)
     if args.command == "recalculate-metrics":
         with get_session_factory()() as db:
             job = JobService(db).enqueue_metrics_recalculation()

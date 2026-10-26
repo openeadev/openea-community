@@ -5,7 +5,6 @@ repo_name: openeadev/openea-community
 repo_url: https://github.com/openeadev/openea-community
 edit_uri: edit/main/docs/
 copyright: OpenEA Community is licensed under the GNU Affero General Public License v3.0.
-
 theme:
   name: material
   language: en
@@ -35,7 +34,6 @@ theme:
       toggle:
         icon: material/weather-sunny
         name: Switch to light mode
-
 markdown_extensions:
   - admonition
   - attr_list
@@ -50,7 +48,6 @@ markdown_extensions:
 
 plugins:
   - search
-
 nav:
   - Home: index.md
   - Getting Started:
@@ -87,7 +84,7 @@ nav:
           - 8. Governance and Reviews: tutorials/acme-bank/07-governance.md
           - 9. Findings and Analytics: tutorials/acme-bank/08-findings-and-analytics.md
           - 10. Impact Analysis: tutorials/acme-bank/09-impact-analysis.md
-          - 11. Portfolios and Roadmaps: tutorials/acme-bank/10-portfolios-and-roadmaps.md
+          - 11. Portfolios and Roadmaps: tutorials/acme-bank/10-portfolios-roadmaps.md
           - 12. CSV Imports: tutorials/acme-bank/11-csv-imports.md
           - 13. Edit, Remediate, and Archive: tutorials/acme-bank/12-lifecycle-and-cleanup.md
       - Standalone Tutorials:
@@ -98,6 +95,7 @@ nav:
           - Create a Custom Finding Rule: tutorials/custom-finding-rule.md
   - Administration:
       - Users and Permissions: administration/users-permissions.md
+      - Administrator Account Recovery: administration/account-recovery.md
       - Configuration: administration/configuration.md
       - API Tokens and Service Accounts: administration/api-tokens-service-accounts.md
       - Worker and Background Calculations: administration/worker-jobs.md

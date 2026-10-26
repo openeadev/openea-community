@@ -5,7 +5,7 @@ def test_landing_page(client: TestClient) -> None:
     response = client.get("/")
     assert response.status_code == 200
     assert "OpenEA Community" in response.text
-    assert "OpenEA Community · 1.5.2" in response.text
+    assert "OpenEA Community · 1.5.3" in response.text
     assert "/static/css/app.css" in response.text
 
 

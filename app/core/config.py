@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     )
 
     app_name: str = "OpenEA Community"
-    app_version: str = "1.5.2"
+    app_version: str = "1.5.3"
     page_title: str = "OpenEA Community"
     environment: str = "development"
     debug: bool = False

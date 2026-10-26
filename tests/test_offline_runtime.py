@@ -78,8 +78,8 @@ def test_docker_build_vendors_frontend_assets_and_compose_reuses_image() -> None
 
     assert "RUN python scripts/vendor_frontend_assets.py" in dockerfile
     assert "chmod -R a+rX app/static/vendor" in dockerfile
-    assert "image: ${OPENEA_IMAGE:-openea-community:1.5.2}" in compose
-    assert compose.count("image: ${OPENEA_IMAGE:-openea-community:1.5.2}") == 2
+    assert "image: ${OPENEA_IMAGE:-openea-community:1.5.3}" in compose
+    assert compose.count("image: ${OPENEA_IMAGE:-openea-community:1.5.3}") == 2
     assert compose.count("build: .") == 1
 
 
